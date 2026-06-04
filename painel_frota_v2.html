@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>GESTÃO DE FROTA — SANTA VERGÍNIA</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+:root{--bg:#0a1409;--bg2:#111c10;--bg3:#172015;--border:#1e2e1c;--green:#4a9e3f;--gl:#6fcf60;--yellow:#d4a017;--red:#c0392b;--blue:#2980b9;--text:#e8edd0;--text2:#8aab80;--text3:#4a6644;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
+.header{background:var(--bg2);border-bottom:2px solid var(--green);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
+.logo{width:48px;height:48px;background:#1a2e18;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:var(--gl);}
+.htitle{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;}
+.hsub{font-size:11px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
+.badge{font-size:11px;padding:3px 12px;border-radius:20px;font-weight:600;}
+.b-green{background:#1a3318;color:var(--gl);border:1px solid #2a5028;}
+.b-date{background:#1a2030;color:#7ab0d4;border:1px solid #285080;font-family:'Barlow Condensed',sans-serif;font-size:12px;}
+.nav{background:var(--bg3);border-bottom:1px solid var(--border);padding:0 28px;display:flex;gap:0;overflow-x:auto;}
+.nb{padding:11px 18px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text3);border:none;background:transparent;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap;}
+.nb.active{color:var(--gl);border-bottom-color:var(--green);}
+.nb:hover{color:var(--text);}
+.page{display:none;padding:20px 28px;}
+.page.active{display:block;}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi.g::before{background:var(--green);}
+.kpi.y::before{background:var(--yellow);}
+.kpi.r::before{background:var(--red);}
+.kpi.b::before{background:var(--blue);}
+.kl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.kv{font-family:'Barlow Condensed',sans-serif;font-size:30px;font-weight:700;line-height:1;}
+.ku{font-size:11px;color:var(--text2);margin-top:3px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;}
+.ct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.ct span{width:4px;height:14px;background:var(--green);border-radius:2px;display:inline-block;}
+.bar-chart{display:flex;flex-direction:column;gap:8px;}
+.bi{display:grid;grid-template-columns:80px 1fr 60px;align-items:center;gap:8px;}
+.bl{font-size:11px;color:var(--text2);text-align:right;font-family:'Barlow Condensed',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bt{background:#0f1a0e;border-radius:4px;height:18px;overflow:hidden;}
+.bf{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:10px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;}
+.bv{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:600;color:var(--text);}
+table{width:100%;border-collapse:collapse;}
+th{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--text3);padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);}
+td{padding:8px 10px;border-bottom:1px solid #111c10;font-size:12px;color:var(--text);}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#131f12;}
+.st{display:inline-block;padding:2px 9px;border-radius:12px;font-size:10px;font-weight:700;letter-spacing:0.5px;}
+.st-ok{background:#1a3318;color:var(--gl);}
+.st-prox{background:#2a2200;color:var(--yellow);}
+.st-atr{background:#2a1010;color:#e74c3c;}
+.st-crit{background:#2a1010;color:#e74c3c;}
+.st-aten{background:#2a2200;color:var(--yellow);}
+.st-norm{background:#1a3318;color:var(--gl);}
+.st-legado{background:#1a2030;color:#7ab0d4;}
+.loading{text-align:center;padding:40px;color:var(--text2);font-family:'Barlow Condensed',sans-serif;letter-spacing:2px;font-size:13px;}
+.err{color:var(--red);font-size:12px;padding:10px;}
+.frota-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;}
+.fc{background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:12px;}
+.fn{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:700;}
+.fo{font-size:10px;color:var(--text2);margin-top:2px;}
+.fbar{margin-top:8px;background:#0f1a0e;border-radius:3px;height:4px;}
+.fbf{height:100%;border-radius:3px;}
+.footer{text-align:center;padding:14px;font-size:11px;color:var(--text3);border-top:1px solid var(--border);margin-top:8px;}
+
+/* ── ABASTECIMENTO COMBOIO ── */
+.combrow{display:grid;grid-template-columns:200px 1fr;gap:16px;margin-bottom:20px;align-items:stretch;}
+.tank-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:20px 16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;}
+.tank-label-top{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
+.tank-outer{width:80px;height:150px;background:#0d180c;border:2px solid var(--border);border-radius:10px;position:relative;overflow:hidden;}
+.tank-liquid{position:absolute;bottom:0;left:0;right:0;border-radius:0 0 8px 8px;transition:height 1s cubic-bezier(.4,0,.2,1);}
+.tank-pct-txt{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.9);pointer-events:none;}
+.tank-vol-txt{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:700;}
+.tank-status{font-size:10px;font-weight:700;padding:3px 12px;border-radius:12px;text-transform:uppercase;letter-spacing:.5px;}
+.kpi3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.kpi-cb{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;position:relative;overflow:hidden;}
+.kpi-cb::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.kpi-cb.g::before{background:var(--green);}
+.kpi-cb.y::before{background:var(--yellow);}
+.kpi-cb.r::before{background:var(--red);}
+.kpi-cb.b::before{background:var(--blue);}
+.kpi-cb .kl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.kpi-cb .kv{font-family:'Barlow Condensed',sans-serif;font-size:34px;font-weight:700;line-height:1;}
+.kpi-cb .kd{font-size:11px;color:var(--text3);margin-top:4px;}
+.kpi-cb .ku{font-size:11px;color:var(--text2);margin-top:3px;}
+.saldo-row{display:flex;justify-content:space-between;align-items:center;padding:9px 4px;border-bottom:1px solid var(--border);}
+.saldo-row:last-child{border-bottom:none;font-weight:700;padding-top:12px;}
+.saldo-row .sr-label{font-size:12px;}
+.saldo-row .sr-val{font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;}
+.filter-bar{display:flex;gap:6px;}
+.fb{padding:5px 14px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:6px;cursor:pointer;text-transform:uppercase;transition:all .15s;}
+.fb.active{background:var(--green);color:#fff;border-color:var(--green);}
+.fb:hover{color:var(--text);}
+
+/* ── ABA RELATÓRIO ── */
+.rel-selector{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+.rel-btn{padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:8px;cursor:pointer;transition:all .15s;}
+.rel-btn:hover{color:var(--text);border-color:var(--green);}
+.rel-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+.rel-preview{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;min-height:200px;}
+.rel-header-print{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;margin-bottom:20px;border-bottom:2px solid var(--green);}
+.rel-title-print{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
+.rel-meta{font-size:11px;color:var(--text2);margin-top:3px;}
+.rel-stamp{font-size:11px;color:var(--text3);text-align:right;}
+.btn-print{padding:10px 28px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--green);color:#fff;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
+.btn-print:hover{background:#3a8e2f;}
+.btn-print:disabled{background:#1a3318;color:var(--text3);cursor:not-allowed;}
+
+/* ── IMPRESSÃO ── */
+@media print{
+  body{background:#fff!important;color:#000!important;font-size:11pt;}
+  .header,.nav,.footer,.rel-selector,.btn-print,.rel-selector-row{display:none!important;}
+  .page{display:none!important;padding:0!important;}
+  #page-relatorio{display:block!important;padding:0!important;}
+  .rel-preview{background:#fff!important;border:none!important;padding:0!important;}
+  .rel-header-print{border-bottom:2px solid #2a6e24!important;}
+  .rel-title-print{color:#000!important;font-size:16pt!important;}
+  .rel-meta,.rel-stamp{color:#555!important;}
+  table{width:100%!important;border-collapse:collapse!important;font-size:9pt!important;}
+  th{background:#2a4a28!important;color:#fff!important;padding:5pt 7pt!important;font-size:8pt!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  td{padding:5pt 7pt!important;border-bottom:1px solid #ccc!important;color:#000!important;}
+  tr:hover td{background:none!important;}
+  .st{border:1px solid #aaa!important;color:#000!important;background:#eee!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .kpi-print-row{display:grid!important;grid-template-columns:repeat(4,1fr)!important;gap:8pt!important;margin-bottom:14pt!important;}
+  .kpi-print-box{border:1pt solid #ccc!important;border-radius:4pt!important;padding:8pt!important;}
+  .kpi-print-label{font-size:7pt!important;color:#666!important;text-transform:uppercase!important;letter-spacing:1pt!important;}
+  .kpi-print-val{font-size:18pt!important;font-weight:700!important;color:#000!important;}
+  .kpi-print-sub{font-size:7pt!important;color:#888!important;}
+  .section-title{font-size:11pt!important;font-weight:700!important;text-transform:uppercase!important;letter-spacing:1pt!important;color:#2a6e24!important;margin:12pt 0 6pt!important;padding-bottom:3pt!important;border-bottom:1pt solid #ccc!important;}
+  @page{size:A4;margin:14mm 12mm;}
+}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="logo">SV</div>
+    <div>
+      <div class="htitle">Gestão de Frota — Santa Vergínia</div>
+      <div class="hsub">Controladoria · Painel Operacional · <span id="mes-ref"></span></div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <span class="badge b-green" id="sync-status">● Carregando...</span>
+    <span class="badge b-date" id="dt"></span>
+  </div>
+</div>
+
+<nav class="nav">
+  <button class="nb active" onclick="showPage('consumo',this)">Consumo</button>
+  <button class="nb" onclick="showPage('os',this)">Ordens de Serviço</button>
+  <button class="nb" onclick="showPage('disponibilidade',this)">Disponibilidade</button>
+  <button class="nb" onclick="showPage('lubrificacao',this)">Lubrificação</button>
+  <button class="nb" onclick="showPage('custo',this)">Custo Frota</button>
+  <button class="nb" onclick="showPage('combustivel',this)">Custo Combustível</button>
+  <button class="nb" onclick="showPage('abastecimento',this)" style="color:var(--yellow)">⛽ Comboio</button>
+  <button class="nb" onclick="showPage('relatorio',this)" style="color:#7ab0d4">🖨 Relatório</button>
+</nav>
+
+<!-- CONSUMO -->
+<div id="page-consumo" class="page active">
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Total abastecido</div><div class="kv" id="kpi-total-l">—</div><div class="ku">litros no período</div></div>
+    <div class="kpi b"><div class="kl">Abastecimentos</div><div class="kv" id="kpi-total-ev">—</div><div class="ku">eventos registrados</div></div>
+    <div class="kpi y"><div class="kl">Média por evento</div><div class="kv" id="kpi-media-l">—</div><div class="ku">litros / abastecimento</div></div>
+    <div class="kpi g"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-frotas">—</div><div class="ku">equipamentos</div></div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="ct"><span></span>Volume por Frota (litros)</div><div id="consumo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Intervalo médio entre abastecimentos</div><div id="intervalo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+  <div class="card"><div class="ct"><span></span>Detalhe por Frota</div><div id="consumo-table"><div class="loading">CARREGANDO...</div></div></div>
+</div>
+
+<!-- OS -->
+<div id="page-os" class="page">
+  <div class="kpi-row">
+    <div class="kpi b"><div class="kl">Total OS</div><div class="kv" id="kpi-total-os">—</div><div class="ku">no período</div></div>
+    <div class="kpi r"><div class="kl">OS Corretivas</div><div class="kv" id="kpi-os-corr">—</div><div class="ku">ocorrências</div></div>
+    <div class="kpi g"><div class="kl">OS Preventivas</div><div class="kv" id="kpi-os-prev">—</div><div class="ku">ocorrências</div></div>
+    <div class="kpi y"><div class="kl">Total horas parada</div><div class="kv" id="kpi-hp-total">—</div><div class="ku">horas</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ct"><span></span>Ranking OS — Volume + Parada</div><div id="os-table"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Parada por Frota (horas)</div><div id="os-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+</div>
+
+<!-- DISPONIBILIDADE -->
+<div id="page-disponibilidade" class="page">
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Disponib. média geral</div><div class="kv" id="kpi-disp-med">—</div><div class="ku">% frota total</div></div>
+    <div class="kpi b"><div class="kl">Horas trabalhadas</div><div class="kv" id="kpi-ht">—</div><div class="ku">acumulado período</div></div>
+    <div class="kpi y"><div class="kl">Horas paradas</div><div class="kv" id="kpi-hp">—</div><div class="ku">por manutenção</div></div>
+    <div class="kpi r"><div class="kl">Equip. críticos</div><div class="kv" id="kpi-criticos">—</div><div class="ku">disponib. abaixo 70%</div></div>
+  </div>
+  <div class="frota-grid" id="frota-grid"><div class="loading" style="grid-column:span 5">CARREGANDO...</div></div>
+  <div style="margin-top:16px;" class="card"><div class="ct"><span></span>Horas Trabalhadas x Paradas</div><div id="disp-table"><div class="loading">CARREGANDO...</div></div></div>
+</div>
+
+<!-- LUBRIFICAÇÃO -->
+<div id="page-lubrificacao" class="page">
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Status OK</div><div class="kv" id="kpi-ok">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi y"><div class="kl">Próximo ≤ 100h</div><div class="kv" id="kpi-prox">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi r"><div class="kl">Em Atraso</div><div class="kv" id="kpi-atr">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi b"><div class="kl">Total monitorados</div><div class="kv" id="kpi-total-lub">—</div><div class="ku">equipamentos</div></div>
+  </div>
+  <div class="card"><div class="ct"><span></span>Painel Próxima Troca de Óleo — ordenado por urgência</div><div id="lub-table"><div class="loading">CARREGANDO...</div></div></div>
+</div>
+
+<!-- CUSTO -->
+<div id="page-custo" class="page">
+  <div class="kpi-row">
+    <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ período</div></div>
+    <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ período</div></div>
+    <div class="kpi b"><div class="kl">Custo combustível</div><div class="kv" id="kpi-custo-comb">—</div><div class="ku">R$ período</div></div>
+    <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ período</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ct"><span></span>Custo por Frota</div><div id="custo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Detalhe de Custo</div><div id="custo-table"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+</div>
+
+<!-- COMBUSTIVEL -->
+<div id="page-combustivel" class="page">
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Total litros abastecidos</div><div class="kv" id="kpi-comb-litros">—</div><div class="ku">todas as frotas</div></div>
+    <div class="kpi y"><div class="kl">Custo total combustível</div><div class="kv" id="kpi-comb-custo">—</div><div class="ku">R$ período</div></div>
+    <div class="kpi b"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-comb-frotas">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi r"><div class="kl">Custo médio por frota</div><div class="kv" id="kpi-comb-media">—</div><div class="ku">R$ médio</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><div class="ct"><span></span>Custo por Frota (R$)</div><div id="comb-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Volume por Frota (L)</div><div id="comb-vol-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+  <div class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="ct" style="margin-bottom:0"><span></span>Detalhamento: Frota × Litros × Preço × Custo</div>
+      <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+        <button id="toggle-todos" onclick="filtrarFrota('todos')" style="padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border:none;cursor:pointer;background:var(--green);color:#fff;">TODOS</button>
+        <button id="toggle-interna" onclick="filtrarFrota('interna')" style="padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border:none;cursor:pointer;background:var(--bg3);color:var(--text2);">FROTA INTERNA</button>
+      </div>
+    </div>
+    <div id="comb-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
+</div>
+
+<!-- ⛽ ABASTECIMENTO COMBOIO -->
+<div id="page-abastecimento" class="page">
+
+  <!-- Linha 1: Tanque + 3 KPIs -->
+  <div class="combrow">
+    <!-- Tanque visual -->
+    <div class="tank-card">
+      <div class="tank-label-top">Tanque Comboio · 5.000 L</div>
+      <div class="tank-outer">
+        <div class="tank-liquid" id="cb-tank-fill" style="height:0%"></div>
+        <div class="tank-pct-txt" id="cb-tank-pct">—</div>
+      </div>
+      <div class="tank-vol-txt" id="cb-tank-vol" style="color:var(--gl)">—</div>
+      <div style="font-size:11px;color:var(--text2)">saldo atual estimado</div>
+      <div class="tank-status" id="cb-tank-badge" style="background:#1a2030;color:#7ab0d4">CALCULANDO</div>
+    </div>
+
+    <!-- KPIs à direita -->
+    <div>
+      <div class="kpi3" style="margin-bottom:14px;">
+        <div class="kpi-cb g">
+          <div class="kl">Recebido do Posto</div>
+          <div class="kv" id="cb-kpi-recebido">—</div>
+          <div class="ku">litros transferidos (total)</div>
+        </div>
+        <div class="kpi-cb r">
+          <div class="kl">Distribuído às Máquinas</div>
+          <div class="kv" id="cb-kpi-distribuido">—</div>
+          <div class="ku">litros abastecidos (total)</div>
+        </div>
+        <div class="kpi-cb y">
+          <div class="kl">Saldo no Comboio</div>
+          <div class="kv" id="cb-kpi-saldo">—</div>
+          <div class="ku">litros disponíveis</div>
+        </div>
+      </div>
+      <div class="kpi3">
+        <div class="kpi-cb b">
+          <div class="kl">Abastecimentos hoje</div>
+          <div class="kv" id="cb-kpi-hoje-ev">—</div>
+          <div class="ku">eventos registrados</div>
+        </div>
+        <div class="kpi-cb b">
+          <div class="kl">Litros hoje</div>
+          <div class="kv" id="cb-kpi-hoje-l">—</div>
+          <div class="ku">distribuídos hoje</div>
+        </div>
+        <div class="kpi-cb g">
+          <div class="kl">Frotas abastecidas</div>
+          <div class="kv" id="cb-kpi-frotas">—</div>
+          <div class="ku">equipamentos (total)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Linha 2: Saldo detalhado + Transferências do posto -->
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><span></span>Balanço do Comboio</div>
+      <div id="cb-saldo-detail">
+        <div class="loading">CARREGANDO...</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct"><span></span>Transferências Recebidas do Posto</div>
+      <div id="cb-transferencias-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+  </div>
+
+  <!-- Linha 3: Tabela detalhada com filtros -->
+  <div class="card" style="margin-top:0">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="ct" style="margin-bottom:0"><span></span>Abastecimentos nas Máquinas — Detalhe</div>
+      <div class="filter-bar">
+        <button class="fb active" id="fb-todos" onclick="filtrarAbast('todos')">Todos</button>
+        <button class="fb" id="fb-hoje" onclick="filtrarAbast('hoje')">Hoje</button>
+        <button class="fb" id="fb-semana" onclick="filtrarAbast('semana')">Esta semana</button>
+        <button class="fb" id="fb-mes" onclick="filtrarAbast('mes')">Este mês</button>
+      </div>
+    </div>
+    <div id="cb-abast-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
+
+  <!-- Linha 4: Gráficos -->
+  <div class="grid2" style="margin-top:16px;">
+    <div class="card"><div class="ct"><span></span>Volume por Frota (L)</div><div id="cb-chart-frota" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Volume por Frente de Trabalho (L)</div><div id="cb-chart-frente" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+
+</div>
+
+
+<!-- 🖨 RELATÓRIO / IMPRIMIR -->
+<div id="page-relatorio" class="page">
+
+  <div class="rel-selector-row" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+    <div>
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;">Selecione o relatório</div>
+      <div class="rel-selector">
+        <button class="rel-btn active" onclick="selecionarRel('consumo',this)">Consumo</button>
+        <button class="rel-btn" onclick="selecionarRel('os',this)">Ordens de Serviço</button>
+        <button class="rel-btn" onclick="selecionarRel('disponibilidade',this)">Disponibilidade</button>
+        <button class="rel-btn" onclick="selecionarRel('lubrificacao',this)">Lubrificação</button>
+        <button class="rel-btn" onclick="selecionarRel('custo',this)">Custo Frota</button>
+        <button class="rel-btn" onclick="selecionarRel('combustivel',this)">Custo Combustível</button>
+        <button class="rel-btn" onclick="selecionarRel('abastecimento',this)">Abastecimento Comboio</button>
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;">
+      <button class="btn-print" onclick="imprimirRelatorio()">
+        <span style="font-size:16px;">🖨</span> Imprimir / PDF
+      </button>
+      <button class="btn-print" id="btn-pptx" onclick="exportarPPTX()" style="background:var(--blue);border:none;">
+        <span style="font-size:16px;">📊</span> Exportar PPTX
+      </button>
+    </div>
+  </div>
+
+  <div class="rel-preview" id="rel-preview">
+    <div class="loading">Selecione um relatório acima para visualizar</div>
+  </div>
+
+</div>
+
+<div class="footer">Santa Vergínia Agropecuária e Florestal · Controladoria · Painel Gestão de Frota</div>
+
+<script>
+const SB_URL  = "https://azhpxhrwhegfysoeqmft.supabase.co";
+const SB_KEY  = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImF6aHB4aHJ3aGVnZnlzb2VxbWZ0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg2NzUxODcsImV4cCI6MjA5NDI1MTE4N30.iQU1T1NLaGIQyqScLS6qNaoo1QWcI8Mh-jjN52TU5to";
+const CAP_COMBOIO = 5000;
+
+const now = new Date();
+document.getElementById('dt').textContent        = now.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
+document.getElementById('mes-ref').textContent   = now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+function showPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+}
+
+async function sbFetch(resource, params=''){
+  const r = await fetch(`${SB_URL}/rest/v1/${resource}?${params}`,
+    {headers:{"apikey":SB_KEY,"Authorization":"Bearer "+SB_KEY}});
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+function fmt(n,dec=0){return n==null?'—':Number(n).toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
+function fmtR(n){return n==null?'—':'R$ '+Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—';}
+function fmtDtHr(d){if(!d)return'—';const x=new Date(d);return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+function barChart(el,data,lKey,vKey,color='var(--green)'){
+  if(!data||!data.length){el.innerHTML='<div class="err">Sem dados</div>';return;}
+  const max=Math.max(...data.map(d=>Number(d[vKey])||0));
+  el.innerHTML=data.slice(0,12).map(d=>{
+    const v=Number(d[vKey])||0,pct=max>0?(v/max*100).toFixed(0):0;
+    return `<div class="bi">
+      <div class="bl" title="${d[lKey]}">${d[lKey]}</div>
+      <div class="bt"><div class="bf" style="width:${pct}%;background:${color};">${fmt(v,1)}</div></div>
+      <div class="bv">${fmt(v,1)}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── CONSUMO ───────────────────────────────────────────────────
+async function loadConsumo(){
+  try{
+    const data=await sbFetch('vw_intervalo_abastecimento','order=total_litros.desc');
+    const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+    const tE=data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
+    document.getElementById('kpi-total-l').textContent=fmt(tL);
+    document.getElementById('kpi-total-ev').textContent=fmt(tE);
+    document.getElementById('kpi-media-l').textContent=fmt(tE>0?tL/tE:0,1);
+    document.getElementById('kpi-frotas').textContent=data.length;
+    barChart(document.getElementById('consumo-chart'),data,'frota','total_litros');
+    barChart(document.getElementById('intervalo-chart'),data.sort((a,b)=>b.intervalo_medio_horas-a.intervalo_medio_horas),'frota','intervalo_medio_horas','var(--blue)');
+    document.getElementById('consumo-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>Abast.</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo médio (h)</th><th>Último abast.</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${fmt(d.total_abastecimentos)}</td><td>${fmt(d.total_litros,1)}</td>
+        <td>${fmt(d.media_litros,1)}</td><td>${fmt(d.intervalo_medio_horas,1)}h</td>
+        <td>${d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+  }catch(e){document.getElementById('consumo-chart').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+// ── OS ────────────────────────────────────────────────────────
+async function loadOS(){
+  try{
+    const data=await sbFetch('vw_ranking_os','order=horas_parada.desc');
+    const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
+    const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
+    const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
+    const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+    document.getElementById('kpi-total-os').textContent=fmt(tOS);
+    document.getElementById('kpi-os-corr').textContent=fmt(tC);
+    document.getElementById('kpi-os-prev').textContent=fmt(tP);
+    document.getElementById('kpi-hp-total').textContent=fmt(tH,1)+'h';
+    const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
+    document.getElementById('os-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>OS</th><th>Corret.</th><th>Prevent.</th><th>H.parada</th><th>Custo</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td>
+        <td style="color:var(--red)">${fmt(d.os_corretiva)}</td>
+        <td style="color:var(--gl)">${fmt(d.os_preventiva)}</td>
+        <td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--yellow)'}"><b>${fmt(d.horas_parada,1)}h</b></td>
+        <td>${fmtR(d.custo_total)}</td>
+        <td><span class="st ${sc(d.status)}">${d.status}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+    barChart(document.getElementById('os-chart'),data.filter(d=>Number(d.horas_parada)>0).slice(0,8),'frota','horas_parada','var(--red)');
+  }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+// ── DISPONIBILIDADE ───────────────────────────────────────────
+async function loadDisp(){
+  try{
+    const data=await sbFetch('vw_horas_frota','order=disponibilidade_pct.asc');
+    const md=data.length?data.reduce((s,d)=>s+(Number(d.disponibilidade_pct)||0),0)/data.length:0;
+    const tHT=data.reduce((s,d)=>s+(Number(d.horas_trabalhadas)||0),0);
+    const tHP=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+    const cr=data.filter(d=>Number(d.disponibilidade_pct)<70).length;
+    document.getElementById('kpi-disp-med').textContent=fmt(md,1)+'%';
+    document.getElementById('kpi-ht').textContent=fmt(tHT,0)+'h';
+    document.getElementById('kpi-hp').textContent=fmt(tHP,0)+'h';
+    document.getElementById('kpi-criticos').textContent=cr;
+    document.getElementById('frota-grid').innerHTML=data.map(d=>{
+      const dp=Number(d.disponibilidade_pct)||0;
+      const c=dp>=85?'var(--green)':dp>=70?'var(--yellow)':'var(--red)';
+      const tc=dp>=85?'var(--gl)':dp>=70?'var(--yellow)':'#e74c3c';
+      return `<div class="fc">
+        <div class="fn">${d.frota}</div>
+        <div class="fo">${fmt(d.horas_trabalhadas,0)}h trab · ${fmt(d.horas_parada,0)}h parada</div>
+        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
+          <div class="fbar" style="flex:1"><div class="fbf" style="width:${dp}%;background:${c}"></div></div>
+          <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:${tc}">${fmt(dp,0)}%</span>
+        </div>
+      </div>`;
+    }).join('');
+    const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
+    document.getElementById('disp-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>H.trabalhadas</th><th>H.paradas</th><th>Disponib.%</th><th>OS</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${fmt(d.horas_trabalhadas,1)}h</td>
+        <td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--text)'}"><b>${fmt(d.horas_parada,1)}h</b></td>
+        <td><b>${fmt(d.disponibilidade_pct,1)}%</b></td><td>${fmt(d.total_os)}</td>
+        <td><span class="st ${sc(d.status)}">${d.status}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+  }catch(e){document.getElementById('disp-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+// ── LUBRIFICAÇÃO ─────────────────────────────────────────────
+async function loadLub(){
+  try{
+    const data=await sbFetch('vw_proxima_troca_v3','order=horas_restantes.asc');
+    document.getElementById('kpi-ok').textContent=data.filter(d=>d.status_troca==='OK').length;
+    document.getElementById('kpi-prox').textContent=data.filter(d=>d.status_troca==='PROXIMO').length;
+    document.getElementById('kpi-atr').textContent=data.filter(d=>d.status_troca==='EM ATRASO').length;
+    document.getElementById('kpi-total-lub').textContent=data.length;
+    const sc=s=>s==='EM ATRASO'?'st-atr':s==='PROXIMO'?'st-prox':'st-ok';
+    const hc=h=>Number(h)<0?'var(--red)':Number(h)<=100?'var(--yellow)':'var(--gl)';
+    document.getElementById('lub-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>Última troca</th><th>H.troca</th><th>Próxima(h)</th><th>H.atual</th><th>H.restantes</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.vehicle}</b></td>
+        <td>${d.ultima_troca?new Date(d.ultima_troca).toLocaleDateString('pt-BR'):'—'}</td>
+        <td>${fmt(d.h_na_troca,0)}h</td><td>${fmt(d.h_proxima_troca,0)}h</td>
+        <td>${fmt(d.h_atual,0)}h</td>
+        <td style="color:${hc(d.horas_restantes)}"><b>${fmt(d.horas_restantes,0)}h</b></td>
+        <td><span class="st ${sc(d.status_troca)}">${d.status_troca}</span></td>
+      </tr>`).join('')}</tbody></table>`;
+  }catch(e){document.getElementById('lub-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+// ── CUSTO ─────────────────────────────────────────────────────
+async function loadCusto(){
+  try{
+    const data=await sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast');
+    document.getElementById('kpi-custo-os').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_os)||0),0));
+    document.getElementById('kpi-custo-lub').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0));
+    document.getElementById('kpi-custo-comb').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0));
+    document.getElementById('kpi-custo-total').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_total)||0),0));
+    barChart(document.getElementById('custo-chart'),data.filter(d=>d.custo_total),'id_frota','custo_total','var(--yellow)');
+    document.getElementById('custo-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>OS(R$)</th><th>Lubrif.(R$)</th><th>Comb.(R$)</th><th>Total(R$)</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.id_frota}</b></td><td>${fmtR(d.custo_os)}</td>
+        <td>${fmtR(d.custo_lubrificacao)}</td><td>${fmtR(d.custo_combustivel)}</td>
+        <td><b>${fmtR(d.custo_total)}</b></td>
+      </tr>`).join('')}</tbody></table>`;
+  }catch(e){document.getElementById('custo-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+// ── COMBUSTIVEL ──────────────────────────────────────────────
+async function loadCombustivel(){
+  try{
+    const data=await sbFetch('vw_custo_combustivel_frota','order=custo_total.desc.nullslast');
+    const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+    const tC=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
+    const fr=[...new Set(data.map(d=>d.frota))].length;
+    document.getElementById('kpi-comb-litros').textContent=fmt(tL,0)+'L';
+    document.getElementById('kpi-comb-custo').textContent=fmtR(tC);
+    document.getElementById('kpi-comb-frotas').textContent=fr;
+    document.getElementById('kpi-comb-media').textContent=fmtR(fr>0?tC/fr:0);
+    barChart(document.getElementById('comb-chart'),data.filter(d=>d.custo_total),'frota','custo_total','var(--yellow)');
+    barChart(document.getElementById('comb-vol-chart'),data.filter(d=>d.total_litros),'frota','total_litros','var(--green)');
+    _combData=data; renderCombTable(data);
+  }catch(e){document.getElementById('comb-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+let _combData=[];
+function filtrarFrota(modo){
+  document.getElementById('toggle-todos').style.background=modo==='todos'?'var(--green)':'var(--bg3)';
+  document.getElementById('toggle-todos').style.color=modo==='todos'?'#fff':'var(--text2)';
+  document.getElementById('toggle-interna').style.background=modo==='interna'?'var(--green)':'var(--bg3)';
+  document.getElementById('toggle-interna').style.color=modo==='interna'?'#fff':'var(--text2)';
+  const d=modo==='interna'?_combData.filter(d=>/^\d{4}/.test(d.frota)):_combData;
+  renderCombTable(d);
+  barChart(document.getElementById('comb-chart'),d.filter(x=>x.custo_total),'frota','custo_total','var(--yellow)');
+  barChart(document.getElementById('comb-vol-chart'),d.filter(x=>x.total_litros),'frota','total_litros','var(--green)');
+}
+function renderCombTable(data){
+  document.getElementById('comb-table').innerHTML=`<table>
+    <thead><tr><th>Frota</th><th>Combustível</th><th>Total(L)</th><th>Preço/L</th><th>Custo Total</th></tr></thead>
+    <tbody>${data.map(d=>`<tr>
+      <td><b>${d.frota}</b></td><td>${d.combustivel||'—'}</td>
+      <td>${fmt(d.total_litros,1)}</td><td>${fmtR(d.preco_litro)}</td>
+      <td><b>${fmtR(d.custo_total)}</b></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+// ══════════════════════════════════════════════════════════════
+// ⛽ ABASTECIMENTO COMBOIO
+// ══════════════════════════════════════════════════════════════
+let _abastAll = [];
+
+async function loadAbastecimento(){
+  try{
+    // 1. Transferências POSTO → COMBOIO
+    const transf = await sbFetch('combustivel_transferencia',
+      "destino=eq.COMBOIO&order=data.desc");
+
+    // 2. Abastecimentos nas máquinas (view unificada comboio + comboio_v2)
+    const abast = await sbFetch('vw_abastecimento_consolidado',
+      'order=created_at.desc');
+
+    _abastAll = abast;
+
+    // ── Cálculos de saldo ────────────────────────────────────
+    const totalRecebido   = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+    const totalDistribuido= abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
+    const saldo           = Math.max(0, totalRecebido - totalDistribuido);
+    const pct             = CAP_COMBOIO > 0 ? Math.min(100,(saldo/CAP_COMBOIO)*100) : 0;
+
+    // Hoje
+    const hoje = new Date(); hoje.setHours(0,0,0,0);
+    const abastHoje = abast.filter(d=>new Date(d.created_at)>=hoje);
+    const litrosHoje = abastHoje.reduce((s,d)=>s+(Number(d.liters)||0),0);
+
+    // Frotas únicas
+    const frotasUnicas = [...new Set(abast.map(d=>d.vehicle).filter(Boolean))].length;
+
+    // ── KPIs ─────────────────────────────────────────────────
+    document.getElementById('cb-kpi-recebido').textContent   = fmt(totalRecebido)+' L';
+    document.getElementById('cb-kpi-distribuido').textContent= fmt(totalDistribuido)+' L';
+    document.getElementById('cb-kpi-saldo').textContent      = fmt(saldo)+' L';
+    document.getElementById('cb-kpi-hoje-ev').textContent    = fmt(abastHoje.length);
+    document.getElementById('cb-kpi-hoje-l').textContent     = fmt(litrosHoje)+' L';
+    document.getElementById('cb-kpi-frotas').textContent     = frotasUnicas;
+
+    // ── Tanque visual ─────────────────────────────────────────
+    const fill  = document.getElementById('cb-tank-fill');
+    const pctEl = document.getElementById('cb-tank-pct');
+    const volEl = document.getElementById('cb-tank-vol');
+    const badge = document.getElementById('cb-tank-badge');
+
+    fill.style.height = pct.toFixed(1)+'%';
+    pctEl.textContent = pct.toFixed(1)+'%';
+    volEl.textContent = fmt(saldo)+' L';
+
+    if(pct <= 20){
+      fill.style.background  = 'var(--red)';
+      volEl.style.color      = '#e74c3c';
+      badge.textContent      = 'NÍVEL CRÍTICO';
+      badge.style.background = '#2a1010';
+      badge.style.color      = '#e74c3c';
+    } else if(pct <= 40){
+      fill.style.background  = 'var(--yellow)';
+      volEl.style.color      = 'var(--yellow)';
+      badge.textContent      = 'NÍVEL BAIXO';
+      badge.style.background = '#2a2200';
+      badge.style.color      = 'var(--yellow)';
+    } else {
+      fill.style.background  = 'var(--green)';
+      volEl.style.color      = 'var(--gl)';
+      badge.textContent      = 'NÍVEL OK';
+      badge.style.background = '#1a3318';
+      badge.style.color      = 'var(--gl)';
+    }
+
+    // ── Balanço detalhado ────────────────────────────────────
+    // Por combustível
+    const porComb = {};
+    abast.forEach(d=>{
+      const k=d.fuel_type||'Sem tipo';
+      porComb[k]=(porComb[k]||0)+(Number(d.liters)||0);
+    });
+
+    document.getElementById('cb-saldo-detail').innerHTML = `
+      <div class="saldo-row">
+        <span class="sr-label" style="color:var(--gl)">(+) Recebido do posto</span>
+        <span class="sr-val" style="color:var(--gl)">${fmt(totalRecebido)} L</span>
+      </div>
+      ${Object.entries(porComb).map(([k,v])=>`
+      <div class="saldo-row" style="padding-left:16px;">
+        <span class="sr-label" style="color:var(--red);font-size:11px">(-) Distribuído — ${k}</span>
+        <span class="sr-val" style="color:var(--red);font-size:12px">-${fmt(v)} L</span>
+      </div>`).join('')}
+      <div class="saldo-row">
+        <span class="sr-label">= Saldo atual no comboio</span>
+        <span class="sr-val" style="color:${pct<=20?'#e74c3c':pct<=40?'var(--yellow)':'var(--gl)'}">
+          ${fmt(saldo)} L &nbsp;<span style="font-size:11px;color:var(--text2)">(${pct.toFixed(1)}% de ${fmt(CAP_COMBOIO)} L)</span>
+        </span>
+      </div>`;
+
+    // ── Tabela de transferências ──────────────────────────────
+    if(transf.length){
+      document.getElementById('cb-transferencias-table').innerHTML=`<table>
+        <thead><tr><th>Data</th><th>Combustível</th><th>Origem</th><th>Qtd (L)</th><th>Obs</th></tr></thead>
+        <tbody>${transf.map(t=>`<tr>
+          <td>${fmtDt(t.data)}</td>
+          <td>${t.combustivel||'—'}</td>
+          <td style="color:var(--text2)">${t.origem||'—'}</td>
+          <td style="color:var(--gl);font-weight:700">${fmt(t.quantidade_litros,1)} L</td>
+          <td style="color:var(--text3)">${t.obs||'—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('cb-transferencias-table').innerHTML='<div class="err">Nenhuma transferência registrada</div>';
+    }
+
+    // ── Tabela + gráficos ─────────────────────────────────────
+    renderAbastTable(_abastAll);
+    renderAbastCharts(_abastAll);
+
+  }catch(e){
+    ['cb-abast-table','cb-transferencias-table','cb-saldo-detail'].forEach(id=>{
+      document.getElementById(id).innerHTML=`<div class="err">Erro: ${e.message}</div>`;
+    });
+    console.error(e);
+  }
+}
+
+function renderAbastTable(data){
+  if(!data.length){
+    document.getElementById('cb-abast-table').innerHTML='<div class="err">Sem registros no período selecionado</div>';
+    return;
+  }
+  document.getElementById('cb-abast-table').innerHTML=`<table>
+    <thead><tr>
+      <th>Data/Hora</th><th>OS</th><th>Frota</th><th>Operador</th>
+      <th>Frente/Local</th><th>Combustível</th><th>Litros</th><th>Horímetro</th><th>Origem</th>
+    </tr></thead>
+    <tbody>${data.map(d=>`<tr>
+      <td style="color:var(--text2)">${fmtDtHr(d.created_at)}</td>
+      <td style="color:var(--text3);font-size:11px">${d.order_number||'—'}</td>
+      <td><b>${d.vehicle||'—'}</b></td>
+      <td>${d.operator||'—'}</td>
+      <td style="color:var(--text2)">${d.work_front||d.location||'—'}</td>
+      <td>${d.fuel_type||'—'}</td>
+      <td style="color:var(--gl);font-weight:700">${fmt(d.liters,1)} L</td>
+      <td style="color:var(--text2)">${d.hourmeter?fmt(d.hourmeter,0)+'h':'—'}</td>
+      <td><span class="st ${d.origem==='comboio_v2'?'st-ok':'st-legado'}">${d.origem==='comboio_v2'?'PWA':'Legado'}</span></td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+function renderAbastCharts(data){
+  // Por frota
+  const pf={};
+  data.forEach(d=>{const k=d.vehicle||'S/frota';pf[k]=(pf[k]||0)+(Number(d.liters)||0);});
+  barChart(document.getElementById('cb-chart-frota'),
+    Object.entries(pf).map(([vehicle,v])=>({vehicle,v})).sort((a,b)=>b.v-a.v),
+    'vehicle','v','var(--green)');
+
+  // Por frente
+  const pfr={};
+  data.forEach(d=>{const k=d.work_front||d.location||'S/frente';pfr[k]=(pfr[k]||0)+(Number(d.liters)||0);});
+  barChart(document.getElementById('cb-chart-frente'),
+    Object.entries(pfr).map(([frente,v])=>({frente,v})).sort((a,b)=>b.v-a.v),
+    'frente','v','var(--blue)');
+}
+
+function filtrarAbast(modo){
+  ['todos','hoje','semana','mes'].forEach(m=>{
+    document.getElementById('fb-'+m).classList.toggle('active',m===modo);
+  });
+  let data=_abastAll;
+  const ref=new Date();
+  if(modo==='hoje'){
+    ref.setHours(0,0,0,0);
+    data=_abastAll.filter(d=>new Date(d.created_at)>=ref);
+  } else if(modo==='semana'){
+    ref.setDate(ref.getDate()-7);
+    data=_abastAll.filter(d=>new Date(d.created_at)>=ref);
+  } else if(modo==='mes'){
+    ref.setDate(1); ref.setHours(0,0,0,0);
+    data=_abastAll.filter(d=>new Date(d.created_at)>=ref);
+  }
+  renderAbastTable(data);
+  renderAbastCharts(data);
+}
+
+
+// ── RELATÓRIO / IMPRESSÃO ──────────────────────────────────────
+let _relAtual = 'consumo';
+
+const REL_TITULOS = {
+  consumo:        'Relatório de Consumo de Combustível',
+  os:             'Relatório de Ordens de Serviço',
+  disponibilidade:'Relatório de Disponibilidade de Frota',
+  lubrificacao:   'Relatório de Lubrificação — Troca de Óleo',
+  custo:          'Relatório de Custo de Frota',
+  combustivel:    'Relatório de Custo de Combustível',
+  abastecimento:  'Relatório de Abastecimento do Comboio',
+};
+
+function selecionarRel(tipo, btn){
+  _relAtual = tipo;
+  document.querySelectorAll('.rel-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  renderRelatorio(tipo);
+}
+
+function fmtDtHrRel(d){if(!d)return'—';const x=new Date(d);return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+function kpiBox(label, val, sub){
+  return `<div class="kpi-print-box">
+    <div class="kpi-print-label">${label}</div>
+    <div class="kpi-print-val">${val}</div>
+    <div class="kpi-print-sub">${sub}</div>
+  </div>`;
+}
+
+function cabecalho(titulo){
+  const agora = new Date();
+  return `<div class="rel-header-print">
+    <div>
+      <div class="rel-title-print">${titulo}</div>
+      <div class="rel-meta">Santa Vergínia Agropecuária e Florestal · Controladoria</div>
+    </div>
+    <div class="rel-stamp">
+      Emitido em: ${agora.toLocaleDateString('pt-BR')}<br>
+      ${agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}<br>
+      Referência: ${agora.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}
+    </div>
+  </div>`;
+}
+
+function renderRelatorio(tipo){
+  const preview = document.getElementById('rel-preview');
+  const titulo  = REL_TITULOS[tipo] || tipo;
+  let html = cabecalho(titulo);
+
+  if(tipo === 'consumo'){
+    // Busca dados já carregados via vw_intervalo_abastecimento
+    sbFetch('vw_intervalo_abastecimento','order=total_litros.desc').then(data=>{
+      const tL = data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+      const tE = data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Total Litros', fmt(tL)+' L', 'no período')}
+        ${kpiBox('Abastecimentos', fmt(tE), 'eventos')}
+        ${kpiBox('Média/Evento', fmt(tE>0?tL/tE:0,1)+' L', 'litros médio')}
+        ${kpiBox('Frotas', data.length, 'equipamentos')}
+      </div>
+      <div class="section-title">Detalhe por Frota</div>
+      <table><thead><tr><th>Frota</th><th>Abastecimentos</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo Médio (h)</th><th>Último Abastecimento</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td>
+        <td>${fmt(d.total_abastecimentos)}</td>
+        <td>${fmt(d.total_litros,1)}</td>
+        <td>${fmt(d.media_litros,1)}</td>
+        <td>${fmt(d.intervalo_medio_horas,1)}h</td>
+        <td>${d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro ao carregar: ${e.message}</div>`; });
+
+  } else if(tipo === 'os'){
+    sbFetch('vw_ranking_os','order=horas_parada.desc').then(data=>{
+      const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
+      const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
+      const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
+      const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Total OS', fmt(tOS), 'ordens')}
+        ${kpiBox('Corretivas', fmt(tC), 'ocorrências')}
+        ${kpiBox('Preventivas', fmt(tP), 'ocorrências')}
+        ${kpiBox('H. Parada', fmt(tH,1)+'h', 'acumulado')}
+      </div>
+      <div class="section-title">Ranking por Frota</div>
+      <table><thead><tr><th>Frota</th><th>OS Total</th><th>Corretiva</th><th>Preventiva</th><th>H. Parada</th><th>Custo (R$)</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td>
+        <td>${fmt(d.os_corretiva)}</td><td>${fmt(d.os_preventiva)}</td>
+        <td><b>${fmt(d.horas_parada,1)}h</b></td><td>${fmtR(d.custo_total)}</td>
+        <td>${d.status}</td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+
+  } else if(tipo === 'disponibilidade'){
+    sbFetch('vw_horas_frota','order=disponibilidade_pct.asc').then(data=>{
+      const md=data.length?data.reduce((s,d)=>s+(Number(d.disponibilidade_pct)||0),0)/data.length:0;
+      const tHT=data.reduce((s,d)=>s+(Number(d.horas_trabalhadas)||0),0);
+      const tHP=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+      const cr=data.filter(d=>Number(d.disponibilidade_pct)<70).length;
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Disponib. Média', fmt(md,1)+'%', 'frota geral')}
+        ${kpiBox('H. Trabalhadas', fmt(tHT,0)+'h', 'acumulado')}
+        ${kpiBox('H. Paradas', fmt(tHP,0)+'h', 'por manutenção')}
+        ${kpiBox('Equip. Críticos', cr, 'abaixo de 70%')}
+      </div>
+      <div class="section-title">Disponibilidade por Frota</div>
+      <table><thead><tr><th>Frota</th><th>H. Trabalhadas</th><th>H. Paradas</th><th>Disponib. %</th><th>OS</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${fmt(d.horas_trabalhadas,1)}h</td>
+        <td><b>${fmt(d.horas_parada,1)}h</b></td>
+        <td><b>${fmt(d.disponibilidade_pct,1)}%</b></td>
+        <td>${fmt(d.total_os)}</td><td>${d.status}</td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+
+  } else if(tipo === 'lubrificacao'){
+    sbFetch('vw_proxima_troca_v3','order=horas_restantes.asc').then(data=>{
+      const ok=data.filter(d=>d.status_troca==='OK').length;
+      const prox=data.filter(d=>d.status_troca==='PROXIMO').length;
+      const atr=data.filter(d=>d.status_troca==='EM ATRASO').length;
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Status OK', ok, 'equipamentos')}
+        ${kpiBox('Próximo ≤ 100h', prox, 'equipamentos')}
+        ${kpiBox('Em Atraso', atr, 'equipamentos')}
+        ${kpiBox('Total', data.length, 'monitorados')}
+      </div>
+      <div class="section-title">Painel de Troca de Óleo — Ordenado por Urgência</div>
+      <table><thead><tr><th>Frota</th><th>Última Troca</th><th>H. na Troca</th><th>Próxima (h)</th><th>H. Atual</th><th>H. Restantes</th><th>Status</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.vehicle}</b></td>
+        <td>${d.ultima_troca?new Date(d.ultima_troca).toLocaleDateString('pt-BR'):'—'}</td>
+        <td>${fmt(d.h_na_troca,0)}h</td><td>${fmt(d.h_proxima_troca,0)}h</td>
+        <td>${fmt(d.h_atual,0)}h</td>
+        <td><b>${fmt(d.horas_restantes,0)}h</b></td>
+        <td>${d.status_troca}</td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+
+  } else if(tipo === 'custo'){
+    sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast').then(data=>{
+      const tOS=data.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+      const tLub=data.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+      const tComb=data.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+      const tGeral=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Custo OS', fmtR(tOS), 'R$')}
+        ${kpiBox('Lubrificação', fmtR(tLub), 'R$')}
+        ${kpiBox('Combustível', fmtR(tComb), 'R$')}
+        ${kpiBox('Total Geral', fmtR(tGeral), 'R$')}
+      </div>
+      <div class="section-title">Custo por Frota</div>
+      <table><thead><tr><th>Frota</th><th>OS (R$)</th><th>Lubrificação (R$)</th><th>Combustível (R$)</th><th>Total (R$)</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.id_frota}</b></td><td>${fmtR(d.custo_os)}</td>
+        <td>${fmtR(d.custo_lubrificacao)}</td><td>${fmtR(d.custo_combustivel)}</td>
+        <td><b>${fmtR(d.custo_total)}</b></td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+
+  } else if(tipo === 'combustivel'){
+    sbFetch('vw_custo_combustivel_frota','order=custo_total.desc.nullslast').then(data=>{
+      const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+      const tC=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
+      const fr=[...new Set(data.map(d=>d.frota))].length;
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Total Litros', fmt(tL,0)+' L', 'abastecidos')}
+        ${kpiBox('Custo Total', fmtR(tC), 'R$')}
+        ${kpiBox('Frotas', fr, 'abastecidas')}
+        ${kpiBox('Média/Frota', fmtR(fr>0?tC/fr:0), 'R$ médio')}
+      </div>
+      <div class="section-title">Detalhamento: Frota × Litros × Preço × Custo</div>
+      <table><thead><tr><th>Frota</th><th>Combustível</th><th>Total (L)</th><th>Preço/L (R$)</th><th>Custo Total (R$)</th></tr></thead>
+      <tbody>${data.map(d=>`<tr>
+        <td><b>${d.frota}</b></td><td>${d.combustivel||'—'}</td>
+        <td>${fmt(d.total_litros,1)}</td><td>${fmtR(d.preco_litro)}</td>
+        <td><b>${fmtR(d.custo_total)}</b></td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+
+  } else if(tipo === 'abastecimento'){
+    Promise.all([
+      sbFetch('combustivel_transferencia','destino=eq.COMBOIO&order=data.desc'),
+      sbFetch('vw_abastecimento_consolidado','order=created_at.desc')
+    ]).then(([transf, abast])=>{
+      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+      const tDist = abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
+      const saldo = Math.max(0, tRec - tDist);
+      const pct   = CAP_COMBOIO > 0 ? Math.min(100,(saldo/CAP_COMBOIO)*100) : 0;
+      const fr    = [...new Set(abast.map(d=>d.vehicle).filter(Boolean))].length;
+      html += `<div class="kpi-print-row">
+        ${kpiBox('Recebido do Posto', fmt(tRec)+' L', 'total transferido')}
+        ${kpiBox('Distribuído', fmt(tDist)+' L', 'abastecido máquinas')}
+        ${kpiBox('Saldo Comboio', fmt(saldo)+' L', pct.toFixed(1)+'% de 5.000 L')}
+        ${kpiBox('Frotas Abastecidas', fr, 'equipamentos')}
+      </div>
+      <div class="section-title">Transferências Recebidas do Posto</div>
+      <table><thead><tr><th>Data</th><th>Combustível</th><th>Origem</th><th>Quantidade (L)</th><th>Obs</th></tr></thead>
+      <tbody>${transf.map(t=>`<tr>
+        <td>${fmtDt(t.data)}</td><td>${t.combustivel||'—'}</td>
+        <td>${t.origem||'—'}</td><td><b>${fmt(t.quantidade_litros,1)} L</b></td>
+        <td>${t.obs||'—'}</td>
+      </tr>`).join('')}</tbody></table>
+      <div class="section-title" style="margin-top:18pt;">Abastecimentos nas Máquinas</div>
+      <table><thead><tr><th>Data/Hora</th><th>OS</th><th>Frota</th><th>Operador</th><th>Frente/Local</th><th>Combustível</th><th>Litros</th><th>Horímetro</th></tr></thead>
+      <tbody>${abast.map(d=>`<tr>
+        <td>${fmtDtHrRel(d.created_at)}</td>
+        <td>${d.order_number||'—'}</td>
+        <td><b>${d.vehicle||'—'}</b></td>
+        <td>${d.operator||'—'}</td>
+        <td>${d.work_front||d.location||'—'}</td>
+        <td>${d.fuel_type||'—'}</td>
+        <td><b>${fmt(d.liters,1)} L</b></td>
+        <td>${d.hourmeter?fmt(d.hourmeter,0)+'h':'—'}</td>
+      </tr>`).join('')}</tbody></table>`;
+      preview.innerHTML = html;
+    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+  }
+
+  // Fallback enquanto carrega
+  if(!preview.innerHTML.includes('rel-header-print')){
+    preview.innerHTML = html + '<div class="loading">CARREGANDO DADOS...</div>';
+  }
+}
+
+function imprimirRelatorio(){
+  window.print();
+}
+
+// Carrega o primeiro ao entrar na aba
+document.querySelector('.nb[onclick*="relatorio"]').addEventListener('click', ()=>{
+  if(!document.getElementById('rel-preview').innerHTML.includes('rel-header-print')){
+    renderRelatorio(_relAtual);
+  }
+});
+
+
+// ══════════════════════════════════════════════════════════════
+// 📊 EXPORTAR PPTX
+// ══════════════════════════════════════════════════════════════
+
+// Paleta Santa Vergínia
+const C = {
+  bg:      '0D1C0C',
+  bg2:     '152413',
+  green:   '2E7D32',
+  gl:      '4CAF50',
+  yellow:  'F9A825',
+  red:     'C62828',
+  blue:    '1565C0',
+  text:    'E8EDD0',
+  text2:   '8AAB80',
+  white:   'FFFFFF',
+  gray:    '455A64',
+  lgray:   'ECEFF1',
+  dgray:   '263238',
+};
+
+function makeShadow(){ return {type:"outer",blur:8,offset:3,angle:135,color:"000000",opacity:0.18}; }
+
+function slideTitle(pres, titulo, subtitulo){
+  const s = pres.addSlide();
+  s.background = { color: C.bg };
+  // Faixa verde lateral
+  s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:0.35,h:5.625,fill:{color:C.green},line:{color:C.green}});
+  // Faixa inferior
+  s.addShape(pres.shapes.RECTANGLE,{x:0,y:5.1,w:10,h:0.525,fill:{color:C.bg2},line:{color:C.bg2}});
+  // Logo SV
+  s.addShape(pres.shapes.ROUNDED_RECTANGLE,{x:0.7,y:1.6,w:1.1,h:1.1,fill:{color:C.green},line:{color:C.green},rectRadius:0.12});
+  s.addText('SV',{x:0.7,y:1.65,w:1.1,h:1.0,fontSize:28,bold:true,color:C.white,align:'center',valign:'middle',margin:0});
+  // Títulos
+  s.addText(titulo,{x:2.0,y:1.55,w:7.5,h:0.85,fontSize:36,bold:true,color:C.white,fontFace:'Calibri',charSpacing:2,margin:0});
+  s.addText(subtitulo,{x:2.0,y:2.45,w:7.5,h:0.5,fontSize:15,color:C.text2,fontFace:'Calibri',margin:0});
+  // Empresa + data
+  const agora = new Date();
+  s.addText('Santa Vergínia Agropecuária e Florestal · Controladoria',{x:0.5,y:5.1,w:7,h:0.5,fontSize:10,color:C.text2,fontFace:'Calibri',valign:'middle',margin:0});
+  s.addText(agora.toLocaleDateString('pt-BR',{day:'2-digit',month:'long',year:'numeric'}),{x:7.5,y:5.1,w:2.3,h:0.5,fontSize:10,color:C.text2,fontFace:'Calibri',align:'right',valign:'middle',margin:0});
+  return s;
+}
+
+function slideSecao(pres, label){
+  const s = pres.addSlide();
+  s.background = { color: C.bg };
+  s.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:0.35,h:5.625,fill:{color:C.green},line:{color:C.green}});
+  s.addText(label,{x:1.0,y:1.8,w:8.5,h:1.5,fontSize:32,bold:true,color:C.gl,fontFace:'Calibri',charSpacing:3,margin:0});
+  return s;
+}
+
+function kpiCards(slide, pres, kpis){
+  // kpis = [{label, value, sub, color}]  max 4
+  const n = kpis.length;
+  const w = (9.0 / n) - 0.15;
+  kpis.forEach((k,i)=>{
+    const x = 0.5 + i*(w+0.18);
+    slide.addShape(pres.shapes.RECTANGLE,{x,y:0.65,w,h:1.6,fill:{color:C.bg2},line:{color:k.color||C.green,width:1},shadow:makeShadow()});
+    slide.addShape(pres.shapes.RECTANGLE,{x,y:0.65,w,h:0.06,fill:{color:k.color||C.green},line:{color:k.color||C.green}});
+    slide.addText(k.label,{x:x+0.12,y:0.72,w:w-0.2,h:0.28,fontSize:9,color:C.text2,fontFace:'Calibri',bold:true,charSpacing:1.5,margin:0});
+    slide.addText(k.value,{x:x+0.08,y:0.98,w:w-0.14,h:0.7,fontSize:28,bold:true,color:C.white,fontFace:'Calibri',margin:0});
+    slide.addText(k.sub,{x:x+0.12,y:1.68,w:w-0.2,h:0.3,fontSize:9,color:C.text2,fontFace:'Calibri',margin:0});
+  });
+}
+
+function tabelaSlide(slide, pres, colunas, linhas, yStart){
+  const y = yStart || 2.45;
+  const h = Math.min(2.8, 0.28 * (linhas.length + 1));
+  const header = colunas.map(c=>({
+    text: c,
+    options:{bold:true,color:C.white,fill:{color:C.green},fontSize:9,fontFace:'Calibri',align:'left'}
+  }));
+  const rows = [header, ...linhas.slice(0,18).map((row,ri)=>
+    row.map(cell=>({
+      text: String(cell??'—'),
+      options:{fontSize:9,fontFace:'Calibri',color:C.dgray,fill:{color: ri%2===0?C.lgray:'FFFFFF'},align:'left'}
+    }))
+  )];
+  slide.addTable(rows,{x:0.5,y,w:9.0,h,colW:Array(colunas.length).fill(9.0/colunas.length),border:{pt:0.5,color:'CFD8DC'}});
+}
+
+function rodape(slide, pres, titulo){
+  const agora = new Date();
+  slide.addShape(pres.shapes.RECTANGLE,{x:0,y:5.35,w:10,h:0.275,fill:{color:C.bg2},line:{color:C.bg2}});
+  slide.addText('Santa Vergínia · Controladoria',{x:0.4,y:5.36,w:5,h:0.25,fontSize:8,color:C.text2,fontFace:'Calibri',valign:'middle',margin:0});
+  slide.addText(agora.toLocaleDateString('pt-BR'),{x:7.5,y:5.36,w:2.2,h:0.25,fontSize:8,color:C.text2,fontFace:'Calibri',align:'right',valign:'middle',margin:0});
+}
+
+function tituloSlide(slide, pres, txt){
+  slide.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:0.18,h:5.625,fill:{color:C.green},line:{color:C.green}});
+  slide.addText(txt,{x:0.45,y:0.25,w:9.2,h:0.55,fontSize:20,bold:true,color:C.white,fontFace:'Calibri',charSpacing:1.5,margin:0});
+  slide.addShape(pres.shapes.RECTANGLE,{x:0.45,y:0.82,w:9.1,h:0.03,fill:{color:C.green},line:{color:C.green}});
+}
+
+async function exportarPPTX(){
+  const btn = document.getElementById('btn-pptx');
+  btn.disabled = true;
+  btn.innerHTML = '<span>⏳</span> Gerando...';
+
+  try{
+    const pres = new PptxGenJS();
+    pres.layout  = 'LAYOUT_16x9';
+    pres.author  = 'Controladoria — Santa Vergínia';
+    pres.company = 'Santa Vergínia Agropecuária e Florestal';
+    pres.title   = REL_TITULOS[_relAtual] || _relAtual;
+
+    const titulo = REL_TITULOS[_relAtual];
+    const agora  = new Date();
+    const mesRef = agora.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
+
+    // ── Slide de capa ────────────────────────────────────────
+    slideTitle(pres, titulo, 'Controladoria · ' + mesRef);
+
+    if(_relAtual === 'consumo'){
+      const data = await sbFetch('vw_intervalo_abastecimento','order=total_litros.desc');
+      const tL   = data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+      const tE   = data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
+
+      // Slide KPIs
+      let s1 = pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Consumo — Resumo do Período');
+      kpiCards(s1,pres,[
+        {label:'TOTAL LITROS',     value:fmt(tL)+' L',          sub:'no período',            color:C.green},
+        {label:'ABASTECIMENTOS',   value:fmt(tE),                sub:'eventos registrados',   color:C.blue},
+        {label:'MÉDIA / EVENTO',   value:fmt(tE>0?tL/tE:0,1)+' L', sub:'litros médio',       color:C.yellow},
+        {label:'FROTAS',           value:String(data.length),   sub:'equipamentos',           color:C.green},
+      ]);
+      // Gráfico barras
+      s1.addChart(pres.charts.BAR,[{
+        name:'Litros',
+        labels:data.slice(0,10).map(d=>d.frota),
+        values:data.slice(0,10).map(d=>Number(d.total_litros)||0)
+      }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
+        chartColors:[C.gl],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:9,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      // Slide tabela
+      let s2 = pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Consumo — Detalhe por Frota');
+      tabelaSlide(s2,pres,
+        ['Frota','Abastecimentos','Total (L)','Média (L)','Intervalo Médio (h)','Último Abast.'],
+        data.map(d=>[d.frota,fmt(d.total_abastecimentos),fmt(d.total_litros,1),fmt(d.media_litros,1),fmt(d.intervalo_medio_horas,1)+'h',d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'])
+      );
+      rodape(s2,pres,titulo);
+
+    } else if(_relAtual === 'os'){
+      const data = await sbFetch('vw_ranking_os','order=horas_parada.desc');
+      const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
+      const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
+      const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
+      const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Ordens de Serviço — Resumo');
+      kpiCards(s1,pres,[
+        {label:'TOTAL OS',    value:fmt(tOS), sub:'ordens',      color:C.blue},
+        {label:'CORRETIVAS',  value:fmt(tC),  sub:'ocorrências', color:C.red},
+        {label:'PREVENTIVAS', value:fmt(tP),  sub:'ocorrências', color:C.green},
+        {label:'H. PARADA',   value:fmt(tH,1)+'h', sub:'acumulado', color:C.yellow},
+      ]);
+      s1.addChart(pres.charts.BAR,[{
+        name:'Horas Parada',
+        labels:data.filter(d=>Number(d.horas_parada)>0).slice(0,10).map(d=>d.frota),
+        values:data.filter(d=>Number(d.horas_parada)>0).slice(0,10).map(d=>Number(d.horas_parada)||0)
+      }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
+        chartColors:[C.red],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:9,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      let s2=pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Ordens de Serviço — Ranking por Frota');
+      tabelaSlide(s2,pres,
+        ['Frota','OS Total','Corretiva','Preventiva','H. Parada','Custo (R$)','Status'],
+        data.map(d=>[d.frota,fmt(d.total_os),fmt(d.os_corretiva),fmt(d.os_preventiva),fmt(d.horas_parada,1)+'h',fmtR(d.custo_total),d.status])
+      );
+      rodape(s2,pres,titulo);
+
+    } else if(_relAtual === 'disponibilidade'){
+      const data = await sbFetch('vw_horas_frota','order=disponibilidade_pct.asc');
+      const md=data.length?data.reduce((s,d)=>s+(Number(d.disponibilidade_pct)||0),0)/data.length:0;
+      const tHT=data.reduce((s,d)=>s+(Number(d.horas_trabalhadas)||0),0);
+      const tHP=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+      const cr=data.filter(d=>Number(d.disponibilidade_pct)<70).length;
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Disponibilidade de Frota — Resumo');
+      kpiCards(s1,pres,[
+        {label:'DISPONIB. MÉDIA', value:fmt(md,1)+'%',    sub:'frota geral',      color:C.green},
+        {label:'H. TRABALHADAS',  value:fmt(tHT,0)+'h',   sub:'acumulado',        color:C.blue},
+        {label:'H. PARADAS',      value:fmt(tHP,0)+'h',   sub:'por manutenção',   color:C.red},
+        {label:'EQUIP. CRÍTICOS', value:String(cr),        sub:'abaixo de 70%',   color:C.yellow},
+      ]);
+      s1.addChart(pres.charts.BAR,[{
+        name:'Disponibilidade %',
+        labels:data.slice(0,10).map(d=>d.frota),
+        values:data.slice(0,10).map(d=>Number(d.disponibilidade_pct)||0)
+      }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
+        chartColors:[C.gl],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:9,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      let s2=pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Disponibilidade — Detalhe por Frota');
+      tabelaSlide(s2,pres,
+        ['Frota','H. Trabalhadas','H. Paradas','Disponib. %','OS','Status'],
+        data.map(d=>[d.frota,fmt(d.horas_trabalhadas,1)+'h',fmt(d.horas_parada,1)+'h',fmt(d.disponibilidade_pct,1)+'%',fmt(d.total_os),d.status])
+      );
+      rodape(s2,pres,titulo);
+
+    } else if(_relAtual === 'lubrificacao'){
+      const data = await sbFetch('vw_proxima_troca_v3','order=horas_restantes.asc');
+      const ok=data.filter(d=>d.status_troca==='OK').length;
+      const prox=data.filter(d=>d.status_troca==='PROXIMO').length;
+      const atr=data.filter(d=>d.status_troca==='EM ATRASO').length;
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Lubrificação — Painel de Troca de Óleo');
+      kpiCards(s1,pres,[
+        {label:'STATUS OK',     value:String(ok),   sub:'equipamentos', color:C.green},
+        {label:'PRÓXIMO ≤100h', value:String(prox), sub:'equipamentos', color:C.yellow},
+        {label:'EM ATRASO',     value:String(atr),  sub:'equipamentos', color:C.red},
+        {label:'TOTAL',         value:String(data.length), sub:'monitorados', color:C.blue},
+      ]);
+      tabelaSlide(s1,pres,
+        ['Frota','Última Troca','H.Troca','Próxima(h)','H.Atual','H.Rest.','Status'],
+        data.map(d=>[d.vehicle,d.ultima_troca?new Date(d.ultima_troca).toLocaleDateString('pt-BR'):'—',fmt(d.h_na_troca,0)+'h',fmt(d.h_proxima_troca,0)+'h',fmt(d.h_atual,0)+'h',fmt(d.horas_restantes,0)+'h',d.status_troca]),
+        2.45
+      );
+      rodape(s1,pres,titulo);
+
+    } else if(_relAtual === 'custo'){
+      const data = await sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast');
+      const tOS=data.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+      const tLub=data.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+      const tComb=data.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+      const tGeral=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Custo de Frota — Resumo');
+      kpiCards(s1,pres,[
+        {label:'CUSTO OS',     value:fmtR(tOS),    sub:'R$', color:C.yellow},
+        {label:'LUBRIFICAÇÃO', value:fmtR(tLub),   sub:'R$', color:C.green},
+        {label:'COMBUSTÍVEL',  value:fmtR(tComb),  sub:'R$', color:C.blue},
+        {label:'TOTAL GERAL',  value:fmtR(tGeral), sub:'R$', color:C.red},
+      ]);
+      s1.addChart(pres.charts.BAR,[{
+        name:'Custo Total',
+        labels:data.filter(d=>d.custo_total).slice(0,10).map(d=>d.id_frota),
+        values:data.filter(d=>d.custo_total).slice(0,10).map(d=>Number(d.custo_total)||0)
+      }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
+        chartColors:[C.yellow],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:9,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      let s2=pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Custo de Frota — Detalhe');
+      tabelaSlide(s2,pres,
+        ['Frota','OS (R$)','Lubrificação (R$)','Combustível (R$)','Total (R$)'],
+        data.map(d=>[d.id_frota,fmtR(d.custo_os),fmtR(d.custo_lubrificacao),fmtR(d.custo_combustivel),fmtR(d.custo_total)])
+      );
+      rodape(s2,pres,titulo);
+
+    } else if(_relAtual === 'combustivel'){
+      const data = await sbFetch('vw_custo_combustivel_frota','order=custo_total.desc.nullslast');
+      const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+      const tC=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
+      const fr=[...new Set(data.map(d=>d.frota))].length;
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Custo Combustível — Resumo');
+      kpiCards(s1,pres,[
+        {label:'TOTAL LITROS', value:fmt(tL,0)+' L', sub:'abastecidos',  color:C.green},
+        {label:'CUSTO TOTAL',  value:fmtR(tC),        sub:'R$',          color:C.yellow},
+        {label:'FROTAS',       value:String(fr),       sub:'abastecidas', color:C.blue},
+        {label:'MÉDIA/FROTA',  value:fmtR(fr>0?tC/fr:0), sub:'R$ médio', color:C.red},
+      ]);
+      s1.addChart(pres.charts.BAR,[{
+        name:'Custo (R$)',
+        labels:data.filter(d=>d.custo_total).slice(0,10).map(d=>d.frota),
+        values:data.filter(d=>d.custo_total).slice(0,10).map(d=>Number(d.custo_total)||0)
+      }],{x:0.5,y:2.45,w:4.5,h:2.7,barDir:'bar',
+        chartColors:[C.yellow],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:8,
+        showLegend:false,showTitle:false
+      });
+      s1.addChart(pres.charts.BAR,[{
+        name:'Litros',
+        labels:data.filter(d=>d.total_litros).slice(0,10).map(d=>d.frota),
+        values:data.filter(d=>d.total_litros).slice(0,10).map(d=>Number(d.total_litros)||0)
+      }],{x:5.2,y:2.45,w:4.5,h:2.7,barDir:'bar',
+        chartColors:[C.gl],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:8,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      let s2=pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Custo Combustível — Detalhe por Frota');
+      tabelaSlide(s2,pres,
+        ['Frota','Combustível','Total (L)','Preço/L (R$)','Custo Total (R$)'],
+        data.map(d=>[d.frota,d.combustivel||'—',fmt(d.total_litros,1),fmtR(d.preco_litro),fmtR(d.custo_total)])
+      );
+      rodape(s2,pres,titulo);
+
+    } else if(_relAtual === 'abastecimento'){
+      const [transf, abast] = await Promise.all([
+        sbFetch('combustivel_transferencia','destino=eq.COMBOIO&order=data.desc'),
+        sbFetch('vw_abastecimento_consolidado','order=created_at.desc')
+      ]);
+      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+      const tDist = abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
+      const saldo = Math.max(0, tRec - tDist);
+      const pct   = CAP_COMBOIO>0?Math.min(100,(saldo/CAP_COMBOIO)*100):0;
+      const fr    = [...new Set(abast.map(d=>d.vehicle).filter(Boolean))].length;
+
+      let s1=pres.addSlide(); s1.background={color:C.bg};
+      tituloSlide(s1,pres,'Abastecimento Comboio — Balanço');
+      kpiCards(s1,pres,[
+        {label:'RECEBIDO POSTO',  value:fmt(tRec)+' L',  sub:'total transferido',    color:C.green},
+        {label:'DISTRIBUÍDO',     value:fmt(tDist)+' L', sub:'abastecido máquinas',  color:C.red},
+        {label:'SALDO COMBOIO',   value:fmt(saldo)+' L', sub:pct.toFixed(1)+'% de 5.000 L', color:C.yellow},
+        {label:'FROTAS ABAST.',   value:String(fr),       sub:'equipamentos',         color:C.blue},
+      ]);
+
+      // Gráfico por frota
+      const pf={}; abast.forEach(d=>{const k=d.vehicle||'S/frota';pf[k]=(pf[k]||0)+(Number(d.liters)||0);});
+      const fArr=Object.entries(pf).sort((a,b)=>b[1]-a[1]).slice(0,10);
+      s1.addChart(pres.charts.BAR,[{
+        name:'Litros',
+        labels:fArr.map(d=>d[0]),
+        values:fArr.map(d=>d[1])
+      }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
+        chartColors:[C.gl],
+        chartArea:{fill:{color:C.bg2},roundedCorners:false},
+        catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
+        valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
+        showValue:true,dataLabelColor:C.white,dataLabelFontSize:9,
+        showLegend:false,showTitle:false
+      });
+      rodape(s1,pres,titulo);
+
+      // Slide transferências
+      let s2=pres.addSlide(); s2.background={color:C.bg};
+      tituloSlide(s2,pres,'Transferências Recebidas do Posto');
+      tabelaSlide(s2,pres,
+        ['Data','Combustível','Origem','Quantidade (L)','Obs'],
+        transf.map(t=>[fmtDt(t.data),t.combustivel||'—',t.origem||'—',fmt(t.quantidade_litros,1)+' L',t.obs||'—'])
+      );
+      rodape(s2,pres,titulo);
+
+      // Slide abastecimentos
+      let s3=pres.addSlide(); s3.background={color:C.bg};
+      tituloSlide(s3,pres,'Abastecimentos nas Máquinas');
+      tabelaSlide(s3,pres,
+        ['Data/Hora','Frota','Operador','Frente/Local','Combustível','Litros','Horímetro'],
+        abast.map(d=>[fmtDtHr(d.created_at),d.vehicle||'—',d.operator||'—',d.work_front||d.location||'—',d.fuel_type||'—',fmt(d.liters,1)+' L',d.hourmeter?fmt(d.hourmeter,0)+'h':'—'])
+      );
+      rodape(s3,pres,titulo);
+    }
+
+    // ── Slide de encerramento ────────────────────────────────
+    const sf = pres.addSlide();
+    sf.background = { color: C.bg };
+    sf.addShape(pres.shapes.RECTANGLE,{x:0,y:0,w:0.35,h:5.625,fill:{color:C.green},line:{color:C.green}});
+    sf.addShape(pres.shapes.RECTANGLE,{x:0,y:5.1,w:10,h:0.525,fill:{color:C.bg2},line:{color:C.bg2}});
+    sf.addText('Obrigado',{x:1.0,y:1.6,w:8,h:1.0,fontSize:40,bold:true,color:C.white,fontFace:'Calibri',margin:0});
+    sf.addText('Santa Verginia Agropecuaria e Florestal  |  Controladoria  ' + mesRef,{x:1.0,y:2.7,w:8,h:0.9,fontSize:14,color:C.text2,fontFace:'Calibri',margin:0});
+    sf.addText('Confidencial - uso interno',{x:1.0,y:5.12,w:8,h:0.25,fontSize:9,color:C.gray,fontFace:'Calibri',margin:0});
+
+    // Download
+    const dataStr = new Date().toISOString().slice(0,10);
+    const nomeArq = `SV_${(_relAtual||'relatorio').toUpperCase()}_${dataStr}.pptx`;
+    await pres.writeFile({fileName: nomeArq});
+
+  } catch(e){
+    alert('Erro ao gerar PPTX: ' + e.message);
+    console.error(e);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<span style="font-size:16px;">📊</span> Exportar PPTX';
+  }
+}
+
+// ── INIT ─────────────────────────────────────────────────────
+async function init(){
+  try{
+    await Promise.all([
+      loadConsumo(), loadOS(), loadDisp(), loadLub(),
+      loadCusto(), loadCombustivel(), loadAbastecimento()
+    ]);
+    document.getElementById('sync-status').textContent='● Dados atualizados';
+  }catch(e){
+    document.getElementById('sync-status').textContent='● Erro ao carregar';
+    document.getElementById('sync-status').style.background='#2a1010';
+    document.getElementById('sync-status').style.color='#e74c3c';
+  }
+}
+init();
+</script>
+</body>
+</html>

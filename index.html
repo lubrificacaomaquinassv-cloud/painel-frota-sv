@@ -158,6 +158,7 @@ tr:hover td{background:#131f12;}
   <button class="nb" onclick="showPage('custo',this)">Custo Frota</button>
   <button class="nb" onclick="showPage('combustivel',this)">Custo Combustível</button>
   <button class="nb" onclick="showPage('abastecimento',this)" style="color:var(--yellow)">⛽ Comboio</button>
+  <button class="nb" onclick="showPage('posto',this)" style="color:#3498db">🏭 Posto</button>
   <button class="nb" onclick="showPage('gasolina',this)" style="color:#e67e22">⛽ Gasolina</button>
   <button class="nb" onclick="showPage('relatorio',this)" style="color:#7ab0d4">🖨 Relatório</button>
 </nav>
@@ -344,7 +345,105 @@ tr:hover td{background:#131f12;}
 
 </div>
 
+<!-- 🏭 POSTO BASE (SEDE) -->
+<div id="page-posto" class="page">
 
+  <div style="font-size:12px;color:var(--text2);margin-bottom:14px;letter-spacing:.5px">
+    Base fixa na sede · abastecimento direto e transferências para o comboio · jun/2026 operação real
+  </div>
+
+  <div class="combrow">
+    <div class="tank-card">
+      <div class="tank-label-top">Tanque Diesel S-500 Aditivado · 15.000 L</div>
+      <div class="tank-outer">
+        <div class="tank-liquid" id="pt-s500-fill" style="height:0%;background:#3498db"></div>
+        <div class="tank-pct-txt" id="pt-s500-pct">—</div>
+      </div>
+      <div class="tank-vol-txt" id="pt-s500-vol" style="color:#3498db">—</div>
+      <div style="font-size:11px;color:var(--text2)">saldo desde última NF (frotas agrícolas e caminhões)</div>
+      <div class="tank-status" id="pt-s500-badge" style="background:#101820;color:#3498db">CALCULANDO</div>
+    </div>
+
+    <div>
+      <div class="kpi3" style="margin-bottom:14px;">
+        <div class="kpi-cb g">
+          <div class="kl">Última Carga</div>
+          <div class="kv" id="pt-kpi-carga" style="font-size:26px">—</div>
+          <div class="ku" id="pt-kpi-carga-sub">NF · data · litros</div>
+        </div>
+        <div class="kpi-cb r">
+          <div class="kl">Saída Posto (PWA)</div>
+          <div class="kv" id="pt-kpi-saida">—</div>
+          <div class="ku" id="pt-kpi-saida-sub">desde última carga</div>
+        </div>
+        <div class="kpi-cb y">
+          <div class="kl">Saldo Estimado</div>
+          <div class="kv" id="pt-kpi-saldo">—</div>
+          <div class="ku" id="pt-kpi-saldo-sub">litros no tanque</div>
+        </div>
+      </div>
+      <div class="kpi3">
+        <div class="kpi-cb b">
+          <div class="kl">Transferido p/ Comboio</div>
+          <div class="kv" id="pt-kpi-transf">—</div>
+          <div class="ku">desde última carga</div>
+        </div>
+        <div class="kpi-cb b">
+          <div class="kl">Abastecimentos PWA</div>
+          <div class="kv" id="pt-kpi-ev">—</div>
+          <div class="ku">S-500 na sede</div>
+        </div>
+        <div class="kpi-cb g">
+          <div class="kl">Frotas abastecidas</div>
+          <div class="kv" id="pt-kpi-frotas">—</div>
+          <div class="ku">equipamentos (S-500)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><span style="background:#3498db"></span>Balanço S-500 Aditivado</div>
+      <div id="pt-saldo-detail"><div class="loading">CARREGANDO...</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span style="background:#3498db"></span>Cargas Recebidas (NF)</div>
+      <div id="pt-entradas-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px;">
+    <div class="card">
+      <div class="ct"><span style="background:#3498db"></span>Transferências Posto → Comboio</div>
+      <div id="pt-transf-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span style="background:#7ab0d4"></span>Diesel S-10 · Frota Leve</div>
+      <div id="pt-s10-panel"><div class="loading">CARREGANDO...</div></div>
+      <div style="font-size:11px;color:var(--text3);margin-top:8px">Disponível no posto a partir de 09/06/2026 · veículos leves (KWID, caminhonete)</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <div class="ct" style="margin-bottom:0"><span style="background:#3498db"></span>Abastecimentos na Sede — Detalhe</div>
+      <div class="filter-bar">
+        <button class="fb active" id="pt-fb-todos" onclick="filtrarPosto('todos')">Todos</button>
+        <button class="fb" id="pt-fb-s500" onclick="filtrarPosto('s500')">S-500</button>
+        <button class="fb" id="pt-fb-s10" onclick="filtrarPosto('s10')">S-10</button>
+        <button class="fb" id="pt-fb-hoje" onclick="filtrarPosto('hoje')">Hoje</button>
+      </div>
+    </div>
+    <div id="pt-abast-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px;">
+    <div class="card"><div class="ct"><span style="background:#3498db"></span>Volume por Frota — S-500 (L)</div><div id="pt-chart-frota" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span style="background:#7ab0d4"></span>Volume por Frota — S-10 (L)</div><div id="pt-chart-s10" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+
+</div>
 
 <!-- ⛽ POSTO GASOLINA -->
 <div id="page-gasolina" class="page">
@@ -489,6 +588,20 @@ function fmt(n,dec=0){return n==null?'—':Number(n).toLocaleString('pt-BR',{min
 function fmtR(n){return n==null?'—':'R$ '+Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—';}
 function fmtDtHr(d){if(!d)return'—';const x=new Date(d);return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+
+function normFuel(k){
+  return String(k||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim();
+}
+function isFuelS500(k){const n=normFuel(k);return n.includes('S-500')||n.includes('S500');}
+function isFuelS10(k){const n=normFuel(k);return n.includes('S-10')||n.includes('S10');}
+function isFuelGasolina(k){return normFuel(k).includes('GASOLINA');}
+function labelFuel(k){
+  if(isFuelS500(k)&&normFuel(k).includes('ADITIV')) return 'DIESEL S-500 ADITIVADO';
+  if(isFuelS10(k)) return 'DIESEL S-10';
+  if(isFuelGasolina(k)) return 'GASOLINA COMUM';
+  if(isFuelS500(k)) return 'DIESEL S-500';
+  return normFuel(k)||'—';
+}
 
 function barChart(el,data,lKey,vKey,color='var(--green)'){
   if(!data||!data.length){el.innerHTML='<div class="err">Sem dados</div>';return;}
@@ -741,7 +854,7 @@ async function loadAbastecimento(){
     // Por combustível
     const porComb = {};
     abast.forEach(d=>{
-      const k=d.fuel_type||'Sem tipo';
+      const k=labelFuel(d.fuel_type);
       porComb[k]=(porComb[k]||0)+(Number(d.liters)||0);
     });
 
@@ -1505,6 +1618,203 @@ async function exportarPPTX(){
 
 
 // ══════════════════════════════════════════════════════════════
+// 🏭 POSTO BASE (SEDE)
+// ══════════════════════════════════════════════════════════════
+const CAP_POSTO_S500 = 15000;
+const POSTO_BLUE = '#3498db';
+let _postoAll = [];
+
+function filtrarPosto(mode){
+  ['pt-fb-todos','pt-fb-s500','pt-fb-s10','pt-fb-hoje'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.classList.remove('active');
+  });
+  const map={todos:'pt-fb-todos',s500:'pt-fb-s500',s10:'pt-fb-s10',hoje:'pt-fb-hoje'};
+  const btn=document.getElementById(map[mode]); if(btn) btn.classList.add('active');
+  let data=_postoAll;
+  if(mode==='s500') data=data.filter(d=>isFuelS500(d.fuel_type));
+  else if(mode==='s10') data=data.filter(d=>isFuelS10(d.fuel_type));
+  else if(mode==='hoje'){
+    const hoje=new Date(); hoje.setHours(0,0,0,0);
+    data=data.filter(d=>new Date(d.created_at)>=hoje);
+  }
+  renderPostoTable(data);
+}
+
+function renderPostoTable(data){
+  if(!data.length){
+    document.getElementById('pt-abast-table').innerHTML='<div class="err">Sem registros no filtro selecionado</div>';
+    return;
+  }
+  document.getElementById('pt-abast-table').innerHTML=`<table>
+    <thead><tr>
+      <th>Data/Hora</th><th>Frota</th><th>Operador</th><th>Frente</th>
+      <th>Combustível</th><th>Litros</th><th>Horímetro</th>
+    </tr></thead>
+    <tbody>${data.map(d=>`<tr>
+      <td style="color:var(--text2)">${fmtDtHr(d.created_at)}</td>
+      <td><b>${d.vehicle||'—'}</b></td>
+      <td>${d.operator||'—'}</td>
+      <td style="color:var(--text2)">${d.work_front||'—'}</td>
+      <td>${labelFuel(d.fuel_type)}</td>
+      <td style="color:${isFuelS10(d.fuel_type)?'#7ab0d4':POSTO_BLUE};font-weight:700">${fmt(d.liters,1)} L</td>
+      <td style="color:var(--text2)">${d.hourmeter||'—'}</td>
+    </tr>`).join('')}</tbody></table>`;
+}
+
+async function loadPosto(){
+  try{
+    const [saldoRows, entradas, transf, abastAll] = await Promise.all([
+      sbFetch('vw_saldo_posto_v2'),
+      sbFetch('combustivel_entrada','combustivel=ilike.*S-500*&order=data.desc'),
+      sbFetch('combustivel_transferencia','origem=eq.POSTO&order=data.desc'),
+      sbFetch('posto','order=created_at.desc')
+    ]);
+
+    const s = saldoRows[0] || {};
+    const saldo = Number(s.saldo_litros) || 0;
+    const pct = Number(s.pct_restante) || (CAP_POSTO_S500 > 0 ? Math.min(100, (saldo / CAP_POSTO_S500) * 100) : 0);
+    const entradaL = Number(s.entrada_l) || 0;
+    const saidaPosto = Number(s.saida_posto_l) || 0;
+    const transfComboio = Number(s.transferencia_comboio_l) || 0;
+
+    const ultimaEntrada = entradas[0] || {};
+    const abastDiesel = abastAll.filter(d => !isFuelGasolina(d.fuel_type) && !normFuel(d.fuel_type).includes('ETANOL'));
+    const abastS500 = abastDiesel.filter(d => isFuelS500(d.fuel_type));
+    const abastS10 = abastDiesel.filter(d => isFuelS10(d.fuel_type));
+    _postoAll = abastDiesel;
+
+    const dataCarga = s.data_carga ? new Date(s.data_carga) : null;
+    const abastS500PosCarga = dataCarga
+      ? abastS500.filter(d => new Date(d.created_at) >= dataCarga)
+      : abastS500;
+    const frotasS500 = [...new Set(abastS500PosCarga.map(d => d.vehicle).filter(Boolean))].length;
+
+    document.getElementById('pt-kpi-carga').textContent = ultimaEntrada.nota_fiscal ? 'NF ' + ultimaEntrada.nota_fiscal : '—';
+    document.getElementById('pt-kpi-carga-sub').textContent =
+      (s.data_carga ? fmtDt(s.data_carga) : '—') + ' · ' + fmt(entradaL) + ' L';
+    document.getElementById('pt-kpi-saida').textContent = fmt(saidaPosto, 1) + ' L';
+    document.getElementById('pt-kpi-saida-sub').textContent = 'abastecimentos na sede';
+    document.getElementById('pt-kpi-saldo').textContent = fmt(saldo, 1) + ' L';
+    document.getElementById('pt-kpi-saldo-sub').textContent = pct.toFixed(1) + '% do tanque';
+    document.getElementById('pt-kpi-transf').textContent = fmt(transfComboio, 1) + ' L';
+    document.getElementById('pt-kpi-ev').textContent = fmt(abastS500PosCarga.length);
+    document.getElementById('pt-kpi-frotas').textContent = frotasS500;
+
+    const fill = document.getElementById('pt-s500-fill');
+    const pctEl = document.getElementById('pt-s500-pct');
+    const volEl = document.getElementById('pt-s500-vol');
+    const badge = document.getElementById('pt-s500-badge');
+    fill.style.height = pct.toFixed(1) + '%';
+    pctEl.textContent = pct.toFixed(1) + '%';
+    volEl.textContent = fmt(saldo, 1) + ' L';
+
+    if(pct <= 20){
+      fill.style.background = 'var(--red)';
+      volEl.style.color = '#e74c3c';
+      badge.textContent = 'NÍVEL CRÍTICO';
+      badge.style.background = '#2a1010';
+      badge.style.color = '#e74c3c';
+    } else if(pct <= 40){
+      fill.style.background = 'var(--yellow)';
+      volEl.style.color = 'var(--yellow)';
+      badge.textContent = 'NÍVEL BAIXO';
+      badge.style.background = '#2a2200';
+      badge.style.color = 'var(--yellow)';
+    } else {
+      fill.style.background = POSTO_BLUE;
+      volEl.style.color = POSTO_BLUE;
+      badge.textContent = 'NÍVEL OK';
+      badge.style.background = '#101820';
+      badge.style.color = POSTO_BLUE;
+    }
+
+    document.getElementById('pt-saldo-detail').innerHTML = `
+      <div class="saldo-row">
+        <span class="sr-label" style="color:${POSTO_BLUE}">(+) Última carga NF ${ultimaEntrada.nota_fiscal || '—'}</span>
+        <span class="sr-val" style="color:${POSTO_BLUE}">${fmt(entradaL, 1)} L</span>
+      </div>
+      <div class="saldo-row" style="padding-left:16px;">
+        <span class="sr-label" style="color:var(--text2);font-size:11px">Data da carga</span>
+        <span class="sr-val" style="font-size:12px">${s.data_carga ? fmtDt(s.data_carga) : '—'}</span>
+      </div>
+      <div class="saldo-row">
+        <span class="sr-label" style="color:var(--red)">(-) Abastecimentos PWA (sede)</span>
+        <span class="sr-val" style="color:var(--red)">-${fmt(saidaPosto, 1)} L</span>
+      </div>
+      <div class="saldo-row">
+        <span class="sr-label" style="color:var(--red)">(-) Transferências p/ Comboio</span>
+        <span class="sr-val" style="color:var(--red)">-${fmt(transfComboio, 1)} L</span>
+      </div>
+      <div class="saldo-row">
+        <span class="sr-label">= Saldo estimado S-500</span>
+        <span class="sr-val" style="color:${pct <= 20 ? '#e74c3c' : pct <= 40 ? 'var(--yellow)' : POSTO_BLUE}">
+          ${fmt(saldo, 1)} L &nbsp;<span style="font-size:11px;color:var(--text2)">(${pct.toFixed(1)}% de ${fmt(CAP_POSTO_S500)} L)</span>
+        </span>
+      </div>`;
+
+    if(entradas.length){
+      document.getElementById('pt-entradas-table').innerHTML = `<table>
+        <thead><tr><th>Data</th><th>NF</th><th>Fornecedor</th><th>Qtd (L)</th><th>R$/L</th><th>Total</th></tr></thead>
+        <tbody>${entradas.slice(0,8).map(e => `<tr>
+          <td>${fmtDt(e.data)}</td>
+          <td><b>${e.nota_fiscal || '—'}</b></td>
+          <td style="color:var(--text2)">${e.fornecedor || '—'}</td>
+          <td style="color:${POSTO_BLUE};font-weight:700">${fmt(e.quantidade_l, 1)} L</td>
+          <td>${fmtR(e.valor_litro)}</td>
+          <td><b>${fmtR(e.valor_total)}</b></td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('pt-entradas-table').innerHTML = '<div class="err">Nenhuma carga registrada</div>';
+    }
+
+    const transfComboioRows = transf.filter(t => String(t.destino||'').toUpperCase() === 'COMBOIO');
+    if(transfComboioRows.length){
+      document.getElementById('pt-transf-table').innerHTML = `<table>
+        <thead><tr><th>Data</th><th>Combustível</th><th>Destino</th><th>Qtd (L)</th><th>Obs</th></tr></thead>
+        <tbody>${transfComboioRows.map(t => `<tr>
+          <td>${fmtDt(t.data)}</td>
+          <td>${labelFuel(t.combustivel)}</td>
+          <td style="color:var(--text2)">${t.destino || '—'}</td>
+          <td style="color:var(--yellow);font-weight:700">${fmt(t.quantidade_l, 1)} L</td>
+          <td style="color:var(--text3)">${t.observacao || '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('pt-transf-table').innerHTML = '<div class="err">Nenhuma transferência registrada</div>';
+    }
+
+    const s10Total = abastS10.reduce((acc, d) => acc + (Number(d.liters) || 0), 0);
+    const s10Frotas = [...new Set(abastS10.map(d => d.vehicle).filter(Boolean))];
+    document.getElementById('pt-s10-panel').innerHTML = abastS10.length ? `
+      <div class="kpi-row" style="margin-bottom:0">
+        <div class="kpi b"><div class="kl">Consumo S-10 (PWA)</div><div class="kv">${fmt(s10Total,1)} L</div><div class="ku">${abastS10.length} evento(s)</div></div>
+        <div class="kpi g"><div class="kl">Frotas leves</div><div class="kv">${s10Frotas.length}</div><div class="ku">${s10Frotas.join(', ') || '—'}</div></div>
+      </div>` : `<div class="err" style="color:var(--text2)">Sem abastecimentos S-10 ainda · tanque entra em operação em 09/06/2026</div>`;
+
+    renderPostoTable(_postoAll);
+
+    const pf500 = {};
+    abastS500.forEach(d => { const k = d.vehicle || 'S/frota'; pf500[k] = (pf500[k] || 0) + (Number(d.liters) || 0); });
+    barChart(document.getElementById('pt-chart-frota'),
+      Object.entries(pf500).map(([vehicle, v]) => ({ vehicle, v })).sort((a, b) => b.v - a.v),
+      'vehicle', 'v', POSTO_BLUE);
+
+    const pf10 = {};
+    abastS10.forEach(d => { const k = d.vehicle || 'S/frota'; pf10[k] = (pf10[k] || 0) + (Number(d.liters) || 0); });
+    barChart(document.getElementById('pt-chart-s10'),
+      Object.entries(pf10).map(([vehicle, v]) => ({ vehicle, v })).sort((a, b) => b.v - a.v),
+      'vehicle', 'v', '#7ab0d4');
+
+  }catch(e){
+    ['pt-saldo-detail','pt-entradas-table','pt-transf-table','pt-s10-panel','pt-abast-table','pt-chart-frota','pt-chart-s10'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = `<div class="err">Erro: ${e.message}</div>`;
+    });
+    console.error(e);
+  }
+}
+
+// ══════════════════════════════════════════════════════════════
 // ⛽ POSTO GASOLINA
 // ══════════════════════════════════════════════════════════════
 const CAP_GASOLINA = 5000;
@@ -1663,7 +1973,7 @@ async function init(){
   try{
     await Promise.all([
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
-      loadCusto(), loadCombustivel(), loadAbastecimento(), loadGasolina()
+      loadCusto(), loadCombustivel(), loadAbastecimento(), loadPosto(), loadGasolina()
     ]);
     document.getElementById('sync-status').textContent='● Dados atualizados';
   }catch(e){

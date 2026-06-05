@@ -158,6 +158,7 @@ tr:hover td{background:#131f12;}
   <button class="nb" onclick="showPage('custo',this)">Custo Frota</button>
   <button class="nb" onclick="showPage('combustivel',this)">Custo Combustível</button>
   <button class="nb" onclick="showPage('abastecimento',this)" style="color:var(--yellow)">⛽ Comboio</button>
+  <button class="nb" onclick="showPage('gasolina',this)" style="color:#e67e22">⛽ Gasolina</button>
   <button class="nb" onclick="showPage('relatorio',this)" style="color:#7ab0d4">🖨 Relatório</button>
 </nav>
 
@@ -343,6 +344,89 @@ tr:hover td{background:#131f12;}
 
 </div>
 
+
+
+<!-- ⛽ POSTO GASOLINA -->
+<div id="page-gasolina" class="page">
+
+  <div class="combrow">
+    <div class="tank-card">
+      <div class="tank-label-top">Tanque Gasolina · 5.000 L</div>
+      <div class="tank-outer">
+        <div class="tank-liquid" id="gs-tank-fill" style="height:0%;background:#e67e22"></div>
+        <div class="tank-pct-txt" id="gs-tank-pct">—</div>
+      </div>
+      <div class="tank-vol-txt" id="gs-tank-vol" style="color:#e67e22">—</div>
+      <div style="font-size:11px;color:var(--text2)">saldo estimado (NF 12737 − PWA)</div>
+      <div class="tank-status" id="gs-tank-badge" style="background:#2a2200;color:#e67e22">CALCULANDO</div>
+    </div>
+
+    <div>
+      <div class="kpi3" style="margin-bottom:14px;">
+        <div class="kpi-cb g">
+          <div class="kl">Última Carga</div>
+          <div class="kv" id="gs-kpi-carga" style="font-size:26px">—</div>
+          <div class="ku" id="gs-kpi-carga-sub">NF · data · litros</div>
+        </div>
+        <div class="kpi-cb r">
+          <div class="kl">Consumo PWA</div>
+          <div class="kv" id="gs-kpi-consumo">—</div>
+          <div class="ku" id="gs-kpi-consumo-sub">desde 18/05/2026</div>
+        </div>
+        <div class="kpi-cb y">
+          <div class="kl">Saldo Estimado</div>
+          <div class="kv" id="gs-kpi-saldo">—</div>
+          <div class="ku" id="gs-kpi-saldo-sub">litros no tanque</div>
+        </div>
+      </div>
+      <div class="kpi3">
+        <div class="kpi-cb b">
+          <div class="kl">Abastecimentos PWA</div>
+          <div class="kv" id="gs-kpi-ev">—</div>
+          <div class="ku">eventos registrados</div>
+        </div>
+        <div class="kpi-cb b">
+          <div class="kl">Histórico Planilha</div>
+          <div class="kv" id="gs-kpi-hist">—</div>
+          <div class="ku">Jan–Mai/17 (não entra no saldo)</div>
+        </div>
+        <div class="kpi-cb g">
+          <div class="kl">Frotas abastecidas</div>
+          <div class="kv" id="gs-kpi-frotas">—</div>
+          <div class="ku">equipamentos (PWA)</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><span style="background:#e67e22"></span>Balanço do Tanque</div>
+      <div id="gs-saldo-detail"><div class="loading">CARREGANDO...</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span style="background:#e67e22"></span>Cargas Recebidas</div>
+      <div id="gs-entradas-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+  </div>
+
+  <div class="grid2" style="margin-top:16px;">
+    <div class="card">
+      <div class="ct"><span style="background:#e67e22"></span>Histórico Mensal — Planilha (referência)</div>
+      <div id="gs-hist-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span style="background:#e67e22"></span>Consumo Mensal — Planilha + PWA</div>
+      <div id="gs-chart-mes" class="bar-chart"><div class="loading">CARREGANDO...</div></div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
+    <div class="ct"><span style="background:#e67e22"></span>Abastecimentos PWA — Detalhe (≥ 18/05/2026)</div>
+    <div id="gs-abast-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
+
+</div>
 
 <!-- 🖨 RELATÓRIO / IMPRIMIR -->
 <div id="page-relatorio" class="page">
@@ -1419,12 +1503,167 @@ async function exportarPPTX(){
   }
 }
 
+
+// ══════════════════════════════════════════════════════════════
+// ⛽ POSTO GASOLINA
+// ══════════════════════════════════════════════════════════════
+const CAP_GASOLINA = 5000;
+const GAS_ORANGE = '#e67e22';
+
+async function loadGasolina(){
+  try{
+    const [saldoRows, histMensal, consumoMensal, abast, entradas] = await Promise.all([
+      sbFetch('vw_saldo_gasolina_posto'),
+      sbFetch('gasolina_historico_mensal','order=ano_mes.asc'),
+      sbFetch('vw_gasolina_consumo_mensal','order=mes.asc,origem.asc'),
+      sbFetch('vw_abastecimento_gasolina','created_at=gte.2026-05-18&order=created_at.desc'),
+      sbFetch('combustivel_entrada','combustivel=ilike.*GASOLINA*&order=data.desc')
+    ]);
+
+    const s = saldoRows[0] || {};
+    const saldo = Number(s.saldo_estimado) || 0;
+    const pct = Number(s.pct_tanque) || (CAP_GASOLINA > 0 ? Math.min(100, (saldo / CAP_GASOLINA) * 100) : 0);
+    const consumoPwa = Number(s.consumo_pwa) || 0;
+    const litrosCarga = Number(s.litros_ultima_carga) || 0;
+    const histTotal = histMensal.reduce((acc, d) => acc + (Number(d.litros) || 0), 0);
+    const frotasUnicas = [...new Set(abast.map(d => d.frota).filter(Boolean))].length;
+
+    document.getElementById('gs-kpi-carga').textContent = s.nf_ultima_carga ? 'NF ' + s.nf_ultima_carga : '—';
+    document.getElementById('gs-kpi-carga-sub').textContent =
+      (s.data_ultima_carga ? fmtDt(s.data_ultima_carga) : '—') + ' · ' + fmt(litrosCarga) + ' L';
+    document.getElementById('gs-kpi-consumo').textContent = fmt(consumoPwa, 1) + ' L';
+    document.getElementById('gs-kpi-consumo-sub').textContent =
+      'desde ' + (s.inicio_pwa ? fmtDt(s.inicio_pwa) : '18/05/2026');
+    document.getElementById('gs-kpi-saldo').textContent = fmt(saldo, 1) + ' L';
+    document.getElementById('gs-kpi-saldo-sub').textContent = pct.toFixed(1) + '% do tanque';
+    document.getElementById('gs-kpi-ev').textContent = fmt(abast.length);
+    document.getElementById('gs-kpi-hist').textContent = fmt(histTotal, 1) + ' L';
+    document.getElementById('gs-kpi-frotas').textContent = frotasUnicas;
+
+    const fill = document.getElementById('gs-tank-fill');
+    const pctEl = document.getElementById('gs-tank-pct');
+    const volEl = document.getElementById('gs-tank-vol');
+    const badge = document.getElementById('gs-tank-badge');
+
+    fill.style.height = pct.toFixed(1) + '%';
+    pctEl.textContent = pct.toFixed(1) + '%';
+    volEl.textContent = fmt(saldo, 1) + ' L';
+
+    if(pct <= 20){
+      fill.style.background = 'var(--red)';
+      volEl.style.color = '#e74c3c';
+      badge.textContent = 'NÍVEL CRÍTICO';
+      badge.style.background = '#2a1010';
+      badge.style.color = '#e74c3c';
+    } else if(pct <= 40){
+      fill.style.background = 'var(--yellow)';
+      volEl.style.color = 'var(--yellow)';
+      badge.textContent = 'NÍVEL BAIXO';
+      badge.style.background = '#2a2200';
+      badge.style.color = 'var(--yellow)';
+    } else {
+      fill.style.background = GAS_ORANGE;
+      volEl.style.color = GAS_ORANGE;
+      badge.textContent = 'NÍVEL OK';
+      badge.style.background = '#2a2200';
+      badge.style.color = GAS_ORANGE;
+    }
+
+    document.getElementById('gs-saldo-detail').innerHTML = `
+      <div class="saldo-row">
+        <span class="sr-label" style="color:${GAS_ORANGE}">(+) Última carga NF ${s.nf_ultima_carga || '—'}</span>
+        <span class="sr-val" style="color:${GAS_ORANGE}">${fmt(litrosCarga, 1)} L</span>
+      </div>
+      <div class="saldo-row" style="padding-left:16px;">
+        <span class="sr-label" style="color:var(--text2);font-size:11px">Data da carga</span>
+        <span class="sr-val" style="font-size:12px">${s.data_ultima_carga ? fmtDt(s.data_ultima_carga) : '—'}</span>
+      </div>
+      <div class="saldo-row">
+        <span class="sr-label" style="color:var(--red)">(-) Consumo PWA (≥ 18/05)</span>
+        <span class="sr-val" style="color:var(--red)">-${fmt(consumoPwa, 1)} L</span>
+      </div>
+      <div class="saldo-row">
+        <span class="sr-label">= Saldo estimado</span>
+        <span class="sr-val" style="color:${pct <= 20 ? '#e74c3c' : pct <= 40 ? 'var(--yellow)' : GAS_ORANGE}">
+          ${fmt(saldo, 1)} L &nbsp;<span style="font-size:11px;color:var(--text2)">(${pct.toFixed(1)}% de ${fmt(CAP_GASOLINA)} L)</span>
+        </span>
+      </div>
+      <div class="saldo-row" style="border-bottom:none;padding-top:8px;">
+        <span class="sr-label" style="font-size:11px;color:var(--text3)">Histórico planilha (referência, fora do saldo)</span>
+        <span class="sr-val" style="font-size:12px;color:var(--text2)">${fmt(histTotal, 1)} L</span>
+      </div>`;
+
+    if(entradas.length){
+      document.getElementById('gs-entradas-table').innerHTML = `<table>
+        <thead><tr><th>Data</th><th>NF</th><th>Fornecedor</th><th>Qtd (L)</th><th>R$/L</th><th>Total</th></tr></thead>
+        <tbody>${entradas.map(e => `<tr>
+          <td>${fmtDt(e.data)}</td>
+          <td><b>${e.nota_fiscal || '—'}</b></td>
+          <td style="color:var(--text2)">${e.fornecedor || '—'}</td>
+          <td style="color:${GAS_ORANGE};font-weight:700">${fmt(e.quantidade_l, 1)} L</td>
+          <td>${fmtR(e.valor_litro)}</td>
+          <td><b>${fmtR(e.valor_total)}</b></td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('gs-entradas-table').innerHTML = '<div class="err">Nenhuma carga registrada</div>';
+    }
+
+    if(histMensal.length){
+      document.getElementById('gs-hist-table').innerHTML = `<table>
+        <thead><tr><th>Mês</th><th>Litros</th><th>Eventos</th><th>Origem</th><th>Obs</th></tr></thead>
+        <tbody>${histMensal.map(h => `<tr>
+          <td><b>${h.ano_mes ? new Date(h.ano_mes).toLocaleDateString('pt-BR', {month:'long', year:'numeric'}) : '—'}</b></td>
+          <td style="color:${GAS_ORANGE};font-weight:700">${fmt(h.litros, 1)} L</td>
+          <td>${fmt(h.qtd_eventos)}</td>
+          <td><span class="st st-legado">${h.origem || 'PLANILHA'}</span></td>
+          <td style="color:var(--text3);font-size:11px">${h.observacao || '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('gs-hist-table').innerHTML = '<div class="err">Sem histórico importado</div>';
+    }
+
+    const mesMap = {};
+    consumoMensal.forEach(d => {
+      const k = d.mes ? new Date(d.mes).toLocaleDateString('pt-BR', {month:'short', year:'2-digit'}) : '?';
+      if(!mesMap[k]) mesMap[k] = {mes: k, planilha: 0, pwa: 0, total: 0};
+      const v = Number(d.litros) || 0;
+      if((d.origem || '').toUpperCase() === 'PWA') mesMap[k].pwa += v;
+      else mesMap[k].planilha += v;
+      mesMap[k].total += v;
+    });
+    const chartData = Object.values(mesMap).map(x => ({mes: x.mes, v: x.total, planilha: x.planilha, pwa: x.pwa}));
+    barChart(document.getElementById('gs-chart-mes'), chartData, 'mes', 'v', GAS_ORANGE);
+
+    if(abast.length){
+      document.getElementById('gs-abast-table').innerHTML = `<table>
+        <thead><tr><th>Data/Hora</th><th>OS</th><th>Frota</th><th>Operador</th><th>Local</th><th>Litros</th><th>Horímetro</th></tr></thead>
+        <tbody>${abast.map(d => `<tr>
+          <td style="color:var(--text2)">${fmtDtHr(d.created_at)}</td>
+          <td style="color:var(--text3);font-size:11px">${d.os_numero || '—'}</td>
+          <td><b>${d.frota || '—'}</b></td>
+          <td>${d.operador || '—'}</td>
+          <td style="color:var(--text2)">${d.frente || d.local || '—'}</td>
+          <td style="color:${GAS_ORANGE};font-weight:700">${fmt(d.litros, 1)} L</td>
+          <td style="color:var(--text2)">${d.horimetro || '—'}</td>
+        </tr>`).join('')}</tbody></table>`;
+    } else {
+      document.getElementById('gs-abast-table').innerHTML = '<div class="err">Sem abastecimentos PWA no período</div>';
+    }
+  }catch(e){
+    ['gs-saldo-detail','gs-entradas-table','gs-hist-table','gs-chart-mes','gs-abast-table'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = `<div class="err">Erro: ${e.message}</div>`;
+    });
+    console.error(e);
+  }
+}
+
 // ── INIT ─────────────────────────────────────────────────────
 async function init(){
   try{
     await Promise.all([
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
-      loadCusto(), loadCombustivel(), loadAbastecimento()
+      loadCusto(), loadCombustivel(), loadAbastecimento(), loadGasolina()
     ]);
     document.getElementById('sync-status').textContent='● Dados atualizados';
   }catch(e){

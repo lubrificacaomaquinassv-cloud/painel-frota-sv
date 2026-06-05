@@ -686,7 +686,7 @@ async function loadAbastecimento(){
     _abastAll = abast;
 
     // ── Cálculos de saldo ────────────────────────────────────
-    const totalRecebido   = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+    const totalRecebido   = transf.reduce((s,d)=>s+(Number(d.quantidade_l)||0),0);
     const totalDistribuido= abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
     const saldo           = Math.max(0, totalRecebido - totalDistribuido);
     const pct             = CAP_COMBOIO > 0 ? Math.min(100,(saldo/CAP_COMBOIO)*100) : 0;
@@ -770,8 +770,8 @@ async function loadAbastecimento(){
           <td>${fmtDt(t.data)}</td>
           <td>${t.combustivel||'—'}</td>
           <td style="color:var(--text2)">${t.origem||'—'}</td>
-          <td style="color:var(--gl);font-weight:700">${fmt(t.quantidade_litros,1)} L</td>
-          <td style="color:var(--text3)">${t.obs||'—'}</td>
+          <td style="color:var(--gl);font-weight:700">${fmt(t.quantidade_l,1)} L</td>
+          <td style="color:var(--text3)">${t.observacao||'—'}</td>
         </tr>`).join('')}</tbody></table>`;
     } else {
       document.getElementById('cb-transferencias-table').innerHTML='<div class="err">Nenhuma transferência registrada</div>';
@@ -1041,7 +1041,7 @@ function renderRelatorio(tipo){
       sbFetch('combustivel_transferencia','destino=eq.COMBOIO&order=data.desc'),
       sbFetch('vw_abastecimento_consolidado','order=created_at.desc')
     ]).then(([transf, abast])=>{
-      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_l)||0),0);
       const tDist = abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
       const saldo = Math.max(0, tRec - tDist);
       const pct   = CAP_COMBOIO > 0 ? Math.min(100,(saldo/CAP_COMBOIO)*100) : 0;
@@ -1056,8 +1056,8 @@ function renderRelatorio(tipo){
       <table><thead><tr><th>Data</th><th>Combustível</th><th>Origem</th><th>Quantidade (L)</th><th>Obs</th></tr></thead>
       <tbody>${transf.map(t=>`<tr>
         <td>${fmtDt(t.data)}</td><td>${t.combustivel||'—'}</td>
-        <td>${t.origem||'—'}</td><td><b>${fmt(t.quantidade_litros,1)} L</b></td>
-        <td>${t.obs||'—'}</td>
+        <td>${t.origem||'—'}</td><td><b>${fmt(t.quantidade_l,1)} L</b></td>
+        <td>${t.observacao||'—'}</td>
       </tr>`).join('')}</tbody></table>
       <div class="section-title" style="margin-top:18pt;">Abastecimentos nas Máquinas</div>
       <table><thead><tr><th>Data/Hora</th><th>OS</th><th>Frota</th><th>Operador</th><th>Frente/Local</th><th>Combustível</th><th>Litros</th><th>Horímetro</th></tr></thead>
@@ -1429,7 +1429,7 @@ async function exportarPPTX(){
         sbFetch('combustivel_transferencia','destino=eq.COMBOIO&order=data.desc'),
         sbFetch('vw_abastecimento_consolidado','order=created_at.desc')
       ]);
-      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_litros)||0),0);
+      const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_l)||0),0);
       const tDist = abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
       const saldo = Math.max(0, tRec - tDist);
       const pct   = CAP_COMBOIO>0?Math.min(100,(saldo/CAP_COMBOIO)*100):0;
@@ -1466,7 +1466,7 @@ async function exportarPPTX(){
       tituloSlide(s2,pres,'Transferências Recebidas do Posto');
       tabelaSlide(s2,pres,
         ['Data','Combustível','Origem','Quantidade (L)','Obs'],
-        transf.map(t=>[fmtDt(t.data),t.combustivel||'—',t.origem||'—',fmt(t.quantidade_litros,1)+' L',t.obs||'—'])
+        transf.map(t=>[fmtDt(t.data),t.combustivel||'—',t.origem||'—',fmt(t.quantidade_l,1)+' L',t.observacao||'—'])
       );
       rodape(s2,pres,titulo);
 

@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
 <title>GESTÃO DE FROTA — SANTA VERGÍNIA</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -674,11 +677,11 @@ function monthKeysForOS(rows){
  return [...new Set(keys)];
 }
 
-function osDateField(r){return r.created_at||r.updated_at;}
+function osDateField(r){return r.created_at;}
 
 async function fetchOSPanel(){
  const [osRows, finRows] = await Promise.all([
-   sbFetch('ordem_servico','select=numero_os,id_frota,created_at,updated_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
+   sbFetch('ordem_servico','select=numero_os,id_frota,created_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
    sbFetch('financeiro_os','select=numero_os,custo_total_os,valor_total_pecas,custo_mo,peca_valor,quantidade')
  ]);
  const finByOs={};
@@ -753,7 +756,7 @@ async function fetchLubV3Panel(){
 // ── OS ────────────────────────────────────────────────────────
 async function loadOS(){
  try{
-  _osAll=await fetchOSPanel();
+  _osAll=await sbFetch('vw_ranking_os','order=horas_parada.desc.nullslast');
   const keys=monthKeysForOS(_osAll);
   buildMonthBar('os-month-bar', keys, currentMonthKey(), renderOSMonth);
  }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
@@ -2118,7 +2121,7 @@ async function init(){
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
       loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
     ]);
-    document.getElementById('sync-status').textContent='● Dados atualizados';
+    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06b';
   }catch(e){
     document.getElementById('sync-status').textContent='● Erro ao carregar';
     document.getElementById('sync-status').style.background='#2a1010';

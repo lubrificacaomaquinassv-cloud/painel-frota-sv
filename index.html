@@ -183,6 +183,7 @@ tr:hover td{background:#131f12;}
 
 <!-- CONSUMO -->
 <div id="page-consumo" class="page active">
+  <div id="consumo-month-bar" class="month-bar"></div>
   <div class="kpi-row">
     <div class="kpi g"><div class="kl">Total abastecido</div><div class="kv" id="kpi-total-l">—</div><div class="ku">litros no período</div></div>
     <div class="kpi b"><div class="kl">Abastecimentos</div><div class="kv" id="kpi-total-ev">—</div><div class="ku">eventos registrados</div></div>
@@ -215,6 +216,7 @@ tr:hover td{background:#131f12;}
 
 <!-- DISPONIBILIDADE -->
 <div id="page-disponibilidade" class="page">
+  <div id="disp-month-bar" class="month-bar"></div>
   <div class="kpi-row">
     <div class="kpi g"><div class="kl">Disponib. média geral</div><div class="kv" id="kpi-disp-med">—</div><div class="ku">% frota total</div></div>
     <div class="kpi b"><div class="kl">Horas trabalhadas</div><div class="kv" id="kpi-ht">—</div><div class="ku">acumulado período</div></div>
@@ -474,54 +476,11 @@ tr:hover td{background:#131f12;}
 <!-- ⛽ POSTO GASOLINA -->
 <div id="page-gasolina" class="page">
 
-  <div class="combrow">
-    <div class="tank-card">
-      <div class="tank-label-top">Tanque Gasolina · 5.000 L</div>
-      <div class="tank-outer">
-        <div class="tank-liquid" id="gs-tank-fill" style="height:0%;background:#e67e22"></div>
-        <div class="tank-pct-txt" id="gs-tank-pct">—</div>
-      </div>
-      <div class="tank-vol-txt" id="gs-tank-vol" style="color:#e67e22">—</div>
-      <div style="font-size:11px;color:var(--text2)">saldo estimado (NF 12737 − PWA)</div>
-      <div class="tank-status" id="gs-tank-badge" style="background:#2a2200;color:#e67e22">CALCULANDO</div>
-    </div>
-
-    <div>
-      <div class="kpi3" style="margin-bottom:14px;">
-        <div class="kpi-cb g">
-          <div class="kl">Última Carga</div>
-          <div class="kv" id="gs-kpi-carga" style="font-size:26px">—</div>
-          <div class="ku" id="gs-kpi-carga-sub">NF · data · litros</div>
-        </div>
-        <div class="kpi-cb r">
-          <div class="kl">Consumo PWA</div>
-          <div class="kv" id="gs-kpi-consumo">—</div>
-          <div class="ku" id="gs-kpi-consumo-sub">desde 18/05/2026</div>
-        </div>
-        <div class="kpi-cb y">
-          <div class="kl">Saldo Estimado</div>
-          <div class="kv" id="gs-kpi-saldo">—</div>
-          <div class="ku" id="gs-kpi-saldo-sub">litros no tanque</div>
-        </div>
-      </div>
-      <div class="kpi3">
-        <div class="kpi-cb b">
-          <div class="kl">Abastecimentos PWA</div>
-          <div class="kv" id="gs-kpi-ev">—</div>
-          <div class="ku">eventos registrados</div>
-        </div>
-        <div class="kpi-cb b">
-          <div class="kl">Histórico Planilha</div>
-          <div class="kv" id="gs-kpi-hist">—</div>
-          <div class="ku">Jan–Mai/17 (não entra no saldo)</div>
-        </div>
-        <div class="kpi-cb g">
-          <div class="kl">Frotas abastecidas</div>
-          <div class="kv" id="gs-kpi-frotas">—</div>
-          <div class="ku">equipamentos (PWA)</div>
-        </div>
-      </div>
-    </div>
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Última Carga</div><div class="kv" id="gs-kpi-carga" style="font-size:26px">—</div><div class="ku" id="gs-kpi-carga-sub">NF · data · litros</div></div>
+    <div class="kpi r"><div class="kl">Consumo PWA</div><div class="kv" id="gs-kpi-consumo">—</div><div class="ku" id="gs-kpi-consumo-sub">desde 18/05/2026</div></div>
+    <div class="kpi y"><div class="kl">Saldo Estimado</div><div class="kv" id="gs-kpi-saldo">—</div><div class="ku" id="gs-kpi-saldo-sub">litros no tanque</div></div>
+    <div class="kpi b"><div class="kl">Histórico Planilha</div><div class="kv" id="gs-kpi-hist">—</div><div class="ku">Jan–Mai/17 (referência)</div></div>
   </div>
 
   <div class="grid2">
@@ -530,24 +489,19 @@ tr:hover td{background:#131f12;}
       <div id="gs-saldo-detail"><div class="loading">CARREGANDO...</div></div>
     </div>
     <div class="card">
-      <div class="ct"><span style="background:#e67e22"></span>Cargas Recebidas</div>
-      <div id="gs-entradas-table"><div class="loading">CARREGANDO...</div></div>
-    </div>
-  </div>
-
-  <div class="grid2" style="margin-top:16px;">
-    <div class="card">
       <div class="ct"><span style="background:#e67e22"></span>Histórico Mensal — Planilha (referência)</div>
       <div id="gs-hist-table"><div class="loading">CARREGANDO...</div></div>
-    </div>
-    <div class="card">
-      <div class="ct"><span style="background:#e67e22"></span>Consumo Mensal — Planilha + PWA</div>
-      <div id="gs-chart-mes" class="bar-chart"><div class="loading">CARREGANDO...</div></div>
     </div>
   </div>
 
   <div class="card" style="margin-top:16px;">
+    <div class="ct"><span style="background:#e67e22"></span>Consumo Mensal — Planilha + PWA</div>
+    <div id="gs-chart-mes" class="bar-chart"><div class="loading">CARREGANDO...</div></div>
+  </div>
+
+  <div class="card" style="margin-top:16px;">
     <div class="ct"><span style="background:#e67e22"></span>Abastecimentos PWA — Detalhe (≥ 18/05/2026)</div>
+    <div id="gs-abast-month-bar" class="month-bar"></div>
     <div id="gs-abast-table"><div class="loading">CARREGANDO...</div></div>
   </div>
 
@@ -643,25 +597,49 @@ function barChart(el,data,lKey,vKey,color='var(--green)'){
 }
 
 // ── CONSUMO ───────────────────────────────────────────────────
+let _consumoAll=[];
+
 async function loadConsumo(){
   try{
-    const data=await sbFetch('vw_intervalo_abastecimento','order=total_litros.desc');
-    const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
-    const tE=data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
-    document.getElementById('kpi-total-l').textContent=fmt(tL);
-    document.getElementById('kpi-total-ev').textContent=fmt(tE);
-    document.getElementById('kpi-media-l').textContent=fmt(tE>0?tL/tE:0,1);
-    document.getElementById('kpi-frotas').textContent=data.length;
-    barChart(document.getElementById('consumo-chart'),data,'frota','total_litros');
-    barChart(document.getElementById('intervalo-chart'),data.sort((a,b)=>b.intervalo_medio_horas-a.intervalo_medio_horas),'frota','intervalo_medio_horas','var(--blue)');
-    document.getElementById('consumo-table').innerHTML=`<table>
-      <thead><tr><th>Frota</th><th>Abast.</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo médio (h)</th><th>Último abast.</th></tr></thead>
+    _consumoAll=await sbFetch('vw_abastecimento_consolidado','select=vehicle,liters,created_at&order=created_at.desc');
+    const keys=monthKeysWithActivity(_consumoAll.map(r=>({created_at:r.created_at,total_litros:r.liters})),'total_litros');
+    const cur=currentMonthKey();
+    if(!keys.includes(cur)) keys.unshift(cur);
+    buildMonthBar('consumo-month-bar', keys, cur, renderConsumoMonth);
+  }catch(e){document.getElementById('consumo-chart').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+function renderConsumoMonth(mesKey){
+  const {ini,fim}=monthRange(mesKey);
+  const rows=_consumoAll.filter(r=>{const dt=new Date(r.created_at);return dt>=ini&&dt<=fim&&Number(r.liters)>0;});
+  const agg={};
+  rows.forEach(r=>{
+    const f=String(r.vehicle||'').trim(); if(!f) return;
+    if(!agg[f]) agg[f]={frota:f,total_litros:0,total_abastecimentos:0,ultimo_abastecimento:r.created_at};
+    agg[f].total_litros+=Number(r.liters)||0;
+    agg[f].total_abastecimentos++;
+    if(new Date(r.created_at)>new Date(agg[f].ultimo_abastecimento)) agg[f].ultimo_abastecimento=r.created_at;
+  });
+  const data=Object.values(agg).map(x=>({
+    ...x,
+    media_litros:x.total_abastecimentos>0?x.total_litros/x.total_abastecimentos:0,
+    intervalo_medio_horas:0
+  })).sort((a,b)=>b.total_litros-a.total_litros);
+  const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
+  const tE=data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
+  document.getElementById('kpi-total-l').textContent=fmt(tL);
+  document.getElementById('kpi-total-ev').textContent=fmt(tE);
+  document.getElementById('kpi-media-l').textContent=fmt(tE>0?tL/tE:0,1);
+  document.getElementById('kpi-frotas').textContent=data.length;
+  barChart(document.getElementById('consumo-chart'),data,'frota','total_litros');
+  barChart(document.getElementById('intervalo-chart'),[...data].sort((a,b)=>b.media_litros-a.media_litros),'frota','media_litros','var(--blue)');
+  document.getElementById('consumo-table').innerHTML=`<table>
+      <thead><tr><th>Frota</th><th>Abast.</th><th>Total (L)</th><th>Média (L)</th><th>Último abast.</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.frota}</b></td><td>${fmt(d.total_abastecimentos)}</td><td>${fmt(d.total_litros,1)}</td>
-        <td>${fmt(d.media_litros,1)}</td><td>${fmt(d.intervalo_medio_horas,1)}h</td>
+        <td>${fmt(d.media_litros,1)}</td>
         <td>${d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'}</td>
-      </tr>`).join('')}</tbody></table>`;
-  }catch(e){document.getElementById('consumo-chart').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+      </tr>`).join('')||'<tr><td colspan="5">Sem abastecimentos no período</td></tr>'}</tbody></table>`;
 }
 
 
@@ -699,6 +677,42 @@ function monthKeysForOS(rows){
  const cur=currentMonthKey();
  if(!keys.includes(cur)) keys.unshift(cur);
  return [...new Set(keys)];
+}
+
+function osDateField(r){return r.data_abertura||r.created_at||r.updated_at;}
+
+async function fetchOSPanel(){
+ const [osRows, finRows] = await Promise.all([
+   sbFetch('ordem_servico','select=numero_os,id_frota,frota,created_at,data_abertura,updated_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
+   sbFetch('financeiro_os','select=numero_os,custo_total_os,valor_total_pecas,custo_mo,peca_valor,quantidade')
+ ]);
+ const finByOs={};
+ finRows.forEach(f=>{
+   const n=String(f.numero_os||'').trim().toUpperCase(); if(!n) return;
+   const pecas=Number(f.valor_total_pecas)||(Number(f.peca_valor)||0)*(Number(f.quantidade)||1);
+   const mo=Number(f.custo_mo)||0;
+   const tot=Number(f.custo_total_os)||pecas+mo;
+   finByOs[n]=(finByOs[n]||0)+tot;
+ });
+ const agg={};
+ osRows.forEach(r=>{
+   const frota=String(r.id_frota||r.frota||'').trim(); if(!frota) return;
+   const dt=osDateField(r);
+   const mk=monthKey(dt);
+   const key=frota+'|'+mk;
+   if(!agg[key]) agg[key]={frota,mes:dt,total_os:0,os_corretiva:0,os_preventiva:0,horas_parada:0,custo_total:0};
+   agg[key].total_os++;
+   const tipo=String(r.tipo_manutencao||'').toUpperCase();
+   if(tipo.includes('PREVENT')) agg[key].os_preventiva++;
+   else agg[key].os_corretiva++;
+   agg[key].horas_parada+=(Number(r.tempo_min)||0)/60;
+   const n=String(r.numero_os||'').trim().toUpperCase();
+   if(finByOs[n]) agg[key].custo_total+=finByOs[n];
+ });
+ return Object.values(agg).map(x=>({
+   ...x,
+   status:x.horas_parada>20||x.total_os>=5?'CRITICO':x.horas_parada>10?'ATENCAO':'NORMAL'
+ })).sort((a,b)=>b.horas_parada-a.horas_parada);
 }
 
 function isFrotaInterna(f){return /^\d{4}/.test(String(f||''));}
@@ -744,7 +758,7 @@ async function fetchLubV3Panel(){
 // ── OS ────────────────────────────────────────────────────────
 async function loadOS(){
  try{
-  _osAll=await sbFetch('vw_ranking_os','order=mes.desc,frota.asc');
+  _osAll=await fetchOSPanel();
   const keys=monthKeysForOS(_osAll);
   buildMonthBar('os-month-bar', keys, currentMonthKey(), renderOSMonth);
  }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
@@ -768,27 +782,53 @@ function renderOSMonth(mesKey){
 }
 
 // ── DISPONIBILIDADE ───────────────────────────────────────────
+let _dispHist=[], _dispLive=[];
+
+function dispMesField(d){return d.mes||d.mes_referencia||d.competencia||d.periodo;}
+
 async function loadDisp(){
   try{
-    const data=await sbFetch('vw_horas_frota','order=disponibilidade_pct.asc');
-    const md=data.length?data.reduce((s,d)=>s+(Number(d.disponibilidade_pct)||0),0)/data.length:0;
-    const tHT=data.reduce((s,d)=>s+(Number(d.horas_trabalhadas)||0),0);
-    const tHP=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
-    const cr=data.filter(d=>Number(d.disponibilidade_pct)<70).length;
-    document.getElementById('kpi-disp-med').textContent=fmt(md,1)+'%';
-    document.getElementById('kpi-ht').textContent=fmt(tHT,0)+'h';
-    document.getElementById('kpi-hp').textContent=fmt(tHP,0)+'h';
-    document.getElementById('kpi-criticos').textContent=cr;
-    const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
-    document.getElementById('disp-table').innerHTML=`<table>
+    const [hist, live] = await Promise.all([
+      sbFetch('vw_disponibilidade_equipamentos','order=mes.desc'),
+      sbFetch('vw_horas_frota','order=disponibilidade_pct.asc')
+    ]);
+    _dispHist=hist;
+    _dispLive=live;
+    const keys=[...new Set(hist.map(d=>monthKey(dispMesField(d))).filter(Boolean))];
+    const cur=currentMonthKey();
+    if(!keys.includes(cur)) keys.unshift(cur);
+    buildMonthBar('disp-month-bar', keys, cur, renderDispMonth);
+  }catch(e){document.getElementById('disp-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+function renderDispMonth(mesKey){
+  const isCurrent=mesKey===currentMonthKey();
+  let data=isCurrent?_dispLive:_dispHist.filter(d=>monthKey(dispMesField(d))===mesKey);
+  data=data.map(d=>({
+    frota:d.frota||d.id_frota,
+    horas_trabalhadas:Number(d.horas_trabalhadas)||0,
+    horas_parada:Number(d.horas_parada)||0,
+    disponibilidade_pct:Number(d.disponibilidade_pct)||0,
+    total_os:Number(d.total_os)||0,
+    status:d.status||'NORMAL'
+  }));
+  const md=data.length?data.reduce((s,d)=>s+d.disponibilidade_pct,0)/data.length:0;
+  const tHT=data.reduce((s,d)=>s+d.horas_trabalhadas,0);
+  const tHP=data.reduce((s,d)=>s+d.horas_parada,0);
+  const cr=data.filter(d=>d.disponibilidade_pct<70).length;
+  document.getElementById('kpi-disp-med').textContent=fmt(md,1)+'%';
+  document.getElementById('kpi-ht').textContent=fmt(tHT,0)+'h';
+  document.getElementById('kpi-hp').textContent=fmt(tHP,0)+'h';
+  document.getElementById('kpi-criticos').textContent=cr;
+  const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
+  document.getElementById('disp-table').innerHTML=`<table>
       <thead><tr><th>Frota</th><th>H.trabalhadas</th><th>H.paradas</th><th>Disponib.%</th><th>OS</th><th>Status</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.frota}</b></td><td>${fmt(d.horas_trabalhadas,1)}h</td>
         <td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--text)'}"><b>${fmt(d.horas_parada,1)}h</b></td>
         <td><b>${fmt(d.disponibilidade_pct,1)}%</b></td><td>${fmt(d.total_os)}</td>
         <td><span class="st ${sc(d.status)}">${d.status}</span></td>
-      </tr>`).join('')}</tbody></table>`;
-  }catch(e){document.getElementById('disp-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+      </tr>`).join('')||'<tr><td colspan="6">Sem dados no período</td></tr>'}</tbody></table>`;
 }
 
 // ── LUBRIFICAÇÃO ─────────────────────────────────────────────
@@ -1972,24 +2012,24 @@ async function loadPosto(){
 // ══════════════════════════════════════════════════════════════
 const CAP_GASOLINA = 5000;
 const GAS_ORANGE = '#e67e22';
+let _gsAbastAll=[];
 
 async function loadGasolina(){
   try{
-    const [saldoRows, histMensal, consumoMensal, abast, entradas] = await Promise.all([
+    const [saldoRows, histMensal, consumoMensal, abast] = await Promise.all([
       sbFetch('vw_saldo_gasolina_posto'),
       sbFetch('gasolina_historico_mensal','order=ano_mes.asc'),
       sbFetch('vw_gasolina_consumo_mensal','order=mes.asc,origem.asc'),
-      sbFetch('vw_abastecimento_gasolina','created_at=gte.2026-05-18&order=created_at.desc'),
-      sbFetch('combustivel_entrada','combustivel=ilike.*GASOLINA*&order=data.desc')
+      sbFetch('vw_abastecimento_gasolina','created_at=gte.2026-05-18&order=created_at.desc')
     ]);
 
+    _gsAbastAll=abast;
     const s = saldoRows[0] || {};
     const saldo = Number(s.saldo_estimado) || 0;
     const pct = Number(s.pct_tanque) || (CAP_GASOLINA > 0 ? Math.min(100, (saldo / CAP_GASOLINA) * 100) : 0);
     const consumoPwa = Number(s.consumo_pwa) || 0;
     const litrosCarga = Number(s.litros_ultima_carga) || 0;
     const histTotal = histMensal.reduce((acc, d) => acc + (Number(d.litros) || 0), 0);
-    const frotasUnicas = [...new Set(abast.map(d => d.frota).filter(Boolean))].length;
 
     document.getElementById('gs-kpi-carga').textContent = s.nf_ultima_carga ? 'NF ' + s.nf_ultima_carga : '—';
     document.getElementById('gs-kpi-carga-sub').textContent =
@@ -1998,39 +2038,8 @@ async function loadGasolina(){
     document.getElementById('gs-kpi-consumo-sub').textContent =
       'desde ' + (s.inicio_pwa ? fmtDt(s.inicio_pwa) : '18/05/2026');
     document.getElementById('gs-kpi-saldo').textContent = fmt(saldo, 1) + ' L';
-    document.getElementById('gs-kpi-saldo-sub').textContent = pct.toFixed(1) + '% do tanque';
-    document.getElementById('gs-kpi-ev').textContent = fmt(abast.length);
+    document.getElementById('gs-kpi-saldo-sub').textContent = pct.toFixed(1) + '% do tanque · ' + fmt(CAP_GASOLINA) + ' L';
     document.getElementById('gs-kpi-hist').textContent = fmt(histTotal, 1) + ' L';
-    document.getElementById('gs-kpi-frotas').textContent = frotasUnicas;
-
-    const fill = document.getElementById('gs-tank-fill');
-    const pctEl = document.getElementById('gs-tank-pct');
-    const volEl = document.getElementById('gs-tank-vol');
-    const badge = document.getElementById('gs-tank-badge');
-
-    fill.style.height = pct.toFixed(1) + '%';
-    pctEl.textContent = pct.toFixed(1) + '%';
-    volEl.textContent = fmt(saldo, 1) + ' L';
-
-    if(pct <= 20){
-      fill.style.background = 'var(--red)';
-      volEl.style.color = '#e74c3c';
-      badge.textContent = 'NÍVEL CRÍTICO';
-      badge.style.background = '#2a1010';
-      badge.style.color = '#e74c3c';
-    } else if(pct <= 40){
-      fill.style.background = 'var(--yellow)';
-      volEl.style.color = 'var(--yellow)';
-      badge.textContent = 'NÍVEL BAIXO';
-      badge.style.background = '#2a2200';
-      badge.style.color = 'var(--yellow)';
-    } else {
-      fill.style.background = GAS_ORANGE;
-      volEl.style.color = GAS_ORANGE;
-      badge.textContent = 'NÍVEL OK';
-      badge.style.background = '#2a2200';
-      badge.style.color = GAS_ORANGE;
-    }
 
     document.getElementById('gs-saldo-detail').innerHTML = `
       <div class="saldo-row">
@@ -2055,21 +2064,6 @@ async function loadGasolina(){
         <span class="sr-label" style="font-size:11px;color:var(--text3)">Histórico planilha (referência, fora do saldo)</span>
         <span class="sr-val" style="font-size:12px;color:var(--text2)">${fmt(histTotal, 1)} L</span>
       </div>`;
-
-    if(entradas.length){
-      document.getElementById('gs-entradas-table').innerHTML = `<table>
-        <thead><tr><th>Data</th><th>NF</th><th>Fornecedor</th><th>Qtd (L)</th><th>R$/L</th><th>Total</th></tr></thead>
-        <tbody>${entradas.map(e => `<tr>
-          <td>${fmtDt(e.data)}</td>
-          <td><b>${e.nota_fiscal || '—'}</b></td>
-          <td style="color:var(--text2)">${e.fornecedor || '—'}</td>
-          <td style="color:${GAS_ORANGE};font-weight:700">${fmt(e.quantidade_l, 1)} L</td>
-          <td>${fmtR(e.valor_litro)}</td>
-          <td><b>${fmtR(e.valor_total)}</b></td>
-        </tr>`).join('')}</tbody></table>`;
-    } else {
-      document.getElementById('gs-entradas-table').innerHTML = '<div class="err">Nenhuma carga registrada</div>';
-    }
 
     if(histMensal.length){
       document.getElementById('gs-hist-table').innerHTML = `<table>
@@ -2097,8 +2091,24 @@ async function loadGasolina(){
     const chartData = Object.values(mesMap).map(x => ({mes: x.mes, v: x.total, planilha: x.planilha, pwa: x.pwa}));
     barChart(document.getElementById('gs-chart-mes'), chartData, 'mes', 'v', GAS_ORANGE);
 
-    if(abast.length){
-      document.getElementById('gs-abast-table').innerHTML = `<table>
+    const keys=monthKeysWithActivity(_gsAbastAll.map(r=>({created_at:r.created_at,total_litros:r.litros})),'total_litros');
+    const cur=currentMonthKey();
+    if(!keys.includes(cur)) keys.unshift(cur);
+    buildMonthBar('gs-abast-month-bar', keys, cur, renderGsAbastMonth);
+  }catch(e){
+    ['gs-saldo-detail','gs-hist-table','gs-chart-mes','gs-abast-table'].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.innerHTML = `<div class="err">Erro: ${e.message}</div>`;
+    });
+    console.error(e);
+  }
+}
+
+function renderGsAbastMonth(mesKey){
+  const {ini,fim}=monthRange(mesKey);
+  const abast=_gsAbastAll.filter(d=>{const dt=new Date(d.created_at);return dt>=ini&&dt<=fim;});
+  if(abast.length){
+    document.getElementById('gs-abast-table').innerHTML = `<table>
         <thead><tr><th>Data/Hora</th><th>OS</th><th>Frota</th><th>Operador</th><th>Local</th><th>Litros</th><th>Horímetro</th></tr></thead>
         <tbody>${abast.map(d => `<tr>
           <td style="color:var(--text2)">${fmtDtHr(d.created_at)}</td>
@@ -2109,15 +2119,8 @@ async function loadGasolina(){
           <td style="color:${GAS_ORANGE};font-weight:700">${fmt(d.litros, 1)} L</td>
           <td style="color:var(--text2)">${d.horimetro || '—'}</td>
         </tr>`).join('')}</tbody></table>`;
-    } else {
-      document.getElementById('gs-abast-table').innerHTML = '<div class="err">Sem abastecimentos PWA no período</div>';
-    }
-  }catch(e){
-    ['gs-saldo-detail','gs-entradas-table','gs-hist-table','gs-chart-mes','gs-abast-table'].forEach(id => {
-      const el = document.getElementById(id);
-      if(el) el.innerHTML = `<div class="err">Erro: ${e.message}</div>`;
-    });
-    console.error(e);
+  } else {
+    document.getElementById('gs-abast-table').innerHTML = '<div class="err">Sem abastecimentos PWA neste período</div>';
   }
 }
 

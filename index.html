@@ -258,45 +258,12 @@ tr:hover td{background:#131f12;}
     <div class="kpi b"><div class="kl">Custo combustível</div><div class="kv" id="kpi-custo-comb">—</div><div class="ku">R$ período</div></div>
     <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ período</div></div>
   </div>
-  <div class="card" style="margin-bottom:16px">
-    <div class="ct" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
-      <span style="display:flex;align-items:center;gap:8px"><span></span>Resumo por Frota (top 20)</span>
-      <div class="filter-bar">
-        <button type="button" class="fb" id="custo-toggle-todos" onclick="filtrarCustoFrota('todos')">TODOS</button>
-        <button type="button" class="fb" id="custo-toggle-interna" onclick="filtrarCustoFrota('interna')">FROTA INTERNA</button>
-      </div>
-    </div>
-    <div id="custo-table"><div class="loading">CARREGANDO...</div></div>
-  </div>
   <div class="card">
     <div class="ct"><span></span>Detalhamento Combustível — Frota × Litros × Preço × Custo</div>
     <div id="comb-month-bar" class="month-bar"></div>
     <div class="filter-bar" style="margin-bottom:12px">
-      <button type="button" class="fb" id="toggle-todos" onclick="filtrarFrota('todos')">TODOS</button>
+      <button type="button" class="fb active" id="toggle-todos" onclick="filtrarFrota('todos')">TODOS</button>
       <button type="button" class="fb" id="toggle-interna" onclick="filtrarFrota('interna')">FROTA INTERNA</button>
-    </div>
-    <div id="comb-table"><div class="loading">CARREGANDO...</div></div>
-  </div>
-</div>
-
-<!-- COMBUSTIVEL -->
-
-<!-- COMBUSTIVEL -->
-<div id="page-combustivel" class="page" style="display:none!important">
-  <div class="kpi-row">
-    <div class="kpi g"><div class="kl">Total litros abastecidos</div><div class="kv" id="kpi-comb-litros">—</div><div class="ku">todas as frotas</div></div>
-    <div class="kpi y"><div class="kl">Custo total combustível</div><div class="kv" id="kpi-comb-custo">—</div><div class="ku">R$ período</div></div>
-    <div class="kpi b"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-comb-frotas">—</div><div class="ku">equipamentos</div></div>
-    <div class="kpi r"><div class="kl">Custo médio por frota</div><div class="kv" id="kpi-comb-media">—</div><div class="ku">R$ médio</div></div>
-  </div>
-  <div id="comb-month-bar" class="month-bar"></div>
-  <div class="card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-      <div class="ct" style="margin-bottom:0"><span></span>Detalhamento: Frota × Litros × Preço × Custo</div>
-      <div style="display:flex;gap:0;border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-        <button id="toggle-todos" onclick="filtrarFrota('todos')" style="padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border:none;cursor:pointer;background:var(--green);color:#fff;">TODOS</button>
-        <button id="toggle-interna" onclick="filtrarFrota('interna')" style="padding:6px 14px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;border:none;cursor:pointer;background:var(--bg3);color:var(--text2);">FROTA INTERNA</button>
-      </div>
     </div>
     <div id="comb-table"><div class="loading">CARREGANDO...</div></div>
   </div>
@@ -707,11 +674,11 @@ function monthKeysForOS(rows){
  return [...new Set(keys)];
 }
 
-function osDateField(r){return r.data_abertura||r.created_at||r.updated_at;}
+function osDateField(r){return r.created_at||r.updated_at;}
 
 async function fetchOSPanel(){
  const [osRows, finRows] = await Promise.all([
-   sbFetch('ordem_servico','select=numero_os,id_frota,created_at,data_abertura,updated_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
+   sbFetch('ordem_servico','select=numero_os,id_frota,created_at,updated_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
    sbFetch('financeiro_os','select=numero_os,custo_total_os,valor_total_pecas,custo_mo,peca_valor,quantidade')
  ]);
  const finByOs={};
@@ -893,8 +860,6 @@ function filtrarLub(modo){
 }
 
 // ── CUSTO (unificado) ─────────────────────────────────────────
-let _custoMerged=[], _custoModo='todos';
-
 async function loadCusto(){
   try{
     const [data, combRows] = await Promise.all([
@@ -907,7 +872,7 @@ async function loadCusto(){
       combMap[f]=(combMap[f]||0)+(Number(r.custo_total)||0);
     });
     const seen=new Set();
-    _custoMerged=data.map(d=>{
+    const merged=data.map(d=>{
       seen.add(String(d.id_frota));
       const comb=combMap[String(d.id_frota)]||0;
       const os=Number(d.custo_os)||0;
@@ -916,38 +881,18 @@ async function loadCusto(){
     });
     Object.entries(combMap).forEach(([frota,comb])=>{
       if(!seen.has(frota) && comb>0){
-        _custoMerged.push({id_frota:frota,custo_os:0,custo_lubrificacao:0,custo_combustivel:comb,custo_total:comb});
+        merged.push({id_frota:frota,custo_os:0,custo_lubrificacao:0,custo_combustivel:comb,custo_total:comb});
       }
     });
-    _custoMerged.sort((a,b)=>(Number(b.custo_total)||0)-(Number(a.custo_total)||0));
-    const tOS=_custoMerged.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
-    const tLub=_custoMerged.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
-    const tComb=_custoMerged.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+    const tOS=merged.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+    const tLub=merged.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+    const tComb=merged.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
     document.getElementById('kpi-custo-os').textContent=fmtR(tOS);
     document.getElementById('kpi-custo-lub').textContent=fmtR(tLub);
     document.getElementById('kpi-custo-comb').textContent=fmtR(tComb);
     document.getElementById('kpi-custo-total').textContent=fmtR(tOS+tLub+tComb);
-    filtrarCustoFrota('todos');
     await loadCombustivel();
-  }catch(e){document.getElementById('custo-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
-}
-
-function filtrarCustoFrota(modo){
-  _custoModo=modo;
-  document.getElementById('custo-toggle-todos').style.background=modo==='todos'?'var(--green)':'var(--bg3)';
-  document.getElementById('custo-toggle-todos').style.color=modo==='todos'?'#fff':'var(--text2)';
-  document.getElementById('custo-toggle-interna').style.background=modo==='interna'?'var(--green)':'var(--bg3)';
-  document.getElementById('custo-toggle-interna').style.color=modo==='interna'?'#fff':'var(--text2)';
-  let rows=modo==='interna'?_custoMerged.filter(d=>isFrotaInterna(d.id_frota)):_custoMerged;
-  rows=rows.filter(d=>Number(d.custo_total)>0).slice(0,20);
-  document.getElementById('custo-table').innerHTML=`<table>
-      <thead><tr><th>Frota</th><th>OS(R$)</th><th>Lubrif.(R$)</th><th>Comb.(R$)</th><th>Total(R$)</th></tr></thead>
-      <tbody>${rows.map(d=>`<tr>
-        <td><b>${d.id_frota}</b></td><td>${fmtR(d.custo_os)}</td>
-        <td>${fmtR(d.custo_lubrificacao)}</td><td>${fmtR(d.custo_combustivel)}</td>
-        <td><b>${fmtR(d.custo_total)}</b></td>
-      </tr>`).join('')||'<tr><td colspan="5">Sem custos no filtro</td></tr>'}</tbody></table>
-      <div style="font-size:11px;color:var(--text3);margin-top:8px">Exibindo top 20 frotas · ${modo==='interna'?'somente frota interna':'todas as frotas'}</div>`;
+  }catch(e){document.getElementById('comb-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
 }
 
 // ── COMBUSTIVEL ──────────────────────────────────────────────
@@ -993,13 +938,13 @@ function renderCombMonth(mesKey){
 }
 function filtrarFrota(modo){
  _frotaModo=modo;
- document.getElementById('toggle-todos').style.background=modo==='todos'?'var(--green)':'var(--bg3)';
- document.getElementById('toggle-todos').style.color=modo==='todos'?'#fff':'var(--text2)';
- document.getElementById('toggle-interna').style.background=modo==='interna'?'var(--green)':'var(--bg3)';
- document.getElementById('toggle-interna').style.color=modo==='interna'?'#fff':'var(--text2)';
+ ['todos','interna'].forEach(m=>{
+  const btn=document.getElementById('toggle-'+m);
+  if(btn) btn.classList.toggle('active', m===modo);
+ });
  const base=_combData.length?_combData:_combAll;
  const d=modo==='interna'?base.filter(x=>isFrotaInterna(x.frota)):base;
-  renderCombTable(d);
+ renderCombTable(d);
 }
 function renderCombTable(data){
  document.getElementById('comb-table').innerHTML=`<table><thead><tr><th>Frota</th><th>Combustível</th><th>Total (L)</th><th>Preço/L</th><th>Custo Total</th></tr></thead><tbody>

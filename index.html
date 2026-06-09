@@ -677,42 +677,6 @@ function monthKeysForOS(rows){
  return [...new Set(keys)];
 }
 
-function osDateField(r){return r.created_at;}
-
-async function fetchOSPanel(){
- const [osRows, finRows] = await Promise.all([
-   sbFetch('ordem_servico','select=numero_os,id_frota,created_at,tipo_manutencao,tempo_min,status&order=created_at.desc'),
-   sbFetch('financeiro_os','select=numero_os,custo_total_os,valor_total_pecas,custo_mo,peca_valor,quantidade')
- ]);
- const finByOs={};
- finRows.forEach(f=>{
-   const n=String(f.numero_os||'').trim().toUpperCase(); if(!n) return;
-   const pecas=Number(f.valor_total_pecas)||(Number(f.peca_valor)||0)*(Number(f.quantidade)||1);
-   const mo=Number(f.custo_mo)||0;
-   const tot=Number(f.custo_total_os)||pecas+mo;
-   finByOs[n]=(finByOs[n]||0)+tot;
- });
- const agg={};
- osRows.forEach(r=>{
-   const frota=String(r.id_frota||'').trim(); if(!frota) return;
-   const dt=osDateField(r);
-   const mk=monthKey(dt);
-   const key=frota+'|'+mk;
-   if(!agg[key]) agg[key]={frota,mes:dt,total_os:0,os_corretiva:0,os_preventiva:0,horas_parada:0,custo_total:0};
-   agg[key].total_os++;
-   const tipo=String(r.tipo_manutencao||'').toUpperCase();
-   if(tipo.includes('PREVENT')) agg[key].os_preventiva++;
-   else agg[key].os_corretiva++;
-   agg[key].horas_parada+=(Number(r.tempo_min)||0)/60;
-   const n=String(r.numero_os||'').trim().toUpperCase();
-   if(finByOs[n]) agg[key].custo_total+=finByOs[n];
- });
- return Object.values(agg).map(x=>({
-   ...x,
-   status:x.horas_parada>20||x.total_os>=5?'CRITICO':x.horas_parada>10?'ATENCAO':'NORMAL'
- })).sort((a,b)=>b.horas_parada-a.horas_parada);
-}
-
 function isFrotaInterna(f){return /^\d{4}/.test(String(f||''));}
 
 async function fetchLubV3Panel(){
@@ -2121,7 +2085,7 @@ async function init(){
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
       loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
     ]);
-    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06b';
+    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06c';
   }catch(e){
     document.getElementById('sync-status').textContent='● Erro ao carregar';
     document.getElementById('sync-status').style.background='#2a1010';

@@ -10,7 +10,8 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
 .header{background:var(--bg2);border-bottom:2px solid var(--green);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
-.logo{width:48px;height:48px;background:#1a2e18;border:1px solid var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:17px;color:var(--gl);}
+.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.logo img{width:100%;height:100%;object-fit:contain;display:block;}
 .htitle{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;}
 .hsub{font-size:11px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
 .badge{font-size:11px;padding:3px 12px;border-radius:20px;font-weight:600;}
@@ -137,6 +138,12 @@ tr:hover td{background:#131f12;}
 .month-bar .ml{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
 .ms{padding:4px 10px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:6px;cursor:pointer;text-transform:uppercase;}
 .ms.active{background:var(--green);color:#fff;border-color:var(--green);}
+.status-bar{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 14px;align-items:center;}
+.status-bar .ml{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-right:4px;}
+.sf{padding:4px 12px;font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:6px;cursor:pointer;text-transform:uppercase;}
+.sf.active{background:var(--green);color:#fff;border-color:var(--green);}
+.sf.r.active{background:var(--red);border-color:var(--red);}
+.sf.y.active{background:var(--yellow);border-color:var(--yellow);color:#1a1409;}
 .os-layout{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
 .posto-top{display:grid;grid-template-columns:200px 1fr;gap:16px;margin-bottom:20px;align-items:stretch;}
 .posto-top .tank-card{height:100%;}
@@ -149,7 +156,7 @@ tr:hover td{background:#131f12;}
 <body>
 <div class="header">
   <div style="display:flex;align-items:center;gap:14px;">
-    <div class="logo">SV</div>
+    <div class="logo"><img src="icons/logo-sv.png" alt="Santa Vergínia"/></div>
     <div>
       <div class="htitle">Gestão de Frota — Santa Vergínia</div>
       <div class="hsub">Controladoria · Painel Operacional · <span id="mes-ref"></span></div>
@@ -214,8 +221,7 @@ tr:hover td{background:#131f12;}
     <div class="kpi y"><div class="kl">Horas paradas</div><div class="kv" id="kpi-hp">—</div><div class="ku">por manutenção</div></div>
     <div class="kpi r"><div class="kl">Equip. críticos</div><div class="kv" id="kpi-criticos">—</div><div class="ku">disponib. abaixo 70%</div></div>
   </div>
-  <div class="frota-grid" id="frota-grid"><div class="loading" style="grid-column:span 5">CARREGANDO...</div></div>
-  <div style="margin-top:16px;" class="card"><div class="ct"><span></span>Horas Trabalhadas x Paradas</div><div id="disp-table"><div class="loading">CARREGANDO...</div></div></div>
+  <div class="card"><div class="ct"><span></span>Horas Trabalhadas x Paradas</div><div id="disp-table"><div class="loading">CARREGANDO...</div></div></div>
 </div>
 
 <!-- LUBRIFICAÇÃO -->
@@ -226,7 +232,16 @@ tr:hover td{background:#131f12;}
     <div class="kpi r"><div class="kl">Em Atraso</div><div class="kv" id="kpi-atr">—</div><div class="ku">equipamentos</div></div>
     <div class="kpi b"><div class="kl">Total monitorados</div><div class="kv" id="kpi-total-lub">—</div><div class="ku">equipamentos</div></div>
   </div>
-  <div class="card"><div class="ct"><span></span>Painel Próxima Troca de Óleo — ordenado por urgência</div><div id="lub-table"><div class="loading">CARREGANDO...</div></div></div>
+  <div class="card">
+    <div class="ct"><span></span>Painel Próxima Troca de Óleo — ordenado por urgência</div>
+    <div class="status-bar" id="lub-filter-bar">
+      <span class="ml">Filtrar</span>
+      <button type="button" class="sf active" data-f="todos" onclick="filtrarLub('todos')">Todos</button>
+      <button type="button" class="sf r" data-f="atraso" onclick="filtrarLub('atraso')">Em Atraso</button>
+      <button type="button" class="sf y" data-f="proximo" onclick="filtrarLub('proximo')">Próximo</button>
+    </div>
+    <div id="lub-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
 </div>
 
 <!-- CUSTO -->
@@ -250,10 +265,6 @@ tr:hover td{background:#131f12;}
     <div class="kpi y"><div class="kl">Custo total combustível</div><div class="kv" id="kpi-comb-custo">—</div><div class="ku">R$ período</div></div>
     <div class="kpi b"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-comb-frotas">—</div><div class="ku">equipamentos</div></div>
     <div class="kpi r"><div class="kl">Custo médio por frota</div><div class="kv" id="kpi-comb-media">—</div><div class="ku">R$ médio</div></div>
-  </div>
-  <div class="grid2">
-    <div class="card"><div class="ct"><span></span>Custo por Frota (R$)</div><div id="comb-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
-    <div class="card"><div class="ct"><span></span>Volume por Frota (L)</div><div id="comb-vol-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
   </div>
   <div id="comb-month-bar" class="month-bar"></div>
   <div class="card">
@@ -674,6 +685,22 @@ function buildMonthBar(containerId, keys, activeKey, onPick){
  onPick(pick);
 }
 
+function monthKeysWithActivity(rows, field){
+ const agg={};
+ rows.forEach(d=>{
+  const k=monthKey(d.mes||d.created_at); if(!k) return;
+  agg[k]=(agg[k]||0)+(Number(d[field])||0);
+ });
+ return Object.entries(agg).filter(([,v])=>v>0).map(([k])=>k);
+}
+
+function monthKeysForOS(rows){
+ const keys=monthKeysWithActivity(rows,'total_os');
+ const cur=currentMonthKey();
+ if(!keys.includes(cur)) keys.unshift(cur);
+ return [...new Set(keys)];
+}
+
 function isFrotaInterna(f){return /^\d{4}/.test(String(f||''));}
 
 async function fetchLubV3Panel(){
@@ -718,14 +745,14 @@ async function fetchLubV3Panel(){
 async function loadOS(){
  try{
   _osAll=await sbFetch('vw_ranking_os','order=mes.desc,frota.asc');
-  const keys=_osAll.map(d=>monthKey(d.mes)).filter(Boolean);
+  const keys=monthKeysForOS(_osAll);
   buildMonthBar('os-month-bar', keys, currentMonthKey(), renderOSMonth);
  }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
 }
 function renderOSMonth(mesKey){
  _osMesSel=mesKey;
  document.querySelectorAll('#os-month-bar .ms').forEach(b=>b.classList.toggle('active', b.dataset.m===mesKey));
- const data=_osAll.filter(d=>monthKey(d.mes)===mesKey);
+ const data=_osAll.filter(d=>monthKey(d.mes)===mesKey && (Number(d.total_os)||0)>0);
  const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
  const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
  const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
@@ -752,19 +779,6 @@ async function loadDisp(){
     document.getElementById('kpi-ht').textContent=fmt(tHT,0)+'h';
     document.getElementById('kpi-hp').textContent=fmt(tHP,0)+'h';
     document.getElementById('kpi-criticos').textContent=cr;
-    document.getElementById('frota-grid').innerHTML=data.map(d=>{
-      const dp=Number(d.disponibilidade_pct)||0;
-      const c=dp>=85?'var(--green)':dp>=70?'var(--yellow)':'var(--red)';
-      const tc=dp>=85?'var(--gl)':dp>=70?'var(--yellow)':'#e74c3c';
-      return `<div class="fc">
-        <div class="fn">${d.frota}</div>
-        <div class="fo">${fmt(d.horas_trabalhadas,0)}h trab · ${fmt(d.horas_parada,0)}h parada</div>
-        <div style="display:flex;align-items:center;gap:8px;margin-top:8px;">
-          <div class="fbar" style="flex:1"><div class="fbf" style="width:${dp}%;background:${c}"></div></div>
-          <span style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:${tc}">${fmt(dp,0)}%</span>
-        </div>
-      </div>`;
-    }).join('');
     const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
     document.getElementById('disp-table').innerHTML=`<table>
       <thead><tr><th>Frota</th><th>H.trabalhadas</th><th>H.paradas</th><th>Disponib.%</th><th>OS</th><th>Status</th></tr></thead>
@@ -778,16 +792,28 @@ async function loadDisp(){
 }
 
 // ── LUBRIFICAÇÃO ─────────────────────────────────────────────
+let _lubAll=[], _lubFiltro='todos';
+
 async function loadLub(){
   try{
-    const data=await fetchLubV3Panel();
-    document.getElementById('kpi-ok').textContent=data.filter(d=>d.status_troca==='OK').length;
-    document.getElementById('kpi-prox').textContent=data.filter(d=>d.status_troca==='PROXIMO').length;
-    document.getElementById('kpi-atr').textContent=data.filter(d=>d.status_troca==='EM ATRASO').length;
-    document.getElementById('kpi-total-lub').textContent=data.length;
-    const sc=s=>s==='EM ATRASO'?'st-atr':s==='PROXIMO'?'st-prox':'st-ok';
-    const hc=h=>Number(h)<0?'var(--red)':Number(h)<=100?'var(--yellow)':'var(--gl)';
-    document.getElementById('lub-table').innerHTML=`<table>
+    _lubAll=await fetchLubV3Panel();
+    document.getElementById('kpi-ok').textContent=_lubAll.filter(d=>d.status_troca==='OK').length;
+    document.getElementById('kpi-prox').textContent=_lubAll.filter(d=>d.status_troca==='PROXIMO').length;
+    document.getElementById('kpi-atr').textContent=_lubAll.filter(d=>d.status_troca==='EM ATRASO').length;
+    document.getElementById('kpi-total-lub').textContent=_lubAll.length;
+    filtrarLub('todos');
+  }catch(e){document.getElementById('lub-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+
+function filtrarLub(modo){
+  _lubFiltro=modo;
+  document.querySelectorAll('#lub-filter-bar .sf').forEach(b=>b.classList.toggle('active', b.dataset.f===modo));
+  let data=_lubAll;
+  if(modo==='atraso') data=data.filter(d=>d.status_troca==='EM ATRASO');
+  else if(modo==='proximo') data=data.filter(d=>d.status_troca==='PROXIMO');
+  const sc=s=>s==='EM ATRASO'?'st-atr':s==='PROXIMO'?'st-prox':'st-ok';
+  const hc=h=>Number(h)<0?'var(--red)':Number(h)<=100?'var(--yellow)':'var(--gl)';
+  document.getElementById('lub-table').innerHTML=`<table>
       <thead><tr><th>Frota</th><th>Última troca</th><th>H.troca</th><th>Próxima(h)</th><th>H.atual</th><th>H.restantes</th><th>Status</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.vehicle}</b></td>
@@ -796,22 +822,46 @@ async function loadLub(){
         <td>${fmt(d.h_atual,0)}h</td>
         <td style="color:${hc(d.horas_restantes)}"><b>${fmt(d.horas_restantes,0)}h</b></td>
         <td><span class="st ${sc(d.status_troca)}">${d.status_troca}</span></td>
-      </tr>`).join('')}</tbody></table>`;
-  }catch(e){document.getElementById('lub-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+      </tr>`).join('')||'<tr><td colspan="7">Nenhum equipamento neste filtro</td></tr>'}</tbody></table>`;
 }
 
 // ── CUSTO ─────────────────────────────────────────────────────
 async function loadCusto(){
   try{
-    const data=await sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast');
-    document.getElementById('kpi-custo-os').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_os)||0),0));
-    document.getElementById('kpi-custo-lub').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0));
-    document.getElementById('kpi-custo-comb').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0));
-    document.getElementById('kpi-custo-total').textContent=fmtR(data.reduce((s,d)=>s+(Number(d.custo_total)||0),0));
-    barChart(document.getElementById('custo-chart'),data.filter(d=>d.custo_total),'id_frota','custo_total','var(--yellow)');
+    const [data, combRows] = await Promise.all([
+      sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast'),
+      sbFetch('vw_custo_combustivel_frota','select=frota,custo_total')
+    ]);
+    const combMap={};
+    combRows.forEach(r=>{
+      const f=String(r.frota||'').trim(); if(!f) return;
+      combMap[f]=(combMap[f]||0)+(Number(r.custo_total)||0);
+    });
+    const seen=new Set();
+    const merged=data.map(d=>{
+      seen.add(String(d.id_frota));
+      const comb=combMap[String(d.id_frota)]||0;
+      const os=Number(d.custo_os)||0;
+      const lub=Number(d.custo_lubrificacao)||0;
+      return {...d,custo_combustivel:comb,custo_total:os+lub+comb};
+    });
+    Object.entries(combMap).forEach(([frota,comb])=>{
+      if(!seen.has(frota) && comb>0){
+        merged.push({id_frota:frota,custo_os:0,custo_lubrificacao:0,custo_combustivel:comb,custo_total:comb});
+      }
+    });
+    merged.sort((a,b)=>(Number(b.custo_total)||0)-(Number(a.custo_total)||0));
+    const tOS=merged.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+    const tLub=merged.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+    const tComb=merged.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+    document.getElementById('kpi-custo-os').textContent=fmtR(tOS);
+    document.getElementById('kpi-custo-lub').textContent=fmtR(tLub);
+    document.getElementById('kpi-custo-comb').textContent=fmtR(tComb);
+    document.getElementById('kpi-custo-total').textContent=fmtR(tOS+tLub+tComb);
+    barChart(document.getElementById('custo-chart'),merged.filter(d=>d.custo_total),'id_frota','custo_total','var(--yellow)');
     document.getElementById('custo-table').innerHTML=`<table>
       <thead><tr><th>Frota</th><th>OS(R$)</th><th>Lubrif.(R$)</th><th>Comb.(R$)</th><th>Total(R$)</th></tr></thead>
-      <tbody>${data.map(d=>`<tr>
+      <tbody>${merged.map(d=>`<tr>
         <td><b>${d.id_frota}</b></td><td>${fmtR(d.custo_os)}</td>
         <td>${fmtR(d.custo_lubrificacao)}</td><td>${fmtR(d.custo_combustivel)}</td>
         <td><b>${fmtR(d.custo_total)}</b></td>
@@ -848,7 +898,9 @@ async function loadCombustivel(){
     return {...x, preco_litro:preco, custo_total:x.total_litros*preco};
   });
   const keys=_combAll.map(d=>d.mes).filter(Boolean);
-  buildMonthBar('comb-month-bar', keys, currentMonthKey(), renderCombMonth);
+  const cur=currentMonthKey();
+  if(!keys.includes(cur)) keys.unshift(cur);
+  buildMonthBar('comb-month-bar', keys, cur, renderCombMonth);
   filtrarFrota('todos');
  }catch(e){document.getElementById('comb-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
 }
@@ -867,10 +919,8 @@ function filtrarFrota(modo){
  document.getElementById('toggle-interna').style.color=modo==='interna'?'#fff':'var(--text2)';
  const base=_combData.length?_combData:_combAll;
  const d=modo==='interna'?base.filter(x=>isFrotaInterna(x.frota)):base;
- renderCombTable(d);
- barChart(document.getElementById('comb-chart'),d.filter(x=>x.custo_total),'frota','custo_total','var(--yellow)');
- barChart(document.getElementById('comb-vol-chart'),d.filter(x=>x.total_litros),'frota','total_litros','var(--green)');
- const tL=d.reduce((s,x)=>s+(Number(x.total_litros)||0),0);
+  renderCombTable(d);
+  const tL=d.reduce((s,x)=>s+(Number(x.total_litros)||0),0);
  const tC=d.reduce((s,x)=>s+(Number(x.custo_total)||0),0);
  const fr=[...new Set(d.map(x=>x.frota))].length;
  document.getElementById('kpi-comb-litros').textContent=fmt(tL,0)+'L';

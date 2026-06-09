@@ -536,6 +536,8 @@ tr:hover td{background:#131f12;}
     </div>
   </div>
 
+  <div id="rel-month-bar" class="month-bar"></div>
+
   <div class="rel-preview" id="rel-preview">
     <div class="loading">Selecione um relatório acima para visualizar</div>
   </div>
@@ -650,7 +652,22 @@ function renderConsumoMonth(mesKey){
 const MESES_PT=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
 let _osAll=[], _combAll=[], _osMesSel=null, _combMesSel=null;
 
-function monthKey(d){const x=new Date(d);return x.getFullYear()+'-'+(x.getMonth()+1);}
+function monthKey(d){
+ if(!d) return '';
+ const s=String(d);
+ const m=s.match(/^(\d{4})-(\d{2})/);
+ if(m) return parseInt(m[1],10)+'-'+parseInt(m[2],10);
+ const x=new Date(d);
+ if(isNaN(x)) return '';
+ return x.getFullYear()+'-'+(x.getMonth()+1);
+}
+function monthLabelLong(key){const [y,m]=key.split('-').map(Number);return new Date(y,m-1,1).toLocaleDateString('pt-BR',{month:'long',year:'numeric'});}
+function monthKeysRecent(n=12){
+ const keys=[], d=new Date();
+ for(let i=0;i<n;i++){const x=new Date(d.getFullYear(),d.getMonth()-i,1);keys.push(x.getFullYear()+'-'+(x.getMonth()+1));}
+ return keys;
+}
+function monthSortDesc(a,b){const [ya,ma]=a.split('-').map(Number),[yb,mb]=b.split('-').map(Number);return ya!==yb?yb-ya:mb-ma;}
 function monthLabel(key){const [y,m]=key.split('-').map(Number);return MESES_PT[m-1]+'/'+String(y).slice(-2);}
 function monthRange(key){const [y,m]=key.split('-').map(Number);const ini=new Date(y,m-1,1);const fim=new Date(y,m,0,23,59,59,999);return{ini,fim};}
 function currentMonthKey(){const n=new Date();return n.getFullYear()+'-'+(n.getMonth()+1);}
@@ -658,7 +675,7 @@ function currentMonthKey(){const n=new Date();return n.getFullYear()+'-'+(n.getM
 function buildMonthBar(containerId, keys, activeKey, onPick){
  const el=document.getElementById(containerId);
  if(!el) return;
- const uniq=[...new Set(keys)].sort((a,b)=>b.localeCompare(a));
+ const uniq=[...new Set(keys)].sort(monthSortDesc);
  if(!uniq.length){el.innerHTML='';return;}
  const pick=activeKey && uniq.includes(activeKey)?activeKey:uniq[0];
  function setActive(mesKey){
@@ -1113,7 +1130,7 @@ function filtrarAbast(modo){
 
 
 // ── RELATÓRIO / IMPRESSÃO ──────────────────────────────────────
-let _relAtual = 'consumo';
+let _relAtual = 'consumo', _relMesSel = null;
 
 const REL_TITULOS = {
   consumo:        'Relatório de Consumo de Combustível',
@@ -1125,11 +1142,35 @@ const REL_TITULOS = {
   abastecimento:  'Relatório de Abastecimento do Comboio',
 };
 
+function setupRelMonthBar(){
+  if(!_relMesSel) _relMesSel=currentMonthKey();
+  buildMonthBar('rel-month-bar', monthKeysRecent(12), _relMesSel, m=>{ _relMesSel=m; renderRelatorio(_relAtual, m); });
+}
+
 function selecionarRel(tipo, btn){
   _relAtual = tipo;
   document.querySelectorAll('.rel-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  renderRelatorio(tipo);
+  setupRelMonthBar();
+  renderRelatorio(tipo, _relMesSel);
+}
+
+function aggregateConsumoMes(rows, mesKey){
+  const {ini,fim}=monthRange(mesKey);
+  const agg={};
+  rows.filter(r=>{const dt=new Date(r.created_at);return dt>=ini&&dt<=fim&&Number(r.liters||r.total_litros)>0;}).forEach(r=>{
+    const f=String(r.vehicle||r.frota||'').trim(); if(!f) return;
+    const lit=Number(r.liters||r.total_litros)||0;
+    if(!agg[f]) agg[f]={frota:f,total_litros:0,total_abastecimentos:0,ultimo_abastecimento:r.created_at};
+    agg[f].total_litros+=lit; agg[f].total_abastecimentos++;
+    if(new Date(r.created_at)>new Date(agg[f].ultimo_abastecimento)) agg[f].ultimo_abastecimento=r.created_at;
+  });
+  return Object.values(agg).map(x=>({...x,media_litros:x.total_abastecimentos>0?x.total_litros/x.total_abastecimentos:0,intervalo_medio_horas:0})).sort((a,b)=>b.total_litros-a.total_litros);
+}
+
+function filterByMesRange(rows, dateField, mesKey){
+  const {ini,fim}=monthRange(mesKey);
+  return rows.filter(r=>{const dt=new Date(r[dateField]||r.created_at||r.data);return dt>=ini&&dt<=fim;});
 }
 
 function fmtDtHrRel(d){if(!d)return'—';const x=new Date(d);return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
@@ -1142,8 +1183,9 @@ function kpiBox(label, val, sub){
   </div>`;
 }
 
-function cabecalho(titulo){
+function cabecalho(titulo, mesKey){
   const agora = new Date();
+  const ref = mesKey ? monthLabelLong(mesKey) : agora.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
   return `<div class="rel-header-print">
     <div>
       <div class="rel-title-print">${titulo}</div>
@@ -1152,65 +1194,73 @@ function cabecalho(titulo){
     <div class="rel-stamp">
       Emitido em: ${agora.toLocaleDateString('pt-BR')}<br>
       ${agora.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}<br>
-      Referência: ${agora.toLocaleDateString('pt-BR',{month:'long',year:'numeric'})}
+      Período: <b>${ref}</b>
     </div>
   </div>`;
 }
 
-function renderRelatorio(tipo){
+function renderRelatorio(tipo, mesKey){
+  mesKey=mesKey||_relMesSel||currentMonthKey();
+  _relMesSel=mesKey;
   const preview = document.getElementById('rel-preview');
   const titulo  = REL_TITULOS[tipo] || tipo;
-  let html = cabecalho(titulo);
+  let html = cabecalho(titulo, mesKey);
+  preview.innerHTML = html + '<div class="loading">CARREGANDO...</div>';
 
   if(tipo === 'consumo'){
-    // Busca dados já carregados via vw_intervalo_abastecimento
-    sbFetch('vw_intervalo_abastecimento','order=total_litros.desc').then(data=>{
+    const load=_consumoAll.length?Promise.resolve(_consumoAll):sbFetch('vw_abastecimento_consolidado','select=vehicle,liters,created_at&order=created_at.desc');
+    load.then(rows=>{
+      const data=aggregateConsumoMes(rows, mesKey);
       const tL = data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
       const tE = data.reduce((s,d)=>s+(Number(d.total_abastecimentos)||0),0);
       html += `<div class="kpi-print-row">
-        ${kpiBox('Total Litros', fmt(tL)+' L', 'no período')}
+        ${kpiBox('Total Litros', fmt(tL)+' L', monthLabel(mesKey))}
         ${kpiBox('Abastecimentos', fmt(tE), 'eventos')}
         ${kpiBox('Média/Evento', fmt(tE>0?tL/tE:0,1)+' L', 'litros médio')}
         ${kpiBox('Frotas', data.length, 'equipamentos')}
       </div>
       <div class="section-title">Detalhe por Frota</div>
-      <div class="rel-table-wrap"><table><thead><tr><th>Frota</th><th>Abastecimentos</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo Médio (h)</th><th>Último Abastecimento</th></tr></thead>
+      <div class="rel-table-wrap"><table><thead><tr><th>Frota</th><th>Abastecimentos</th><th>Total (L)</th><th>Média (L)</th><th>Último Abastecimento</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.frota}</b></td>
         <td>${fmt(d.total_abastecimentos)}</td>
         <td>${fmt(d.total_litros,1)}</td>
         <td>${fmt(d.media_litros,1)}</td>
-        <td>${fmt(d.intervalo_medio_horas,1)}h</td>
         <td>${d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'}</td>
-      </tr>`).join('')}</tbody></table></div>`;
+      </tr>`).join('')||'<tr><td colspan="5">Sem abastecimentos no período</td></tr>'}</tbody></table></div>`;
       preview.innerHTML = html;
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro ao carregar: ${e.message}</div>`; });
 
   } else if(tipo === 'os'){
-    sbFetch('vw_ranking_os','order=horas_parada.desc').then(data=>{
+    sbFetch('vw_ranking_os','order=horas_parada.desc').then(all=>{
+      const data=all.filter(d=>monthKey(d.mes)===mesKey && (Number(d.total_os)||0)>0);
       const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
       const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
       const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
       const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
       html += `<div class="kpi-print-row">
-        ${kpiBox('Total OS', fmt(tOS), 'ordens')}
+        ${kpiBox('Total OS', fmt(tOS), monthLabel(mesKey))}
         ${kpiBox('Corretivas', fmt(tC), 'ocorrências')}
         ${kpiBox('Preventivas', fmt(tP), 'ocorrências')}
-        ${kpiBox('H. Parada', fmt(tH,1)+'h', 'acumulado')}
+        ${kpiBox('H. Parada', fmt(tH,1)+'h', 'no período')}
       </div>
       <div class="section-title">Ranking por Frota</div>
-      <table><thead><tr><th>Frota</th><th>OS Total</th><th>Corretiva</th><th>Preventiva</th><th>H. Parada</th><th>Custo (R$)</th><th>Status</th></tr></thead>
+      <div class="rel-table-wrap"><table><thead><tr><th>Frota</th><th>OS Total</th><th>Corretiva</th><th>Preventiva</th><th>H. Parada</th><th>Custo (R$)</th><th>Status</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td>
         <td>${fmt(d.os_corretiva)}</td><td>${fmt(d.os_preventiva)}</td>
         <td><b>${fmt(d.horas_parada,1)}h</b></td><td>${fmtR(d.custo_total)}</td>
         <td>${d.status}</td>
-      </tr>`).join('')}</tbody></table>`;
+      </tr>`).join('')||'<tr><td colspan="7">Sem OS no período</td></tr>'}</tbody></table></div>`;
       preview.innerHTML = html;
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
 
   } else if(tipo === 'disponibilidade'){
-    sbFetch('vw_horas_frota','order=disponibilidade_pct.asc').then(data=>{
+    const cur=currentMonthKey();
+    const prom=mesKey===cur
+      ? sbFetch('vw_horas_frota','order=disponibilidade_pct.asc')
+      : sbFetch('vw_disponibilidade_equipamentos','order=mes.desc').then(all=>all.filter(d=>monthKey(dispMesField(d))===mesKey));
+    prom.then(data=>{
       const md=data.length?data.reduce((s,d)=>s+(Number(d.disponibilidade_pct)||0),0)/data.length:0;
       const tHT=data.reduce((s,d)=>s+(Number(d.horas_trabalhadas)||0),0);
       const tHP=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
@@ -1279,7 +1329,8 @@ function renderRelatorio(tipo){
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
 
   } else if(tipo === 'combustivel'){
-    sbFetch('vw_custo_combustivel_frota','order=custo_total.desc.nullslast').then(data=>{
+    const load=_combAll.length?Promise.resolve(_combAll.filter(d=>d.mes===mesKey)):Promise.resolve([]);
+    load.then(data=>{
       const tL=data.reduce((s,d)=>s+(Number(d.total_litros)||0),0);
       const tC=data.reduce((s,d)=>s+(Number(d.custo_total)||0),0);
       const fr=[...new Set(data.map(d=>d.frota))].length;
@@ -1303,14 +1354,16 @@ function renderRelatorio(tipo){
     Promise.all([
       sbFetch('combustivel_transferencia','destino=eq.COMBOIO&order=data.desc'),
       sbFetch('vw_abastecimento_consolidado','order=created_at.desc')
-    ]).then(([transf, abast])=>{
+    ]).then(([transfAll, abastAll])=>{
+      const transf=filterByMesRange(transfAll,'data',mesKey);
+      const abast=filterByMesRange(abastAll,'created_at',mesKey);
       const tRec  = transf.reduce((s,d)=>s+(Number(d.quantidade_l)||0),0);
       const tDist = abast.reduce((s,d)=>s+(Number(d.liters)||0),0);
       const saldo = Math.max(0, tRec - tDist);
       const pct   = CAP_COMBOIO > 0 ? Math.min(100,(saldo/CAP_COMBOIO)*100) : 0;
       const fr    = [...new Set(abast.map(d=>d.vehicle).filter(Boolean))].length;
       html += `<div class="kpi-print-row">
-        ${kpiBox('Recebido do Posto', fmt(tRec)+' L', 'total transferido')}
+        ${kpiBox('Recebido do Posto', fmt(tRec)+' L', monthLabel(mesKey))}
         ${kpiBox('Distribuído', fmt(tDist)+' L', 'abastecido máquinas')}
         ${kpiBox('Saldo Comboio', fmt(saldo)+' L', pct.toFixed(1)+'% de 5.000 L')}
         ${kpiBox('Frotas Abastecidas', fr, 'equipamentos')}
@@ -1337,11 +1390,6 @@ function renderRelatorio(tipo){
       preview.innerHTML = html;
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
   }
-
-  // Fallback enquanto carrega
-  if(!preview.innerHTML.includes('rel-header-print')){
-    preview.innerHTML = html + '<div class="loading">CARREGANDO DADOS...</div>';
-  }
 }
 
 function imprimirRelatorio(){
@@ -1350,8 +1398,9 @@ function imprimirRelatorio(){
 
 // Carrega o primeiro ao entrar na aba
 document.querySelector('.nb[onclick*="relatorio"]').addEventListener('click', ()=>{
-  if(!document.getElementById('rel-preview').innerHTML.includes('rel-header-print')){
-    renderRelatorio(_relAtual);
+  setupRelMonthBar();
+  if(!document.getElementById('rel-preview').querySelector('.kpi-print-row')){
+    renderRelatorio(_relAtual, _relMesSel);
   }
 });
 
@@ -2097,7 +2146,7 @@ async function init(){
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
       loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
     ]);
-    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06d';
+    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06e';
   }catch(e){
     document.getElementById('sync-status').textContent='● Erro ao carregar';
     document.getElementById('sync-status').style.background='#2a1010';

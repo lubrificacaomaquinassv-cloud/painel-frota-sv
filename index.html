@@ -104,11 +104,23 @@ tr:hover td{background:#131f12;}
 .rel-btn{padding:10px 20px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;border:1px solid var(--border);background:var(--bg3);color:var(--text2);border-radius:8px;cursor:pointer;transition:all .15s;}
 .rel-btn:hover{color:var(--text);border-color:var(--green);}
 .rel-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
-.rel-preview{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;min-height:200px;}
+.rel-preview{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:24px;min-height:200px;width:100%;}
 .rel-header-print{display:flex;justify-content:space-between;align-items:flex-start;padding-bottom:14px;margin-bottom:20px;border-bottom:2px solid var(--green);}
 .rel-title-print{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;letter-spacing:2px;text-transform:uppercase;}
 .rel-meta{font-size:11px;color:var(--text2);margin-top:3px;}
 .rel-stamp{font-size:11px;color:var(--text3);text-align:right;}
+.kpi-print-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+.kpi-print-box{background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
+.kpi-print-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);}
+.kpi-print-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;}
+.kpi-print-val{font-family:'Barlow Condensed',sans-serif;font-size:28px;font-weight:700;line-height:1;color:var(--text);}
+.kpi-print-sub{font-size:11px;color:var(--text3);margin-top:4px;}
+.section-title{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--gl);margin:18px 0 12px;padding-bottom:8px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.section-title::before{content:'';width:4px;height:14px;background:var(--green);border-radius:2px;display:inline-block;}
+.rel-preview table{width:100%;margin-top:4px;}
+.rel-preview .rel-table-wrap{overflow-x:auto;width:100%;}
+@media(max-width:900px){.kpi-print-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.kpi-print-row{grid-template-columns:1fr;}}
 .btn-print{padding:10px 28px;font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;background:var(--green);color:#fff;border:none;border-radius:8px;cursor:pointer;display:flex;align-items:center;gap:8px;transition:background .15s;}
 .btn-print:hover{background:#3a8e2f;}
 .btn-print:disabled{background:#1a3318;color:var(--text3);cursor:not-allowed;}
@@ -1162,7 +1174,7 @@ function renderRelatorio(tipo){
         ${kpiBox('Frotas', data.length, 'equipamentos')}
       </div>
       <div class="section-title">Detalhe por Frota</div>
-      <table><thead><tr><th>Frota</th><th>Abastecimentos</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo Médio (h)</th><th>Último Abastecimento</th></tr></thead>
+      <div class="rel-table-wrap"><table><thead><tr><th>Frota</th><th>Abastecimentos</th><th>Total (L)</th><th>Média (L)</th><th>Intervalo Médio (h)</th><th>Último Abastecimento</th></tr></thead>
       <tbody>${data.map(d=>`<tr>
         <td><b>${d.frota}</b></td>
         <td>${fmt(d.total_abastecimentos)}</td>
@@ -1170,7 +1182,7 @@ function renderRelatorio(tipo){
         <td>${fmt(d.media_litros,1)}</td>
         <td>${fmt(d.intervalo_medio_horas,1)}h</td>
         <td>${d.ultimo_abastecimento?new Date(d.ultimo_abastecimento).toLocaleDateString('pt-BR'):'—'}</td>
-      </tr>`).join('')}</tbody></table>`;
+      </tr>`).join('')}</tbody></table></div>`;
       preview.innerHTML = html;
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro ao carregar: ${e.message}</div>`; });
 
@@ -2085,7 +2097,7 @@ async function init(){
       loadConsumo(), loadOS(), loadDisp(), loadLub(),
       loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
     ]);
-    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06c';
+    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06d';
   }catch(e){
     document.getElementById('sync-status').textContent='● Erro ao carregar';
     document.getElementById('sync-status').style.background='#2a1010';

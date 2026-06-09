@@ -139,6 +139,8 @@ tr:hover td{background:#131f12;}
 .ms.active{background:var(--green);color:#fff;border-color:var(--green);}
 .os-layout{display:grid;grid-template-columns:1fr;gap:16px;margin-bottom:16px;}
 .posto-top{display:grid;grid-template-columns:200px 1fr;gap:16px;margin-bottom:20px;align-items:stretch;}
+.posto-top .tank-card{height:100%;}
+.posto-top .kpi3 .kpi-cb{display:flex;flex-direction:column;justify-content:center;}
 @media(max-width:720px){.posto-top{grid-template-columns:1fr;}}
 
 </style>
@@ -195,9 +197,12 @@ tr:hover td{background:#131f12;}
     <div class="kpi g"><div class="kl">OS Preventivas</div><div class="kv" id="kpi-os-prev">—</div><div class="ku">ocorrências</div></div>
     <div class="kpi y"><div class="kl">Total horas parada</div><div class="kv" id="kpi-hp-total">—</div><div class="ku">horas</div></div>
   </div>
-  <div class="grid2">
-    <div class="card"><div class="ct"><span></span>Ranking OS — Volume + Parada</div><div id="os-table"><div class="loading">CARREGANDO...</div></div></div>
-    <div class="card"><div class="ct"><span></span>Parada por Frota (horas)</div><div id="os-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  <div class="os-layout">
+    <div class="card">
+      <div class="ct"><span></span>Ranking OS — Volume + Parada</div>
+      <div id="os-month-bar" class="month-bar"></div>
+      <div id="os-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
   </div>
 </div>
 
@@ -250,6 +255,7 @@ tr:hover td{background:#131f12;}
     <div class="card"><div class="ct"><span></span>Custo por Frota (R$)</div><div id="comb-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
     <div class="card"><div class="ct"><span></span>Volume por Frota (L)</div><div id="comb-vol-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
   </div>
+  <div id="comb-month-bar" class="month-bar"></div>
   <div class="card">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
       <div class="ct" style="margin-bottom:0"><span></span>Detalhamento: Frota × Litros × Preço × Custo</div>
@@ -710,29 +716,28 @@ async function fetchLubV3Panel(){
 
 // ── OS ────────────────────────────────────────────────────────
 async function loadOS(){
-  try{
-    const data=await sbFetch('vw_ranking_os','order=horas_parada.desc');
-    const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
-    const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
-    const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
-    const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
-    document.getElementById('kpi-total-os').textContent=fmt(tOS);
-    document.getElementById('kpi-os-corr').textContent=fmt(tC);
-    document.getElementById('kpi-os-prev').textContent=fmt(tP);
-    document.getElementById('kpi-hp-total').textContent=fmt(tH,1)+'h';
-    const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
-    document.getElementById('os-table').innerHTML=`<table>
-      <thead><tr><th>Frota</th><th>OS</th><th>Corret.</th><th>Prevent.</th><th>H.parada</th><th>Custo</th><th>Status</th></tr></thead>
-      <tbody>${data.map(d=>`<tr>
-        <td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td>
-        <td style="color:var(--red)">${fmt(d.os_corretiva)}</td>
-        <td style="color:var(--gl)">${fmt(d.os_preventiva)}</td>
-        <td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--yellow)'}"><b>${fmt(d.horas_parada,1)}h</b></td>
-        <td>${fmtR(d.custo_total)}</td>
-        <td><span class="st ${sc(d.status)}">${d.status}</span></td>
-      </tr>`).join('')}</tbody></table>`;
-    barChart(document.getElementById('os-chart'),data.filter(d=>Number(d.horas_parada)>0).slice(0,8),'frota','horas_parada','var(--red)');
-  }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+ try{
+  _osAll=await sbFetch('vw_ranking_os','order=mes.desc,frota.asc');
+  const keys=_osAll.map(d=>monthKey(d.mes)).filter(Boolean);
+  buildMonthBar('os-month-bar', keys, currentMonthKey(), renderOSMonth);
+ }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+}
+function renderOSMonth(mesKey){
+ _osMesSel=mesKey;
+ document.querySelectorAll('#os-month-bar .ms').forEach(b=>b.classList.toggle('active', b.dataset.m===mesKey));
+ const data=_osAll.filter(d=>monthKey(d.mes)===mesKey);
+ const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
+ const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
+ const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
+ const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+ document.getElementById('kpi-total-os').textContent=fmt(tOS);
+ document.getElementById('kpi-os-corr').textContent=fmt(tC);
+ document.getElementById('kpi-os-prev').textContent=fmt(tP);
+ document.getElementById('kpi-hp-total').textContent=fmt(tH,1)+'h';
+ const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
+ document.getElementById('os-table').innerHTML=`<table><thead><tr><th>Frota</th><th>OS</th><th>Corret.</th><th>Prevent.</th><th>H.parada</th><th>Custo</th><th>Status</th></tr></thead><tbody>
+ ${data.map(d=>`<tr><td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td><td style="color:var(--red)">${fmt(d.os_corretiva)}</td><td style="color:var(--gl)">${fmt(d.os_preventiva)}</td><td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--yellow)'}"><b>${fmt(d.horas_parada,1)}h</b></td><td>${fmtR(d.custo_total)}</td><td><span class="st ${sc(d.status)}">${d.status}</span></td></tr>`).join('')||'<tr><td colspan="7">Sem OS no período</td></tr>'}
+ </tbody></table>`;
 }
 
 // ── DISPONIBILIDADE ───────────────────────────────────────────
@@ -775,7 +780,7 @@ async function loadDisp(){
 // ── LUBRIFICAÇÃO ─────────────────────────────────────────────
 async function loadLub(){
   try{
-    const data=await sbFetch('vw_proxima_troca_v3','order=horas_restantes.asc');
+    const data=await fetchLubV3Panel();
     document.getElementById('kpi-ok').textContent=data.filter(d=>d.status_troca==='OK').length;
     document.getElementById('kpi-prox').textContent=data.filter(d=>d.status_troca==='PROXIMO').length;
     document.getElementById('kpi-atr').textContent=data.filter(d=>d.status_troca==='EM ATRASO').length;
@@ -817,41 +822,45 @@ async function loadCusto(){
 // ── COMBUSTIVEL ──────────────────────────────────────────────
 async function loadCombustivel(){
  try{
-  const [posto, combo] = await Promise.all([
+  const [posto, combo, custoRows] = await Promise.all([
     sbFetch('posto','select=vehicle,fuel_type,liters,created_at'),
-    sbFetch('comboio_v2','select=vehicle,fuel_type,liters,created_at')
+    sbFetch('comboio_v2','select=vehicle,fuel_type,liters,created_at'),
+    sbFetch('vw_custo_combustivel_frota','select=combustivel,preco_litro')
   ]);
+  const precoMap={};
+  custoRows.forEach(r=>{
+    const lbl=labelFuel(r.combustivel);
+    const p=Number(r.preco_litro);
+    if(lbl && p>0 && !precoMap[lbl]) precoMap[lbl]=p;
+  });
   const rows=[...posto,...combo].filter(r=>Number(r.liters)>0);
-  const priceRows=await sbFetch('preco_insumo','select=id_insumo,valor_unitario&ativo=eq.true');
-  const ins=await sbFetch('dim_insumo','select=id_insumo,nome,categoria&categoria=eq.LUBRIFICANTE');
-  void ins;
-  const precoDiesel=Number((priceRows.find(p=>String(p.id_insumo).startsWith('P-'))||{}).valor_unitario)||0;
   const agg={};
   rows.forEach(r=>{
     const frota=String(r.vehicle||'').trim(); if(!frota) return;
-    const k=frota+'|'+labelFuel(r.fuel_type);
-    if(!agg[k]) agg[k]={frota,combustivel:labelFuel(r.fuel_type),total_litros:0,meses:[],created_at:r.created_at};
+    const comb=labelFuel(r.fuel_type);
+    const mk=monthKey(r.created_at);
+    const k=frota+'|'+comb+'|'+mk;
+    if(!agg[k]) agg[k]={frota,combustivel:comb,mes:mk,total_litros:0};
     agg[k].total_litros+=Number(r.liters)||0;
-    agg[k].meses.push(r.created_at);
   });
   _combAll=Object.values(agg).map(x=>{
-    const preco=precoDiesel||0;
-    return {...x, preco_litro:preco, custo_total:x.total_litros*preco, mes: x.meses.sort().slice(-1)[0]};
+    const preco=precoMap[x.combustivel]||0;
+    return {...x, preco_litro:preco, custo_total:x.total_litros*preco};
   });
-  const keys=_combAll.flatMap(d=>d.meses.map(m=>monthKey(m))).filter(Boolean);
+  const keys=_combAll.map(d=>d.mes).filter(Boolean);
   buildMonthBar('comb-month-bar', keys, currentMonthKey(), renderCombMonth);
   filtrarFrota('todos');
- }catch(e){document.getElementById('comb-table').innerHTML=` Erro: ${e.message} `;}
+ }catch(e){document.getElementById('comb-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
 }
-let _combData=[];
+let _combData=[], _frotaModo='todos';
 function renderCombMonth(mesKey){
  _combMesSel=mesKey;
  document.querySelectorAll('#comb-month-bar .ms').forEach(b=>b.classList.toggle('active', b.dataset.m===mesKey));
- const {ini,fim}=monthRange(mesKey);
- _combData=_combAll.filter(d=>d.meses.some(m=>{const dt=new Date(m);return dt>=ini&&dt<=fim;}));
- filtrarFrota(document.getElementById('toggle-interna').style.background.includes('green')?'interna':'todos');
+ _combData=_combAll.filter(d=>d.mes===mesKey);
+ filtrarFrota(_frotaModo);
 }
 function filtrarFrota(modo){
+ _frotaModo=modo;
  document.getElementById('toggle-todos').style.background=modo==='todos'?'var(--green)':'var(--bg3)';
  document.getElementById('toggle-todos').style.color=modo==='todos'?'#fff':'var(--text2)';
  document.getElementById('toggle-interna').style.background=modo==='interna'?'var(--green)':'var(--bg3)';
@@ -871,12 +880,8 @@ function filtrarFrota(modo){
 }
 function renderCombTable(data){
  document.getElementById('comb-table').innerHTML=`<table><thead><tr><th>Frota</th><th>Combustível</th><th>Total (L)</th><th>Preço/L</th><th>Custo Total</th></tr></thead><tbody>
- ${data.map(d=>`<tr><td>${d.frota}</td><td>${d.combustivel||'—'}</td><td>${fmt(d.total_litros,1)}</td><td>${fmtR(d.preco_litro)}</td><td>${fmtR(d.custo_total)}</td></tr>`).join('')||'<tr><td colspan="5">Sem dados no período</td></tr>'}
+ ${data.map(d=>`<tr><td><b>${d.frota}</b></td><td>${d.combustivel||'—'}</td><td>${fmt(d.total_litros,1)}</td><td>${fmtR(d.preco_litro)}</td><td><b>${fmtR(d.custo_total)}</b></td></tr>`).join('')||'<tr><td colspan="5">Sem dados no período</td></tr>'}
  </tbody></table>`;
-}</b></td><td>${d.combustivel||'—'}</td>
-      <td>${fmt(d.total_litros,1)}</td><td>${fmtR(d.preco_litro)}</td>
-      <td><b>${fmtR(d.custo_total)}</b></td>
-    </tr>`).join('')}</tbody></table>`;
 }
 
 // ══════════════════════════════════════════════════════════════

@@ -13,11 +13,11 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
 .header{background:var(--bg2);border-bottom:2px solid var(--green);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
-.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative;}
-.logo img{width:100%;height:100%;object-fit:contain;display:none;}
-.logo.has-img img{display:block;}
-.logo.has-img .logo-txt{display:none;}
-.logo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:#2a6e24;letter-spacing:1px;line-height:1;}
+.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);}
+.logo-img{width:100%;height:100%;object-fit:contain;display:none;}
+.logo.has-img .logo-img{display:block;}
+.logo.has-img .logo-svg{display:none;}
+.logo-svg{width:100%;height:100%;display:block;}
 .htitle{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;}
 .hsub{font-size:11px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
 .badge{font-size:11px;padding:3px 12px;border-radius:20px;font-weight:600;}
@@ -192,8 +192,12 @@ tr:hover td{background:#131f12;}
 <div class="header">
   <div style="display:flex;align-items:center;gap:14px;">
     <div class="logo" id="logo-box">
-      <img src="icons/logo-sv.png" alt="Santa Vergínia" onload="document.getElementById('logo-box').classList.add('has-img')" onerror="this.remove()"/>
-      <span class="logo-txt">SV</span>
+      <img class="logo-img" src="icons/logo-sv.png" alt="Santa Vergínia" onload="document.getElementById('logo-box').classList.add('has-img')"/>
+      <svg class="logo-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="Santa Vergínia">
+        <rect x="1" y="1" width="46" height="46" rx="7" fill="#fff"/>
+        <path d="M24 10c-4 6-8 9-8 14a8 8 0 1 0 16 0c0-5-4-8-8-14z" fill="#2a6e24"/>
+        <text x="24" y="40" text-anchor="middle" font-family="Barlow Condensed,Arial,sans-serif" font-size="8" font-weight="700" fill="#4a6644">VERGÍNIA</text>
+      </svg>
     </div>
     <div>
       <div class="htitle">Gestao de dados 2026</div>
@@ -288,7 +292,7 @@ tr:hover td{background:#131f12;}
   <div class="kpi-row">
     <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ · período</div></div>
     <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ · período</div></div>
-    <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku">R$ · período</div></div>
+    <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku" id="kpi-custo-lanc-sub">financeiro_lancamento · período</div></div>
     <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ · período</div></div>
   </div>
   <div class="month-bar" id="custo-month-bar"><span class="ml">Período</span></div>
@@ -1062,11 +1066,15 @@ function renderCustoMonth(mesKey){
   const rows=_custoAll.filter(d=>monthKey(d.mes)===mesKey);
   const tOS=rows.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
   const tLub=rows.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
-  const tLanc=rows.reduce((s,d)=>s+(Number(d.custo_lancamento)||0),0);
+  const tLancView=rows.reduce((s,d)=>s+(Number(d.custo_lancamento)||0),0);
+  const tLancTbl=_custoLancTipo.filter(r=>monthKey(r.mes)===mesKey).reduce((s,r)=>s+(Number(r.valor)||0),0);
+  const tLanc=tLancTbl>0?tLancTbl:tLancView;
   const tComb=rows.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
   document.getElementById('kpi-custo-os').textContent=fmtR(tOS);
   document.getElementById('kpi-custo-lub').textContent=fmtR(tLub);
   document.getElementById('kpi-custo-lanc').textContent=fmtR(tLanc);
+  const lancSub=document.getElementById('kpi-custo-lanc-sub');
+  if(lancSub) lancSub.textContent='financeiro_lancamento · '+monthLabel(mesKey)+(tComb>0?' · comb. separado':'');
   document.getElementById('kpi-custo-total').textContent=fmtR(tOS+tLub+tLanc+tComb);
   renderCustoTabelas();
   renderCustoCharts(mesKey);
@@ -2354,14 +2362,14 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v10/06e';
+    el.textContent='● Dados atualizados · v10/06f';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';
     el.style.background='#2a1010';
     el.style.color='#e74c3c';
   }else{
-    el.textContent='● Dados parciais · v10/06e';
+    el.textContent='● Dados parciais · v10/06f';
     el.style.background='#2a2010';
     el.style.color='#d4a017';
     console.warn('Falha parcial no carregamento:', failed);

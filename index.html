@@ -170,8 +170,20 @@ tr:hover td{background:#131f12;}
 .posto-top .kpi3 .kpi-cb .kv{font-size:26px;}
 @media(max-width:720px){.posto-top{grid-template-columns:1fr;}}
 
+
+.custo-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+.custo-tab{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid transparent;color:var(--text3);background:transparent;}
+.custo-tab:hover{color:var(--text);border-color:var(--border);}
+.custo-tab.active{background:var(--bg3);border-color:var(--green);color:var(--gl);}
+.custo-tab-panel{display:none;}
+.custo-tab-panel.active{display:block;}
+.chart-box{position:relative;height:220px;}
+.chart-box canvas{width:100%!important;height:100%!important;}
+.rank-btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="header">
@@ -204,84 +216,53 @@ tr:hover td{background:#131f12;}
 <div id="page-consumo" class="page active">
   <div id="consumo-month-bar" class="month-bar"></div>
   <div class="kpi-row">
-    <div class="kpi g"><div class="kl">Total abastecido</div><div class="kv" id="kpi-total-l">—</div><div class="ku">litros no período</div></div>
-    <div class="kpi b"><div class="kl">Abastecimentos</div><div class="kv" id="kpi-total-ev">—</div><div class="ku">eventos registrados</div></div>
-    <div class="kpi y"><div class="kl">Média por evento</div><div class="kv" id="kpi-media-l">—</div><div class="ku">litros / abastecimento</div></div>
-    <div class="kpi g"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-frotas">—</div><div class="ku">equipamentos</div></div>
-  </div>
-  <div class="grid3">
-    <div class="card"><div class="ct"><span></span>Volume por Frota (litros)</div><div id="consumo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
-    <div class="card"><div class="ct"><span></span>Intervalo médio entre abastecimentos</div><div id="intervalo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
-  </div>
-  <div class="card"><div class="ct"><span></span>Detalhe por Frota</div><div id="consumo-table"><div class="loading">CARREGANDO...</div></div></div>
+  <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ · período</div></div>
+  <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ · período</div></div>
+  <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku">R$ · período</div></div>
+  <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ · período</div></div>
 </div>
 
-<!-- OS -->
-<div id="page-os" class="page">
-  <div class="kpi-row">
-    <div class="kpi b"><div class="kl">Total OS</div><div class="kv" id="kpi-total-os">—</div><div class="ku">no período</div></div>
-    <div class="kpi r"><div class="kl">OS Corretivas</div><div class="kv" id="kpi-os-corr">—</div><div class="ku">ocorrências</div></div>
-    <div class="kpi g"><div class="kl">OS Preventivas</div><div class="kv" id="kpi-os-prev">—</div><div class="ku">ocorrências</div></div>
-    <div class="kpi y"><div class="kl">Total horas parada</div><div class="kv" id="kpi-hp-total">—</div><div class="ku">horas</div></div>
-  </div>
-  <div class="os-layout">
-    <div class="card">
-      <div class="ct"><span></span>Ranking OS — Volume + Parada</div>
-      <div id="os-month-bar" class="month-bar"></div>
-      <div id="os-table"><div class="loading">CARREGANDO...</div></div>
-    </div>
-  </div>
+<div class="month-bar" id="custo-month-bar"><span class="ml">Período</span></div>
+
+<div class="rank-btn-row">
+  <span class="ml">Ranking</span>
+  <button class="sf active" id="custo-rk-ativos" onclick="custoRanking('ativos')">Mais ativos</button>
+  <button class="sf" id="custo-rk-parados" onclick="custoRanking('parados')">Mais paradas</button>
+  <button class="sf" id="custo-rk-custo" onclick="custoRanking('custo')">Maior custo</button>
 </div>
 
-<!-- DISPONIBILIDADE -->
-<div id="page-disponibilidade" class="page">
-  <div id="disp-month-bar" class="month-bar"></div>
-  <div class="kpi-row">
-    <div class="kpi g"><div class="kl">Disponib. média geral</div><div class="kv" id="kpi-disp-med">—</div><div class="ku">% frota total</div></div>
-    <div class="kpi b"><div class="kl">Horas trabalhadas</div><div class="kv" id="kpi-ht">—</div><div class="ku">acumulado período</div></div>
-    <div class="kpi y"><div class="kl">Horas paradas</div><div class="kv" id="kpi-hp">—</div><div class="ku">por manutenção</div></div>
-    <div class="kpi r"><div class="kl">Equip. críticos</div><div class="kv" id="kpi-criticos">—</div><div class="ku">disponib. abaixo 70%</div></div>
-  </div>
-  <div class="card"><div class="ct"><span></span>Horas Trabalhadas x Paradas</div><div id="disp-table"><div class="loading">CARREGANDO...</div></div></div>
-</div>
-
-<!-- LUBRIFICAÇÃO -->
-<div id="page-lubrificacao" class="page">
-  <div class="kpi-row">
-    <div class="kpi g"><div class="kl">Status OK</div><div class="kv" id="kpi-ok">—</div><div class="ku">equipamentos</div></div>
-    <div class="kpi y"><div class="kl">Próximo ≤ 100h</div><div class="kv" id="kpi-prox">—</div><div class="ku">equipamentos</div></div>
-    <div class="kpi r"><div class="kl">Em Atraso</div><div class="kv" id="kpi-atr">—</div><div class="ku">equipamentos</div></div>
-    <div class="kpi b"><div class="kl">Total monitorados</div><div class="kv" id="kpi-total-lub">—</div><div class="ku">equipamentos</div></div>
+<div class="grid2">
+  <div class="card">
+    <div class="ct"><span></span>Evolução de custo mensal por equipamento <span style="margin-left:auto;font-size:10px;color:var(--text3)">R$ mil</span></div>
+    <div class="chart-box"><canvas id="chart-custo-linha"></canvas></div>
   </div>
   <div class="card">
-    <div class="ct"><span></span>Painel Próxima Troca de Óleo — ordenado por urgência</div>
-    <div class="status-bar" id="lub-filter-bar">
-      <span class="ml">Filtrar</span>
-      <button type="button" class="sf active" data-f="todos" onclick="filtrarLub('todos')">Todos</button>
-      <button type="button" class="sf r" data-f="atraso" onclick="filtrarLub('atraso')">Em Atraso</button>
-      <button type="button" class="sf y" data-f="proximo" onclick="filtrarLub('proximo')">Próximo</button>
-    </div>
-    <div id="lub-table"><div class="loading">CARREGANDO...</div></div>
+    <div class="ct"><span></span>Composição do custo <span id="custo-comp-mes" style="margin-left:auto;font-size:10px;color:var(--text3)">% do total</span></div>
+    <div class="chart-box"><canvas id="chart-custo-donut"></canvas></div>
   </div>
 </div>
 
-<!-- CUSTO -->
-<div id="page-custo" class="page">
-  <div class="kpi-row">
-    <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ período</div></div>
-    <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ período</div></div>
-    <div class="kpi b"><div class="kl">Custo combustível</div><div class="kv" id="kpi-custo-comb">—</div><div class="ku">R$ período</div></div>
-    <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ período</div></div>
+<div class="grid2" style="margin-top:16px">
+  <div class="card">
+    <div class="ct"><span></span>Ficha por equipamento <span id="custo-rank-label" style="margin-left:auto;font-size:10px;color:var(--text3)">Resumo</span></div>
+    <div class="custo-tabs">
+      <div class="custo-tab active" onclick="custoSwitchTab('resumo')">Resumo</div>
+      <div class="custo-tab" onclick="custoSwitchTab('manutencao')">Manutenção</div>
+      <div class="custo-tab" onclick="custoSwitchTab('custos')">Custos</div>
+    </div>
+    <div class="custo-tab-panel active" id="custo-panel-resumo"><div id="custo-tbl-resumo" class="loading">CARREGANDO...</div></div>
+    <div class="custo-tab-panel" id="custo-panel-manutencao"><div id="custo-tbl-manut" class="loading">CARREGANDO...</div></div>
+    <div class="custo-tab-panel" id="custo-panel-custos"><div id="custo-tbl-custos" class="loading">CARREGANDO...</div></div>
   </div>
   <div class="card">
-    <div class="ct"><span></span>Detalhamento Combustível — Frota × Litros × Preço × Custo</div>
-    <div id="comb-month-bar" class="month-bar"></div>
-    <div class="filter-bar" style="margin-bottom:12px">
-      <button type="button" class="fb active" id="toggle-todos" onclick="filtrarFrota('todos')">TODOS</button>
-      <button type="button" class="fb" id="toggle-interna" onclick="filtrarFrota('interna')">FROTA INTERNA</button>
+    <div class="ct"><span></span>Consumo diesel por equipamento <span id="custo-diesel-mes" style="margin-left:auto;font-size:10px;color:var(--text3)">Litros</span></div>
+    <div class="chart-box"><canvas id="chart-custo-diesel"></canvas></div>
+    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+      <div class="ct" style="margin-bottom:10px"><span></span>Custo por tipo de manutenção <span style="margin-left:auto;font-size:10px;color:var(--text3)">R$</span></div>
+      <div class="chart-box" style="height:180px"><canvas id="chart-custo-tipo"></canvas></div>
     </div>
-    <div id="comb-table"><div class="loading">CARREGANDO...</div></div>
   </div>
+</div>
 </div>
 
 <!-- ⛽ ABASTECIMENTO COMBOIO -->
@@ -855,40 +836,191 @@ function filtrarLub(modo){
       </tr>`).join('')||'<tr><td colspan="7">Nenhum equipamento neste filtro</td></tr>'}</tbody></table>`;
 }
 
-// ── CUSTO (unificado) ─────────────────────────────────────────
+// ── CUSTO FROTA + FINANCEIRO ─────────────────────────────────
+let _custoAll=[], _custoHoras=[], _custoLancTipo=[], _custoMesSel=null, _custoRank='custo';
+let _chartCustoLinha=null, _chartCustoDonut=null, _chartCustoDiesel=null, _chartCustoTipo=null;
+
+function custoSwitchTab(tab){
+  document.querySelectorAll('.custo-tab').forEach((t,i)=>{
+    const tabs=['resumo','manutencao','custos'];
+    t.classList.toggle('active', tabs[i]===tab);
+  });
+  document.querySelectorAll('.custo-tab-panel').forEach(p=>p.classList.remove('active'));
+  const el=document.getElementById('custo-panel-'+tab);
+  if(el) el.classList.add('active');
+}
+
+function custoRanking(mode){
+  _custoRank=mode;
+  ['ativos','parados','custo'].forEach(m=>{
+    const b=document.getElementById('custo-rk-'+m);
+    if(b) b.classList.toggle('active', m===mode);
+  });
+  const labels={ativos:'Ordenado por horas trabalhadas',parados:'Ordenado por horas paradas',custo:'Ordenado por custo total'};
+  const lb=document.getElementById('custo-rank-label');
+  if(lb) lb.textContent=labels[mode]||'';
+  renderCustoTabelas();
+}
+
+function custoSortedFrotas(){
+  const map={};
+  _custoAll.forEach(d=>{
+    const f=String(d.id_frota||'').trim(); if(!f) return;
+    if(!map[f]) map[f]={frota:f,custo_total:0,custo_os:0,custo_lub:0,custo_lanc:0,custo_comb:0,ht:0,hp:0,os:0};
+    map[f].custo_total+=Number(d.custo_total)||0;
+    map[f].custo_os+=Number(d.custo_os)||0;
+    map[f].custo_lub+=Number(d.custo_lubrificacao)||0;
+    map[f].custo_lanc+=Number(d.custo_lancamento)||0;
+    map[f].custo_comb+=Number(d.custo_combustivel)||0;
+  });
+  _custoHoras.forEach(h=>{
+    const f=String(h.frota||h.id_frota||'').trim(); if(!f) return;
+    if(!map[f]) map[f]={frota:f,custo_total:0,custo_os:0,custo_lub:0,custo_lanc:0,custo_comb:0,ht:0,hp:0,os:0};
+    map[f].ht+=Number(h.horas_trabalhadas)||0;
+    map[f].hp+=Number(h.horas_parada)||0;
+    map[f].os+=Number(h.total_os)||0;
+    map[f].disp=Number(h.disponibilidade_pct)||0;
+    map[f].status=h.status||'';
+  });
+  let arr=Object.values(map);
+  if(_custoRank==='ativos') arr.sort((a,b)=>b.ht-a.ht);
+  else if(_custoRank==='parados') arr.sort((a,b)=>b.hp-a.hp);
+  else arr.sort((a,b)=>b.custo_total-a.custo_total);
+  return arr;
+}
+
+function mtbf(eq){return eq.os>0?(eq.ht/eq.os).toFixed(1):'—';}
+function mttr(eq){return eq.os>0?(eq.hp/eq.os).toFixed(1):'—';}
+function custoBadge(d){
+  const v=Number(d);
+  if(v>=90) return '<span class="st st-ok">OK</span>';
+  if(v>=70) return '<span class="st st-aten">ATENÇÃO</span>';
+  return '<span class="st st-crit">CRÍTICO</span>';
+}
+
+function renderCustoTabelas(){
+  const data=custoSortedFrotas();
+  document.getElementById('custo-tbl-resumo').innerHTML=`<table><thead><tr><th>#</th><th>Equipamento</th><th>H. trab.</th><th>H. paradas</th><th>Disponib.</th><th>Custo total</th><th>Status</th></tr></thead><tbody>
+    ${data.map((d,i)=>`<tr><td>${i+1}</td><td><strong>${d.frota}</strong></td><td style="color:var(--gl)">${fmt(d.ht,0)}h</td><td style="color:var(--yellow)">${fmt(d.hp,0)}h</td><td>${fmt(d.disp||0,1)}%</td><td>${fmtR(d.custo_total)}</td><td>${d.status?`<span class="st st-norm">${d.status}</span>`:custoBadge(d.disp||0)}</td></tr>`).join('')||'<tr><td colspan="7">Sem dados no período</td></tr>'}
+  </tbody></table>`;
+  document.getElementById('custo-tbl-manut').innerHTML=`<table><thead><tr><th>#</th><th>Equipamento</th><th>Qtd OS</th><th>MTBF (h)</th><th>MTTR (h)</th><th>H. paradas</th></tr></thead><tbody>
+    ${data.map((d,i)=>`<tr><td>${i+1}</td><td><strong>${d.frota}</strong></td><td style="color:var(--yellow)">${fmt(d.os)}</td><td style="color:var(--gl)">${mtbf(d)}</td><td style="color:var(--red)">${mttr(d)}</td><td>${fmt(d.hp,0)}h</td></tr>`).join('')||'<tr><td colspan="6">Sem dados no período</td></tr>'}
+  </tbody></table>`;
+  document.getElementById('custo-tbl-custos').innerHTML=`<table><thead><tr><th>#</th><th>Equipamento</th><th>OS</th><th>Lubri.</th><th>Lançam.</th><th>Comb.</th><th>Total</th></tr></thead><tbody>
+    ${data.map((d,i)=>`<tr><td>${i+1}</td><td><strong>${d.frota}</strong></td><td>${fmtR(d.custo_os)}</td><td>${fmtR(d.custo_lub)}</td><td>${fmtR(d.custo_lanc)}</td><td>${fmtR(d.custo_comb)}</td><td><strong>${fmtR(d.custo_total)}</strong></td></tr>`).join('')||'<tr><td colspan="7">Sem dados no período</td></tr>'}
+  </tbody></table>`;
+}
+
+function renderCustoCharts(mesKey){
+  if(typeof Chart==='undefined') return;
+  const mesRows=_custoAll.filter(d=>monthKey(d.mes)===mesKey);
+  const tOS=mesRows.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+  const tLub=mesRows.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+  const tComb=mesRows.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+  const tLanc=mesRows.reduce((s,d)=>s+(Number(d.custo_lancamento)||0),0);
+  const compEl=document.getElementById('custo-comp-mes');
+  if(compEl) compEl.textContent='· '+monthLabel(mesKey);
+  const dieselEl=document.getElementById('custo-diesel-mes');
+  if(dieselEl) dieselEl.textContent='Litros · '+monthLabel(mesKey);
+
+  const keys=[...new Set(_custoAll.map(d=>monthKey(d.mes)).filter(Boolean))].sort();
+  const last6=keys.slice(-6);
+  const topFrotas=[...new Set(mesRows.map(d=>d.id_frota))].filter(f=>f&&f!=='SEM_FROTA')
+    .map(f=>({f,total:mesRows.filter(r=>r.id_frota===f).reduce((s,r)=>s+(Number(r.custo_total)||0),0)}))
+    .sort((a,b)=>b.total-a.total).slice(0,3).map(x=>x.f);
+  const colors=['#e05252','#4a9eff','#f0a500','#2ecc71','#a78bfa'];
+  const lineDatasets=topFrotas.map((f,i)=>({
+    label:f,
+    data:last6.map(k=>_custoAll.filter(r=>r.id_frota===f&&monthKey(r.mes)===k).reduce((s,r)=>s+(Number(r.custo_total)||0),0)),
+    borderColor:colors[i%colors.length],
+    backgroundColor:colors[i%colors.length]+'22',
+    tension:.35, pointRadius:3, borderWidth:2, fill:false
+  }));
+  const ctxL=document.getElementById('chart-custo-linha');
+  if(ctxL){
+    if(_chartCustoLinha) _chartCustoLinha.destroy();
+    _chartCustoLinha=new Chart(ctxL,{type:'line',data:{labels:last6.map(monthLabel),datasets:lineDatasets},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8aab80',boxWidth:10}}},
+        scales:{x:{ticks:{color:'#8aab80'},grid:{color:'#2a3d2a'}},y:{ticks:{color:'#8aab80',callback:v=>'R$ '+(v/1000).toFixed(0)+'k'},grid:{color:'#2a3d2a'}}}}});
+  }
+  const ctxD=document.getElementById('chart-custo-donut');
+  if(ctxD){
+    if(_chartCustoDonut) _chartCustoDonut.destroy();
+    _chartCustoDonut=new Chart(ctxD,{type:'doughnut',data:{
+      labels:['OS','Lubrificação','Lançamentos','Combustível'],
+      datasets:[{data:[tOS,tLub,tLanc,tComb],backgroundColor:['#e05252','#2ecc71','#4a9eff','#f0a500'],borderWidth:0}]},
+      options:{responsive:true,maintainAspectRatio:false,cutout:'62%',plugins:{legend:{position:'right',labels:{color:'#8aab80',boxWidth:10}}}}});
+  }
+  const dieselRows=_custoDiesel.filter(d=>monthKey(d.mes||d.created_at)===mesKey);
+  const dieselAgg={};
+  dieselRows.forEach(r=>{
+    const f=String(r.frota||r.vehicle||'').trim(); if(!f) return;
+    dieselAgg[f]=(dieselAgg[f]||0)+(Number(r.litros||r.liters)||0);
+  });
+  const dieselTop=Object.entries(dieselAgg).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const ctxDs=document.getElementById('chart-custo-diesel');
+  if(ctxDs){
+    if(_chartCustoDiesel) _chartCustoDiesel.destroy();
+    _chartCustoDiesel=new Chart(ctxDs,{type:'bar',data:{
+      labels:dieselTop.map(d=>d[0]),
+      datasets:[{data:dieselTop.map(d=>d[1]),backgroundColor:'#f0a50099',borderColor:'#f0a500',borderWidth:1,borderRadius:4}]},
+      options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#8aab80'},grid:{display:false}},y:{ticks:{color:'#8aab80',callback:v=>fmt(v,0)+'L'},grid:{color:'#2a3d2a'}}}}});
+  }
+  const tipoAgg={};
+  _custoLancTipo.filter(r=>monthKey(r.mes||r.data)===mesKey).forEach(r=>{
+    const t=r.tipo_manutencao||'OUTROS';
+    tipoAgg[t]=(tipoAgg[t]||0)+(Number(r.valor)||0);
+  });
+  const tipoLabels=Object.keys(tipoAgg);
+  const tipoVals=tipoLabels.map(k=>tipoAgg[k]);
+  const ctxT=document.getElementById('chart-custo-tipo');
+  if(ctxT){
+    if(_chartCustoTipo) _chartCustoTipo.destroy();
+    _chartCustoTipo=new Chart(ctxT,{type:'bar',data:{labels:tipoLabels,datasets:[{data:tipoVals,backgroundColor:['#e05252','#4a9eff','#f0a500','#2ecc71','#7a8a9e'],borderRadius:4}]},
+      options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},
+        scales:{x:{ticks:{color:'#8aab80',callback:v=>'R$ '+(v/1000).toFixed(1)+'k'},grid:{color:'#2a3d2a'}},y:{ticks:{color:'#8aab80'},grid:{display:false}}}}});
+  }
+}
+
+let _custoDiesel=[];
+function renderCustoMonth(mesKey){
+  _custoMesSel=mesKey;
+  const rows=_custoAll.filter(d=>monthKey(d.mes)===mesKey);
+  const tOS=rows.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
+  const tLub=rows.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
+  const tLanc=rows.reduce((s,d)=>s+(Number(d.custo_lancamento)||0),0);
+  const tComb=rows.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
+  document.getElementById('kpi-custo-os').textContent=fmtR(tOS);
+  document.getElementById('kpi-custo-lub').textContent=fmtR(tLub);
+  document.getElementById('kpi-custo-lanc').textContent=fmtR(tLanc);
+  document.getElementById('kpi-custo-total').textContent=fmtR(tOS+tLub+tLanc+tComb);
+  renderCustoTabelas();
+  renderCustoCharts(mesKey);
+}
+
 async function loadCusto(){
   try{
-    const [data, combRows] = await Promise.all([
-      sbFetch('vw_custo_frota_mes','order=custo_total.desc.nullslast'),
-      sbFetch('vw_custo_combustivel_frota','select=frota,custo_total')
+    const [custoRows, horasRows, dieselRows, lancTipo] = await Promise.all([
+      sbFetch('vw_custo_frota_financeiro','order=mes.desc,custo_total.desc.nullslast'),
+      sbFetch('vw_horas_frota','order=disponibilidade_pct.asc'),
+      sbFetch('vw_abastecimento_diesel','select=frota,litros,created_at&order=created_at.desc'),
+      sbFetch('financeiro_lancamento','select=data,tipo_manutencao,valor&order=data.desc')
     ]);
-    const combMap={};
-    combRows.forEach(r=>{
-      const f=String(r.frota||'').trim(); if(!f) return;
-      combMap[f]=(combMap[f]||0)+(Number(r.custo_total)||0);
+    _custoAll=custoRows||[];
+    _custoHoras=horasRows||[];
+    _custoDiesel=(dieselRows||[]).map(r=>({...r,mes:r.created_at}));
+    _custoLancTipo=(lancTipo||[]).map(r=>({...r,mes:r.data}));
+    const keys=_custoAll.map(d=>monthKey(d.mes)).filter(Boolean);
+    const cur=currentMonthKey();
+    if(!keys.includes(cur)) keys.unshift(cur);
+    buildMonthBar('custo-month-bar', keys, cur, renderCustoMonth);
+    custoRanking('custo');
+  }catch(e){
+    ['custo-tbl-resumo','custo-tbl-manut','custo-tbl-custos'].forEach(id=>{
+      const el=document.getElementById(id); if(el) el.innerHTML=`<div class="err">Erro: ${e.message}</div>`;
     });
-    const seen=new Set();
-    const merged=data.map(d=>{
-      seen.add(String(d.id_frota));
-      const comb=combMap[String(d.id_frota)]||0;
-      const os=Number(d.custo_os)||0;
-      const lub=Number(d.custo_lubrificacao)||0;
-      return {...d,custo_combustivel:comb,custo_total:os+lub+comb};
-    });
-    Object.entries(combMap).forEach(([frota,comb])=>{
-      if(!seen.has(frota) && comb>0){
-        merged.push({id_frota:frota,custo_os:0,custo_lubrificacao:0,custo_combustivel:comb,custo_total:comb});
-      }
-    });
-    const tOS=merged.reduce((s,d)=>s+(Number(d.custo_os)||0),0);
-    const tLub=merged.reduce((s,d)=>s+(Number(d.custo_lubrificacao)||0),0);
-    const tComb=merged.reduce((s,d)=>s+(Number(d.custo_combustivel)||0),0);
-    document.getElementById('kpi-custo-os').textContent=fmtR(tOS);
-    document.getElementById('kpi-custo-lub').textContent=fmtR(tLub);
-    document.getElementById('kpi-custo-comb').textContent=fmtR(tComb);
-    document.getElementById('kpi-custo-total').textContent=fmtR(tOS+tLub+tComb);
-    await loadCombustivel();
-  }catch(e){document.getElementById('comb-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+  }
 }
 
 // ── COMBUSTIVEL ──────────────────────────────────────────────

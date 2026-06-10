@@ -6,15 +6,18 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>GESTÃO DE FROTA — SANTA VERGÍNIA</title>
+<title>Gestao de dados 2026 — Santa Vergínia</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a1409;--bg2:#111c10;--bg3:#172015;--border:#1e2e1c;--green:#4a9e3f;--gl:#6fcf60;--yellow:#d4a017;--red:#c0392b;--blue:#2980b9;--text:#e8edd0;--text2:#8aab80;--text3:#4a6644;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
 .header{background:var(--bg2);border-bottom:2px solid var(--green);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
-.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);}
-.logo img{width:100%;height:100%;object-fit:contain;display:block;}
+.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);position:relative;}
+.logo img{width:100%;height:100%;object-fit:contain;display:none;}
+.logo.has-img img{display:block;}
+.logo.has-img .logo-txt{display:none;}
+.logo-txt{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;color:#2a6e24;letter-spacing:1px;line-height:1;}
 .htitle{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;}
 .hsub{font-size:11px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
 .badge{font-size:11px;padding:3px 12px;border-radius:20px;font-weight:600;}
@@ -40,7 +43,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px;}
 .card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:18px;}
 .ct{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--text2);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
-.ct span{width:4px;height:14px;background:var(--green);border-radius:2px;display:inline-block;}
+.ct>span:first-child{width:4px;height:14px;background:var(--green);border-radius:2px;display:inline-block;flex-shrink:0;}
+.ct-meta{margin-left:auto;font-size:10px;color:var(--text3);letter-spacing:0.5px;text-transform:none;font-weight:500;white-space:nowrap;}
 .bar-chart{display:flex;flex-direction:column;gap:8px;}
 .bi{display:grid;grid-template-columns:80px 1fr 60px;align-items:center;gap:8px;}
 .bl{font-size:11px;color:var(--text2);text-align:right;font-family:'Barlow Condensed',sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -187,10 +191,13 @@ tr:hover td{background:#131f12;}
 <body>
 <div class="header">
   <div style="display:flex;align-items:center;gap:14px;">
-    <div class="logo"><img src="icons/logo-sv.png" alt="Santa Vergínia"/></div>
+    <div class="logo" id="logo-box">
+      <img src="icons/logo-sv.png" alt="Santa Vergínia" onload="document.getElementById('logo-box').classList.add('has-img')" onerror="this.remove()"/>
+      <span class="logo-txt">SV</span>
+    </div>
     <div>
-      <div class="htitle">Gestão de Frota — Santa Vergínia</div>
-      <div class="hsub">Controladoria · Painel Operacional · <span id="mes-ref"></span></div>
+      <div class="htitle">Gestao de dados 2026</div>
+      <div class="hsub">Controladoria . Gestao de dado 2026</div>
     </div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
@@ -277,55 +284,53 @@ tr:hover td{background:#131f12;}
 </div>
 
 <!-- CUSTO -->
-<div id="page-custo" class="page"><div class="kpi-row">
-  <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ · período</div></div>
-  <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ · período</div></div>
-  <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku">R$ · período</div></div>
-  <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ · período</div></div>
-</div>
-
-<div class="month-bar" id="custo-month-bar"><span class="ml">Período</span></div>
-
-<div class="month-bar" id="custo-rank-bar">
-  <span class="ml">Ranking</span>
-  <button class="sf active" id="custo-rk-ativos" onclick="custoRanking('ativos')">Mais ativos</button>
-  <button class="sf" id="custo-rk-parados" onclick="custoRanking('parados')">Mais paradas</button>
-  <button class="sf" id="custo-rk-custo" onclick="custoRanking('custo')">Maior custo</button>
-</div>
-
-<div class="grid2">
-  <div class="card">
-    <div class="ct"><span></span>Evolução de custo mensal por equipamento <span style="margin-left:auto;font-size:10px;color:var(--text3)">R$ mil</span></div>
-    <div class="chart-box"><canvas id="chart-custo-linha"></canvas></div>
+<div id="page-custo" class="page">
+  <div class="kpi-row">
+    <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ · período</div></div>
+    <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ · período</div></div>
+    <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku">R$ · período</div></div>
+    <div class="kpi r"><div class="kl">Custo total geral</div><div class="kv" id="kpi-custo-total">—</div><div class="ku">R$ · período</div></div>
   </div>
-  <div class="card">
-    <div class="ct"><span></span>Composição do custo <span id="custo-comp-mes" style="margin-left:auto;font-size:10px;color:var(--text3)">% do total</span></div>
-    <div class="chart-box"><canvas id="chart-custo-donut"></canvas></div>
+  <div class="month-bar" id="custo-month-bar"><span class="ml">Período</span></div>
+  <div class="month-bar" id="custo-rank-bar">
+    <span class="ml">Ranking</span>
+    <button class="sf active" id="custo-rk-ativos" onclick="custoRanking('ativos')">Mais ativos</button>
+    <button class="sf" id="custo-rk-parados" onclick="custoRanking('parados')">Mais paradas</button>
+    <button class="sf" id="custo-rk-custo" onclick="custoRanking('custo')">Maior custo</button>
   </div>
-</div>
-
-<div class="grid2" style="margin-top:16px">
-  <div class="card">
-    <div class="ct"><span></span>Ficha por equipamento <span id="custo-rank-label" style="margin-left:auto;font-size:10px;color:var(--text3)">Resumo</span></div>
-    <div class="status-bar" id="custo-tab-bar">
-      <span class="ml">Ficha</span>
-      <button type="button" class="sf active" data-tab="resumo" onclick="custoSwitchTab('resumo')">Resumo</button>
-      <button type="button" class="sf" data-tab="manutencao" onclick="custoSwitchTab('manutencao')">Manutenção</button>
-      <button type="button" class="sf" data-tab="custos" onclick="custoSwitchTab('custos')">Custos</button>
+  <div class="grid2">
+    <div class="card">
+      <div class="ct"><span></span>Evolução de custo mensal por equipamento <span class="ct-meta">R$ mil</span></div>
+      <div class="chart-box"><canvas id="chart-custo-linha"></canvas></div>
     </div>
-    <div class="custo-tab-panel active" id="custo-panel-resumo"><div id="custo-tbl-resumo" class="loading">CARREGANDO...</div></div>
-    <div class="custo-tab-panel" id="custo-panel-manutencao"><div id="custo-tbl-manut" class="loading">CARREGANDO...</div></div>
-    <div class="custo-tab-panel" id="custo-panel-custos"><div id="custo-tbl-custos" class="loading">CARREGANDO...</div></div>
-  </div>
-  <div class="card">
-    <div class="ct"><span></span>Consumo diesel por equipamento <span id="custo-diesel-mes" style="margin-left:auto;font-size:10px;color:var(--text3)">Litros</span></div>
-    <div class="chart-box"><canvas id="chart-custo-diesel"></canvas></div>
-    <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
-      <div class="ct" style="margin-bottom:10px"><span></span>Custo por tipo de manutenção <span style="margin-left:auto;font-size:10px;color:var(--text3)">R$</span></div>
-      <div class="chart-box" style="height:180px"><canvas id="chart-custo-tipo"></canvas></div>
+    <div class="card">
+      <div class="ct"><span></span>Composição do custo <span id="custo-comp-mes" class="ct-meta">% do total</span></div>
+      <div class="chart-box"><canvas id="chart-custo-donut"></canvas></div>
     </div>
   </div>
-</div></div>
+  <div class="grid2" style="margin-top:16px">
+    <div class="card">
+      <div class="ct"><span></span>Ficha por equipamento <span id="custo-rank-label" class="ct-meta">Resumo</span></div>
+      <div class="status-bar" id="custo-tab-bar">
+        <span class="ml">Ficha</span>
+        <button type="button" class="sf active" data-tab="resumo" onclick="custoSwitchTab('resumo')">Resumo</button>
+        <button type="button" class="sf" data-tab="manutencao" onclick="custoSwitchTab('manutencao')">Manutenção</button>
+        <button type="button" class="sf" data-tab="custos" onclick="custoSwitchTab('custos')">Custos</button>
+      </div>
+      <div class="custo-tab-panel active" id="custo-panel-resumo"><div id="custo-tbl-resumo" class="loading">CARREGANDO...</div></div>
+      <div class="custo-tab-panel" id="custo-panel-manutencao"><div id="custo-tbl-manut" class="loading">CARREGANDO...</div></div>
+      <div class="custo-tab-panel" id="custo-panel-custos"><div id="custo-tbl-custos" class="loading">CARREGANDO...</div></div>
+    </div>
+    <div class="card">
+      <div class="ct"><span></span>Consumo diesel por equipamento <span id="custo-diesel-mes" class="ct-meta">Litros</span></div>
+      <div class="chart-box"><canvas id="chart-custo-diesel"></canvas></div>
+      <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:14px">
+        <div class="ct" style="margin-bottom:10px"><span></span>Custo por tipo de manutenção <span class="ct-meta">R$</span></div>
+        <div class="chart-box" style="height:180px"><canvas id="chart-custo-tipo"></canvas></div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ⛽ ABASTECIMENTO COMBOIO -->
 <div id="page-abastecimento" class="page">
@@ -596,13 +601,20 @@ const CAP_COMBOIO = 5000;
 
 const now = new Date();
 document.getElementById('dt').textContent        = now.toLocaleDateString('pt-BR',{day:'2-digit',month:'short',year:'numeric'});
-document.getElementById('mes-ref').textContent   = now.toLocaleDateString('pt-BR',{month:'long',year:'numeric'});
 
 function showPage(name,btn){
+  const page=document.getElementById('page-'+name);
+  if(!page){
+    console.error('Página não encontrada: page-'+name);
+    return;
+  }
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  btn.classList.add('active');
+  page.classList.add('active');
+  if(btn) btn.classList.add('active');
+  if(name==='custo') setTimeout(()=>{
+    [_chartCustoLinha,_chartCustoDonut,_chartCustoDiesel,_chartCustoTipo].forEach(c=>{if(c) c.resize();});
+  },50);
 }
 
 async function sbFetch(resource, params=''){
@@ -2342,14 +2354,14 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v10/06b';
+    el.textContent='● Dados atualizados · v10/06e';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';
     el.style.background='#2a1010';
     el.style.color='#e74c3c';
   }else{
-    el.textContent='● Dados parciais · v10/06b';
+    el.textContent='● Dados parciais · v10/06e';
     el.style.background='#2a2010';
     el.style.color='#d4a017';
     console.warn('Falha parcial no carregamento:', failed);

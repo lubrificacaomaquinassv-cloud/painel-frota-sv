@@ -179,7 +179,6 @@ tr:hover td{background:#131f12;}
 .custo-tab-panel.active{display:block;}
 .chart-box{position:relative;height:220px;}
 .chart-box canvas{width:100%!important;height:100%!important;}
-.rank-btn-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js"></script>
@@ -216,6 +215,69 @@ tr:hover td{background:#131f12;}
 <div id="page-consumo" class="page active">
   <div id="consumo-month-bar" class="month-bar"></div>
   <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Total abastecido</div><div class="kv" id="kpi-total-l">—</div><div class="ku">litros no período</div></div>
+    <div class="kpi b"><div class="kl">Abastecimentos</div><div class="kv" id="kpi-total-ev">—</div><div class="ku">eventos registrados</div></div>
+    <div class="kpi y"><div class="kl">Média por evento</div><div class="kv" id="kpi-media-l">—</div><div class="ku">litros / abastecimento</div></div>
+    <div class="kpi g"><div class="kl">Frotas abastecidas</div><div class="kv" id="kpi-frotas">—</div><div class="ku">equipamentos</div></div>
+  </div>
+  <div class="grid3">
+    <div class="card"><div class="ct"><span></span>Volume por Frota (litros)</div><div id="consumo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span></span>Intervalo médio entre abastecimentos</div><div id="intervalo-chart" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+  <div class="card"><div class="ct"><span></span>Detalhe por Frota</div><div id="consumo-table"><div class="loading">CARREGANDO...</div></div></div>
+</div>
+
+<!-- OS -->
+<div id="page-os" class="page">
+  <div class="kpi-row">
+    <div class="kpi b"><div class="kl">Total OS</div><div class="kv" id="kpi-total-os">—</div><div class="ku">no período</div></div>
+    <div class="kpi r"><div class="kl">OS Corretivas</div><div class="kv" id="kpi-os-corr">—</div><div class="ku">ocorrências</div></div>
+    <div class="kpi g"><div class="kl">OS Preventivas</div><div class="kv" id="kpi-os-prev">—</div><div class="ku">ocorrências</div></div>
+    <div class="kpi y"><div class="kl">Total horas parada</div><div class="kv" id="kpi-hp-total">—</div><div class="ku">horas</div></div>
+  </div>
+  <div class="os-layout">
+    <div class="card">
+      <div class="ct"><span></span>Ranking OS — Volume + Parada</div>
+      <div id="os-month-bar" class="month-bar"></div>
+      <div id="os-table"><div class="loading">CARREGANDO...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- DISPONIBILIDADE -->
+<div id="page-disponibilidade" class="page">
+  <div id="disp-month-bar" class="month-bar"></div>
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Disponib. média geral</div><div class="kv" id="kpi-disp-med">—</div><div class="ku">% frota total</div></div>
+    <div class="kpi b"><div class="kl">Horas trabalhadas</div><div class="kv" id="kpi-ht">—</div><div class="ku">acumulado período</div></div>
+    <div class="kpi y"><div class="kl">Horas paradas</div><div class="kv" id="kpi-hp">—</div><div class="ku">por manutenção</div></div>
+    <div class="kpi r"><div class="kl">Equip. críticos</div><div class="kv" id="kpi-criticos">—</div><div class="ku">disponib. abaixo 70%</div></div>
+  </div>
+  <div class="card"><div class="ct"><span></span>Horas Trabalhadas x Paradas</div><div id="disp-table"><div class="loading">CARREGANDO...</div></div></div>
+</div>
+
+<!-- LUBRIFICAÇÃO -->
+<div id="page-lubrificacao" class="page">
+  <div class="kpi-row">
+    <div class="kpi g"><div class="kl">Status OK</div><div class="kv" id="kpi-ok">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi y"><div class="kl">Próximo ≤ 100h</div><div class="kv" id="kpi-prox">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi r"><div class="kl">Em Atraso</div><div class="kv" id="kpi-atr">—</div><div class="ku">equipamentos</div></div>
+    <div class="kpi b"><div class="kl">Total monitorados</div><div class="kv" id="kpi-total-lub">—</div><div class="ku">equipamentos</div></div>
+  </div>
+  <div class="card">
+    <div class="ct"><span></span>Painel Próxima Troca de Óleo — ordenado por urgência</div>
+    <div class="status-bar" id="lub-filter-bar">
+      <span class="ml">Filtrar</span>
+      <button type="button" class="sf active" data-f="todos" onclick="filtrarLub('todos')">Todos</button>
+      <button type="button" class="sf r" data-f="atraso" onclick="filtrarLub('atraso')">Em Atraso</button>
+      <button type="button" class="sf y" data-f="proximo" onclick="filtrarLub('proximo')">Próximo</button>
+    </div>
+    <div id="lub-table"><div class="loading">CARREGANDO...</div></div>
+  </div>
+</div>
+
+<!-- CUSTO -->
+<div id="page-custo" class="page"><div class="kpi-row">
   <div class="kpi y"><div class="kl">Custo total OS</div><div class="kv" id="kpi-custo-os">—</div><div class="ku">R$ · período</div></div>
   <div class="kpi g"><div class="kl">Custo lubrificação</div><div class="kv" id="kpi-custo-lub">—</div><div class="ku">R$ · período</div></div>
   <div class="kpi b"><div class="kl">Lançamentos financeiros</div><div class="kv" id="kpi-custo-lanc">—</div><div class="ku">R$ · período</div></div>
@@ -224,7 +286,7 @@ tr:hover td{background:#131f12;}
 
 <div class="month-bar" id="custo-month-bar"><span class="ml">Período</span></div>
 
-<div class="rank-btn-row">
+<div class="month-bar" id="custo-rank-bar">
   <span class="ml">Ranking</span>
   <button class="sf active" id="custo-rk-ativos" onclick="custoRanking('ativos')">Mais ativos</button>
   <button class="sf" id="custo-rk-parados" onclick="custoRanking('parados')">Mais paradas</button>
@@ -245,10 +307,11 @@ tr:hover td{background:#131f12;}
 <div class="grid2" style="margin-top:16px">
   <div class="card">
     <div class="ct"><span></span>Ficha por equipamento <span id="custo-rank-label" style="margin-left:auto;font-size:10px;color:var(--text3)">Resumo</span></div>
-    <div class="custo-tabs">
-      <div class="custo-tab active" onclick="custoSwitchTab('resumo')">Resumo</div>
-      <div class="custo-tab" onclick="custoSwitchTab('manutencao')">Manutenção</div>
-      <div class="custo-tab" onclick="custoSwitchTab('custos')">Custos</div>
+    <div class="status-bar" id="custo-tab-bar">
+      <span class="ml">Ficha</span>
+      <button type="button" class="sf active" data-tab="resumo" onclick="custoSwitchTab('resumo')">Resumo</button>
+      <button type="button" class="sf" data-tab="manutencao" onclick="custoSwitchTab('manutencao')">Manutenção</button>
+      <button type="button" class="sf" data-tab="custos" onclick="custoSwitchTab('custos')">Custos</button>
     </div>
     <div class="custo-tab-panel active" id="custo-panel-resumo"><div id="custo-tbl-resumo" class="loading">CARREGANDO...</div></div>
     <div class="custo-tab-panel" id="custo-panel-manutencao"><div id="custo-tbl-manut" class="loading">CARREGANDO...</div></div>
@@ -262,8 +325,7 @@ tr:hover td{background:#131f12;}
       <div class="chart-box" style="height:180px"><canvas id="chart-custo-tipo"></canvas></div>
     </div>
   </div>
-</div>
-</div>
+</div></div>
 
 <!-- ⛽ ABASTECIMENTO COMBOIO -->
 <div id="page-abastecimento" class="page">
@@ -841,9 +903,8 @@ let _custoAll=[], _custoHoras=[], _custoLancTipo=[], _custoMesSel=null, _custoRa
 let _chartCustoLinha=null, _chartCustoDonut=null, _chartCustoDiesel=null, _chartCustoTipo=null;
 
 function custoSwitchTab(tab){
-  document.querySelectorAll('.custo-tab').forEach((t,i)=>{
-    const tabs=['resumo','manutencao','custos'];
-    t.classList.toggle('active', tabs[i]===tab);
+  document.querySelectorAll('#custo-tab-bar .sf').forEach(b=>{
+    b.classList.toggle('active', b.dataset.tab===tab);
   });
   document.querySelectorAll('.custo-tab-panel').forEach(p=>p.classList.remove('active'));
   const el=document.getElementById('custo-panel-'+tab);
@@ -856,7 +917,7 @@ function custoRanking(mode){
     const b=document.getElementById('custo-rk-'+m);
     if(b) b.classList.toggle('active', m===mode);
   });
-  const labels={ativos:'Ordenado por horas trabalhadas',parados:'Ordenado por horas paradas',custo:'Ordenado por custo total'};
+  const labels={ativos:'H. trabalhadas',parados:'H. paradas',custo:'Maior custo'};
   const lb=document.getElementById('custo-rank-label');
   if(lb) lb.textContent=labels[mode]||'';
   renderCustoTabelas();
@@ -2273,16 +2334,25 @@ function renderGsAbastMonth(mesKey){
 
 // ── INIT ─────────────────────────────────────────────────────
 async function init(){
-  try{
-    await Promise.all([
-      loadConsumo(), loadOS(), loadDisp(), loadLub(),
-      loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
-    ]);
-    document.getElementById('sync-status').textContent='● Dados atualizados · v09/06e';
-  }catch(e){
-    document.getElementById('sync-status').textContent='● Erro ao carregar';
-    document.getElementById('sync-status').style.background='#2a1010';
-    document.getElementById('sync-status').style.color='#e74c3c';
+  const jobs=[
+    loadConsumo(), loadOS(), loadDisp(), loadLub(),
+    loadCusto(), loadAbastecimento(), loadPosto(), loadGasolina()
+  ];
+  const results=await Promise.allSettled(jobs);
+  const failed=results.filter(r=>r.status==='rejected');
+  const el=document.getElementById('sync-status');
+  if(!failed.length){
+    el.textContent='● Dados atualizados · v10/06b';
+    el.style.background=''; el.style.color='';
+  }else if(failed.length===results.length){
+    el.textContent='● Erro ao carregar';
+    el.style.background='#2a1010';
+    el.style.color='#e74c3c';
+  }else{
+    el.textContent='● Dados parciais · v10/06b';
+    el.style.background='#2a2010';
+    el.style.color='#d4a017';
+    console.warn('Falha parcial no carregamento:', failed);
   }
 }
 init();

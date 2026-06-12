@@ -2076,11 +2076,13 @@ function renderPostoTable(data){
 
 async function loadPosto(){
   try{
-    const [saldoRows, entradas, transf, abastAll] = await Promise.all([
+    const [saldoRows, entradas, transf, abastAll, saldoS10Rows, entradasS10] = await Promise.all([
       sbFetch('vw_saldo_posto_v2'),
       sbFetch('combustivel_entrada','combustivel=ilike.*S-500*&order=data.desc'),
       sbFetch('combustivel_transferencia','origem=eq.POSTO&order=data.desc'),
-      sbFetch('posto','order=created_at.desc')
+      sbFetch('posto','order=created_at.desc'),
+      sbFetch('vw_saldo_s10_posto'),
+      sbFetch('combustivel_entrada','combustivel=ilike.*S-10*&order=data.desc')
     ]);
 
     const s = saldoRows[0] || {};
@@ -2195,13 +2197,56 @@ async function loadPosto(){
       document.getElementById('pt-transf-table').innerHTML = '<div class="err">Nenhuma transferência registrada</div>';
     }
 
+    // ── Tanque Diesel S-10 · 5.000 L ──────────────────────────
+    const CAP_POSTO_S10 = 5000;
+    const s10 = saldoS10Rows[0] || {};
+    const s10EntradaTotal = Number(s10.entrada_total_l) || 0;
+    const s10Saida = Number(s10.saida_posto_l) || 0;
+    const s10Saldo = Number(s10.saldo_litros) || 0;
+    const s10Pct = Math.max(0, Math.min(100,
+      Number(s10.pct_restante) || (CAP_POSTO_S10 > 0 ? (s10Saldo / CAP_POSTO_S10) * 100 : 0)));
     const s10Total = abastS10.reduce((acc, d) => acc + (Number(d.liters) || 0), 0);
     const s10Frotas = [...new Set(abastS10.map(d => d.vehicle).filter(Boolean))];
-    document.getElementById('pt-s10-panel').innerHTML = abastS10.length ? `
-      <div class="kpi-row" style="margin-bottom:0">
-        <div class="kpi b"><div class="kl">Consumo S-10 (PWA)</div><div class="kv">${fmt(s10Total,1)} L</div><div class="ku">${abastS10.length} evento(s)</div></div>
-        <div class="kpi g"><div class="kl">Frotas leves</div><div class="kv">${s10Frotas.length}</div><div class="ku">${s10Frotas.join(', ') || '—'}</div></div>
-      </div>` : `<div class="err" style="color:var(--text2)">Sem abastecimentos S-10 ainda · tanque entra em operação em 09/06/2026</div>`;
+    const s10Cor = s10Pct <= 20 ? '#e74c3c' : s10Pct <= 40 ? 'var(--yellow)' : '#7ab0d4';
+    const s10Badge = s10Pct <= 20 ? 'NÍVEL CRÍTICO' : s10Pct <= 40 ? 'NÍVEL BAIXO' : 'NÍVEL OK';
+    const temS10 = s10EntradaTotal > 0 || abastS10.length > 0;
+
+    document.getElementById('pt-s10-panel').innerHTML = temS10 ? `
+      <div style="margin-bottom:8px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+          <span style="font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1px">Tanque S-10 · ${fmt(CAP_POSTO_S10)} L</span>
+          <span style="font-size:10px;font-weight:700;color:${s10Cor}">${s10Badge}</span>
+        </div>
+        <div style="height:10px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;overflow:hidden">
+          <div style="height:100%;width:${s10Pct.toFixed(1)}%;background:${s10Cor}"></div>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span>(+) Entradas NF${s10.nota_fiscal ? ' · última NF ' + s10.nota_fiscal : ''}${s10.data_carga ? ' · ' + fmtDt(s10.data_carga) : ''}</span>
+        <strong>${fmt(s10EntradaTotal, 1)} L</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px">
+        <span>(-) Consumo PWA · ${abastS10.length} evento(s) · ${s10Frotas.length} frota(s)</span>
+        <strong>-${fmt(s10Saida, 1)} L</strong>
+      </div>
+      <div style="display:flex;justify-content:space-between;gap:8px;padding:6px 0;font-size:13px">
+        <span><strong>= Saldo estimado S-10</strong></span>
+        <strong style="color:${s10Cor}">${fmt(s10Saldo, 1)} L (${s10Pct.toFixed(1)}%)</strong>
+      </div>
+      ${entradasS10.length ? `<table style="width:100%;border-collapse:collapse;margin-top:6px;font-size:11px">
+        <tr style="color:var(--text3);text-align:left;text-transform:uppercase;letter-spacing:1px;font-size:9px">
+          <th style="padding:3px 4px">Data</th><th style="padding:3px 4px">NF</th><th style="padding:3px 4px">Fornecedor</th>
+          <th style="padding:3px 4px;text-align:right">Qtd (L)</th><th style="padding:3px 4px;text-align:right">R$/L</th>
+        </tr>
+        ${entradasS10.slice(0, 6).map(en => `<tr style="border-top:1px solid var(--border)">
+          <td style="padding:3px 4px">${fmtDt(en.data)}</td>
+          <td style="padding:3px 4px">${en.nota_fiscal || '—'}</td>
+          <td style="padding:3px 4px">${en.fornecedor || '—'}</td>
+          <td style="padding:3px 4px;text-align:right">${fmt(en.quantidade_l, 1)}</td>
+          <td style="padding:3px 4px;text-align:right">${fmtR(en.valor_litro)}</td>
+        </tr>`).join('')}
+      </table>` : ''}
+    ` : `<div style="font-size:12px;color:var(--text3);padding:8px 0">Sem movimentação de S-10 ainda · lance a 1ª NF no Controle de Combustível</div>`;
 
     renderPostoTable(_postoAll);
 

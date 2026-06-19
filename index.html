@@ -13,11 +13,8 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font-size:14px;}
 .header{background:var(--bg2);border-bottom:2px solid var(--green);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;}
-.logo{width:52px;height:52px;background:#fff;border:1px solid var(--border);border-radius:10px;padding:3px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,.25);}
-.logo-img{width:100%;height:100%;object-fit:contain;display:none;}
-.logo.has-img .logo-img{display:block;}
-.logo.has-img .logo-svg{display:none;}
-.logo-svg{width:100%;height:100%;display:block;}
+.logo{width:58px;height:58px;background:linear-gradient(145deg,#0a1628,#0d2040);border:2px solid #c9a227;border-radius:12px;padding:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;box-shadow:0 4px 18px rgba(0,0,0,.45);}
+.logo-img{width:100%;height:100%;object-fit:contain;border-radius:8px;display:block;}
 .htitle{font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:20px;letter-spacing:2px;text-transform:uppercase;}
 .hsub{font-size:11px;color:var(--text2);letter-spacing:1px;margin-top:2px;}
 .badge{font-size:11px;padding:3px 12px;border-radius:20px;font-weight:600;}
@@ -192,12 +189,7 @@ tr:hover td{background:#131f12;}
 <div class="header">
   <div style="display:flex;align-items:center;gap:14px;">
     <div class="logo" id="logo-box">
-      <img class="logo-img" src="icons/logo-sv.png" alt="Santa Vergínia" onload="document.getElementById('logo-box').classList.add('has-img')"/>
-      <svg class="logo-svg" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-label="Santa Vergínia">
-        <rect x="1" y="1" width="46" height="46" rx="7" fill="#fff"/>
-        <path d="M24 10c-4 6-8 9-8 14a8 8 0 1 0 16 0c0-5-4-8-8-14z" fill="#2a6e24"/>
-        <text x="24" y="40" text-anchor="middle" font-family="Barlow Condensed,Arial,sans-serif" font-size="8" font-weight="700" fill="#4a6644">VERGÍNIA</text>
-      </svg>
+      <img class="logo-img" src="icons/logo-sv.png" alt="Santa Virgínia"/>
     </div>
     <div>
       <div class="htitle">Gestao de dados 2026</div>

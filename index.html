@@ -26,7 +26,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .nb:hover{color:var(--text);}
 .page{display:none;padding:20px 28px;}
 .page.active{display:block;}
-#page-os .kpi .kl{text-transform:none;letter-spacing:.5px;font-weight:600;}
+#page-os .kpi-row{grid-template-columns:repeat(3,1fr);}
+.os-table-wrap td.col-money{white-space:nowrap;}
 .os-table-wrap{max-height:520px;overflow:auto;border-radius:8px;border:1px solid var(--border);}
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
 .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
@@ -250,13 +251,7 @@ tr:hover td{background:#131f12;}
   <div class="kpi-row">
     <div class="kpi b"><div class="kl">Qtd OS — mês</div><div class="kv" id="os-kpi-mes">—</div><div class="ku" id="os-kpi-mes-sub">no período selecionado</div></div>
     <div class="kpi y"><div class="kl">Total horas paradas</div><div class="kv" id="os-kpi-horas">—</div><div class="ku" id="os-kpi-horas-sub">soma tempo das OS</div></div>
-    <div class="kpi g"><div class="kl">Top mecânico</div><div class="kv" id="os-kpi-top-mec" style="font-size:22px;line-height:1.15">—</div><div class="ku" id="os-kpi-top-mec-sub">ranking produtividade (qtd OS)</div></div>
     <div class="kpi r"><div class="kl">Custo parada — mês</div><div class="kv" id="os-kpi-custo">—</div><div class="ku" id="os-kpi-custo-sub">M.O. mecânico + operador</div></div>
-  </div>
-  <div class="card" style="margin-bottom:16px">
-    <div class="ct"><span></span>OS do dia — 5 mais recentes <span id="os-dia-titulo" class="ct-meta"></span></div>
-    <div id="os-dia-cards" class="os-cards-row"><div class="loading">CARREGANDO...</div></div>
-    <div id="os-dia-legenda" style="font-size:11px;color:var(--text3);margin-top:8px"></div>
   </div>
   <div class="grid2" style="margin-bottom:16px">
     <div class="card"><div class="ct"><span style="background:var(--blue)"></span>Produtividade — mecânicos (qtd OS)</div><div id="os-chart-mec" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
@@ -456,7 +451,7 @@ async function sbFetch(resource, params=''){
 }
 
 function fmt(n,dec=0){return n==null?'—':Number(n).toLocaleString('pt-BR',{minimumFractionDigits:dec,maximumFractionDigits:dec});}
-function fmtR(n){return n==null?'—':'R$ '+Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtR(n){return n==null?'—':'R$\u00a0'+Number(n).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtDt(d){return d?new Date(d).toLocaleDateString('pt-BR'):'—';}
 function fmtDtHr(d){if(!d)return'—';const x=new Date(d);return x.toLocaleDateString('pt-BR')+' '+x.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
 
@@ -1027,10 +1022,9 @@ async function loadOS(){
     _osColab=colab;
     _osApont=apont;
     buildMonthBar('os-month-bar', monthKeysFromOs(_osRaw), currentMonthKey(), renderOSMonth);
-    renderOsDiaCards(_osRaw);
     renderOSMonth(currentMonthKey());
   }catch(e){
-    ['os-dia-cards','os-chart-mec','os-chart-sis','os-table'].forEach(id=>{
+    ['os-chart-mec','os-chart-sis','os-table'].forEach(id=>{
       const el=document.getElementById(id);
       if(el) el.innerHTML=`<div class="err">Erro: ${e.message}</div>`;
     });
@@ -1061,12 +1055,6 @@ function renderOSMonth(mesKey){
     +` · mec ${fmtR(tMec)} + oper ${fmtR(tOp)}`;
 
   const mecData=aggMecProdutividade(mesRows, _osColab);
-  const topMec=mecData[0];
-  document.getElementById('os-kpi-top-mec').textContent=topMec?topMec.mec:'—';
-  document.getElementById('os-kpi-top-mec-sub').textContent=topMec
-    ? `${fmt(topMec.qtd)} OS · ${fmt(topMec.tempo_h,1)} h em oficina`
-    : 'sem OS no mês';
-
   barChart(document.getElementById('os-chart-mec'),
     mecData, 'mec', 'qtd', 'var(--blue)', 12);
 
@@ -1096,9 +1084,9 @@ function renderOSMonth(mesKey){
         <td style="color:var(--text2)">${fmtDtHr(os.created_at)}</td>
         <td>${par}</td>
         <td>${operTxt}</td>
-        <td>${p.cMec>0?fmtR(p.cMec):'—'}</td>
-        <td>${p.cOp>0?fmtR(p.cOp):'—'}</td>
-        <td><b>${p.cTot>0?fmtR(p.cTot):'—'}</b></td>
+        <td class="col-money">${p.cMec>0?fmtR(p.cMec):'—'}</td>
+        <td class="col-money">${p.cOp>0?fmtR(p.cOp):'—'}</td>
+        <td class="col-money"><b>${p.cTot>0?fmtR(p.cTot):'—'}</b></td>
       </tr>`;
     }).join('')||'<tr><td colspan="12">Sem OS no período</td></tr>'}</tbody></table>`;
   const legExtra=_osTableLimit>0&&sorted.length>_osTableLimit
@@ -1863,7 +1851,6 @@ async function exportarPPTX(){
         {label:'QTD OS',         value:fmt(mesRows.length), sub:monthLabel(mesKey), color:C.blue},
         {label:'HORAS PARADAS',  value:fmt(tHoras,1)+'h',   sub:'tempo das OS',     color:C.yellow},
         {label:'CUSTO PARADA',   value:fmtR(tCusto),        sub:'mec + operador',   color:C.red},
-        {label:'TOP MECÂNICO',   value:mecData[0]?mecData[0].mec:'—', sub:mecData[0]?fmt(mecData[0].qtd)+' OS':'', color:C.green},
       ]);
       s1.addChart(pres.charts.BAR,[{
         name:'Qtd OS',
@@ -2196,7 +2183,7 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v19/06-os2';
+    el.textContent='● Dados atualizados · v19/06-os3';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';

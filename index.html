@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
 <meta http-equiv="Pragma" content="no-cache"/>
 <meta http-equiv="Expires" content="0"/>
-<title>Gestao de dados 2026 — Santa Vergínia</title>
+<title>Painel do Gestor — Santa Vergínia</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
 :root{--bg:#0a1409;--bg2:#111c10;--bg3:#172015;--border:#1e2e1c;--green:#4a9e3f;--gl:#6fcf60;--yellow:#d4a017;--red:#c0392b;--blue:#2980b9;--text:#e8edd0;--text2:#8aab80;--text3:#4a6644;}
@@ -149,8 +149,8 @@ tr:hover td{background:#131f12;}
       <img class="logo-img" src="icons/logo-sv.png?v=20260619" alt="Santa Virgínia"/>
     </div>
     <div>
-      <div class="htitle">Gestao de dados 2026</div>
-      <div class="hsub">Controladoria . Gestao de dado 2026</div>
+      <div class="htitle">Painel do Gestor</div>
+      <div class="hsub">Controladoria · Santa Vergínia</div>
     </div>
   </div>
   <div style="display:flex;gap:8px;align-items:center;">
@@ -300,7 +300,7 @@ tr:hover td{background:#131f12;}
   </div>
 </div>
 
-<div class="footer">Santa Vergínia Agropecuária e Florestal · Controladoria · Painel Gestão de Frota</div>
+<div class="footer">Santa Vergínia Agropecuária e Florestal · Controladoria · Painel do Gestor</div>
 
 <script>
 const SB_URL  = "https://azhpxhrwhegfysoeqmft.supabase.co";
@@ -1352,7 +1352,7 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v19/06-painel';
+    el.textContent='● Dados atualizados · v19/06-gestor';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';

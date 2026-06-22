@@ -1,0 +1,12 @@
+{
+  "setor": "Medicamentos Pecuaria",
+  "campanha": "Piloto 1 item — ACEPRAN",
+  "itens": [
+    {
+      "codigo": "445",
+      "descricao": "ACEPRAN 20ML",
+      "em_estoque": 4,
+      "disponivel": 4
+    }
+  ]
+}

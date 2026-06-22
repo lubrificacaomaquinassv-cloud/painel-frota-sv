@@ -1119,7 +1119,7 @@ async function loadDisp(){
 
 function renderDispMonth(mesKey){
   const isCurrent=mesKey===currentMonthKey();
-  let data=isCurrent?_dispLive:_dispHist.filter(d=>monthKey(dispMesField(d))===mesKey);
+  let data=(isCurrent?_dispLive:_dispHist).filter(d=>monthKey(dispMesField(d))===mesKey);
   data=data.map(d=>({
     frota:d.frota||d.id_frota,
     horas_trabalhadas:Number(d.horas_trabalhadas)||0,
@@ -2183,7 +2183,7 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v19/06-os3';
+    el.textContent='● Dados atualizados · v19/06-disp';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';

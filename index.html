@@ -26,6 +26,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .nb:hover{color:var(--text);}
 .page{display:none;padding:20px 28px;}
 .page.active{display:block;}
+#page-os .kpi .kl{text-transform:none;letter-spacing:.5px;font-weight:600;}
+.os-table-wrap{max-height:520px;overflow:auto;border-radius:8px;border:1px solid var(--border);}
 .kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
 .kpi{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:16px 18px;position:relative;overflow:hidden;}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
@@ -172,7 +174,15 @@ tr:hover td{background:#131f12;}
 @media(max-width:720px){.posto-top{grid-template-columns:1fr;}}
 
 
-.custo-tabs{display:flex;gap:4px;margin-bottom:14px;flex-wrap:wrap;}
+.os-cards-row{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:4px;}
+.os-card{background:var(--bg3);border:1px solid var(--border);border-left:4px solid var(--green);border-radius:10px;padding:14px;min-height:118px;}
+.os-card-num{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--gl);}
+.os-card-sub{font-size:12px;color:var(--text);margin-top:6px;}
+.os-card-meta{font-size:10px;color:var(--text2);margin-top:6px;}
+.os-card-st{font-size:11px;font-weight:700;margin-top:8px;}
+@media(max-width:960px){.os-cards-row{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:520px){.os-cards-row{grid-template-columns:1fr;}}
+
 .custo-tab{padding:7px 16px;border-radius:6px;font-size:12px;font-weight:700;font-family:'Barlow Condensed',sans-serif;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:1px solid transparent;color:var(--text3);background:transparent;}
 .custo-tab:hover{color:var(--text);border-color:var(--border);}
 .custo-tab.active{background:var(--bg3);border-color:var(--green);color:var(--gl);}
@@ -204,7 +214,7 @@ tr:hover td{background:#131f12;}
 
 <nav class="nav">
   <button class="nb active" onclick="showPage('frota',this)">Abastecimento Frota</button>
-  <button class="nb" onclick="showPage('os',this)">Ordens de Serviço</button>
+  <button class="nb" onclick="showPage('os',this)">OS_OFICINA_SEDE</button>
   <button class="nb" onclick="showPage('disponibilidade',this)">Disponibilidade</button>
   <button class="nb" onclick="showPage('lubrificacao',this)">Lubrificação</button>
   <button class="nb" onclick="showPage('custo',this)">Custo Frota</button>
@@ -214,9 +224,6 @@ tr:hover td{background:#131f12;}
 
 <!-- ABASTECIMENTO DE FROTA -->
 <div id="page-frota" class="page active">
-  <div style="font-size:12px;color:var(--text2);margin-bottom:10px;letter-spacing:.5px">
-    Diesel S-500 / S-10 · posto sede + comboio · gasolina na aba dedicada
-  </div>
   <div id="frota-month-bar" class="month-bar"></div>
   <div class="kpi-row">
     <div class="kpi y"><div class="kl">Preço médio</div><div class="kv" id="frota-kpi-preco">—</div><div class="ku" id="frota-kpi-preco-sub">R$/L · compras NF no mês</div></div>
@@ -234,20 +241,37 @@ tr:hover td{background:#131f12;}
   </div>
 </div>
 
-<!-- OS -->
+<!-- OS OFICINA SEDE -->
 <div id="page-os" class="page">
-  <div class="kpi-row">
-    <div class="kpi b"><div class="kl">Total OS</div><div class="kv" id="kpi-total-os">—</div><div class="ku">no período</div></div>
-    <div class="kpi r"><div class="kl">OS Corretivas</div><div class="kv" id="kpi-os-corr">—</div><div class="ku">ocorrências</div></div>
-    <div class="kpi g"><div class="kl">OS Preventivas</div><div class="kv" id="kpi-os-prev">—</div><div class="ku">ocorrências</div></div>
-    <div class="kpi y"><div class="kl">Total horas parada</div><div class="kv" id="kpi-hp-total">—</div><div class="ku">horas</div></div>
+  <div style="font-size:12px;color:var(--text2);margin-bottom:10px;letter-spacing:.5px">
+    Oficina sede · custo de parada (M.O. mecânico + operador) · produtividade dos mecânicos
   </div>
-  <div class="os-layout">
-    <div class="card">
-      <div class="ct"><span></span>Ranking OS — Volume + Parada</div>
-      <div id="os-month-bar" class="month-bar"></div>
-      <div id="os-table"><div class="loading">CARREGANDO...</div></div>
+  <div id="os-month-bar" class="month-bar"></div>
+  <div class="kpi-row">
+    <div class="kpi b"><div class="kl">Qtd OS — mês</div><div class="kv" id="os-kpi-mes">—</div><div class="ku" id="os-kpi-mes-sub">no período selecionado</div></div>
+    <div class="kpi y"><div class="kl">Total horas paradas</div><div class="kv" id="os-kpi-horas">—</div><div class="ku" id="os-kpi-horas-sub">soma tempo das OS</div></div>
+    <div class="kpi g"><div class="kl">Top mecânico</div><div class="kv" id="os-kpi-top-mec" style="font-size:22px;line-height:1.15">—</div><div class="ku" id="os-kpi-top-mec-sub">ranking produtividade (qtd OS)</div></div>
+    <div class="kpi r"><div class="kl">Custo parada — mês</div><div class="kv" id="os-kpi-custo">—</div><div class="ku" id="os-kpi-custo-sub">M.O. mecânico + operador</div></div>
+  </div>
+  <div class="card" style="margin-bottom:16px">
+    <div class="ct"><span></span>OS do dia — 5 mais recentes <span id="os-dia-titulo" class="ct-meta"></span></div>
+    <div id="os-dia-cards" class="os-cards-row"><div class="loading">CARREGANDO...</div></div>
+    <div id="os-dia-legenda" style="font-size:11px;color:var(--text3);margin-top:8px"></div>
+  </div>
+  <div class="grid2" style="margin-bottom:16px">
+    <div class="card"><div class="ct"><span style="background:var(--blue)"></span>Produtividade — mecânicos (qtd OS)</div><div id="os-chart-mec" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+    <div class="card"><div class="ct"><span style="background:var(--green)"></span>Sistemas acionados no mês</div><div id="os-chart-sis" class="bar-chart"><div class="loading">CARREGANDO...</div></div></div>
+  </div>
+  <div class="card">
+    <div class="ct"><span></span>Lista de OS — custo de parada · <span id="os-table-titulo">—</span></div>
+    <div class="status-bar" id="os-table-filter" style="margin-bottom:10px">
+      <span class="ml">Exibir</span>
+      <button type="button" class="sf active" onclick="osTableSetLimit(15,this)">15 recentes</button>
+      <button type="button" class="sf" onclick="osTableSetLimit(30,this)">30</button>
+      <button type="button" class="sf" onclick="osTableSetLimit(0,this)">Todas</button>
     </div>
+    <div class="os-table-wrap"><div id="os-table"><div class="loading">CARREGANDO...</div></div></div>
+    <div id="os-table-legenda" style="font-size:11px;color:var(--text3);margin-top:10px;line-height:1.5"></div>
   </div>
 </div>
 
@@ -375,7 +399,7 @@ tr:hover td{background:#131f12;}
       <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--text2);margin-bottom:8px;">Selecione o relatório</div>
       <div class="rel-selector">
         <button class="rel-btn active" onclick="selecionarRel('frota',this)">Abastecimento Frota</button>
-        <button class="rel-btn" onclick="selecionarRel('os',this)">Ordens de Serviço</button>
+        <button class="rel-btn" onclick="selecionarRel('os',this)">OS Oficina Sede</button>
         <button class="rel-btn" onclick="selecionarRel('disponibilidade',this)">Disponibilidade</button>
         <button class="rel-btn" onclick="selecionarRel('lubrificacao',this)">Lubrificação</button>
         <button class="rel-btn" onclick="selecionarRel('custo',this)">Custo Frota</button>
@@ -582,7 +606,7 @@ function renderFrotaMonth(mesKey){
 
 // ── Filtros de mês + lub v3 ───────────────────────────────────
 const MESES_PT=['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'];
-let _osAll=[], _combAll=[], _osMesSel=null, _combMesSel=null;
+let _combAll=[], _combMesSel=null;
 
 function monthKey(d){
  if(!d) return '';
@@ -631,13 +655,6 @@ function monthKeysWithActivity(rows, field){
  return Object.entries(agg).filter(([,v])=>v>0).map(([k])=>k);
 }
 
-function monthKeysForOS(rows){
- const keys=monthKeysWithActivity(rows,'total_os');
- const cur=currentMonthKey();
- if(!keys.includes(cur)) keys.unshift(cur);
- return [...new Set(keys)];
-}
-
 function isFrotaInterna(f){return /^\d{4}/.test(String(f||''));}
 
 async function fetchLubV3Panel(){
@@ -678,29 +695,418 @@ async function fetchLubV3Panel(){
  }).sort((a,b)=>a.horas_restantes-b.horas_restantes);
 }
 
-// ── OS ────────────────────────────────────────────────────────
-async function loadOS(){
- try{
-  _osAll=await sbFetch('vw_ranking_os','order=horas_parada.desc.nullslast');
-  const keys=monthKeysForOS(_osAll);
-  buildMonthBar('os-month-bar', keys, currentMonthKey(), renderOSMonth);
- }catch(e){document.getElementById('os-table').innerHTML=`<div class="err">Erro: ${e.message}</div>`;}
+// ── OS OFICINA SEDE ───────────────────────────────────────────
+let _osRaw=[], _osPainel={}, _osColab=[], _osApont=[], _osMesSel=null, _osTableLimit=15;
+
+function osTableSetLimit(n, btn){
+  _osTableLimit=n;
+  document.querySelectorAll('#os-table-filter .sf').forEach(b=>b.classList.remove('active'));
+  if(btn) btn.classList.add('active');
+  if(_osMesSel) renderOSMonth(_osMesSel);
 }
+
+const _OS_NAO_TRATOR = new Set(['REBOQUE','IMPLEMENTO','CARRETA','PLATAFORMA','TERCEIRO','VEICULO_LEVE','VEICULO LEVE']);
+
+function mapaPainelFrota(rows){
+  const m={};
+  (rows||[]).forEach(r=>{
+    const fid=normFrotaId(r.id_frota);
+    if(fid) m[fid]=r;
+  });
+  return m;
+}
+
+function isImplementoOs(fid, painelMap, apont){
+  const f=normFrotaId(fid);
+  if(!f) return false;
+  if((apont||[]).some(a=>normFrotaId(a.frota)===f)) return false;
+  const meta=painelMap[f];
+  if(meta){
+    const cat=semAcento(meta.categoria_painel||'');
+    if(_OS_NAO_TRATOR.has(cat)) return true;
+    if(/EQUIPAMENTO|TRATOR|MAQUINA|CAMINHAO|COLHEIT/.test(cat)) return false;
+  }
+  if(f==='9999') return true;
+  return !/^\d{4}$/.test(f);
+}
+
+function osStatusClass(st){
+  const s=String(st||'').toUpperCase();
+  if(/FINAL/.test(s)) return 'st-ok';
+  if(/PEND|ABERT|ANDAMENT/.test(s)) return 'st-prox';
+  if(/CANCEL/.test(s)) return 'st-atr';
+  return 'st-norm';
+}
+function isTratorEquipamento(fid, painelMap, apont){
+  if(isImplementoOs(fid, painelMap, apont||[])) return false;
+  const meta=painelMap[fid];
+  if(meta){
+    const cat=semAcento(meta.categoria_painel||'');
+    if(_OS_NAO_TRATOR.has(cat)) return false;
+    return /EQUIPAMENTO|TRATOR|MAQUINA|CAMINHAO|COLHEIT/.test(cat);
+  }
+  return /^\d{4}$/.test(fid);
+}
+
+function semAcento(s){
+  return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toUpperCase();
+}
+
+function hojeKeyBr(){
+  const n=new Date(Date.now()-3*60*60*1000);
+  return n.getUTCFullYear()+'-'+(n.getUTCMonth()+1)+'-'+n.getUTCDate();
+}
+
+function dateKeyBr(iso){
+  if(!iso) return '';
+  const n=new Date(iso);
+  const b=new Date(n.getTime()-3*60*60*1000);
+  return b.getUTCFullYear()+'-'+(b.getUTCMonth()+1)+'-'+b.getUTCDate();
+}
+
+function normFrotaId(f){
+  return String(f||'').trim().replace(/\.0$/,'');
+}
+
+function mapaCustoHora(colab){
+  const map={}, firstLast={};
+  (colab||[]).forEach(c=>{
+    const nome=semAcento(c.nome);
+    const ch=Number(c.custo_hora)||0;
+    if(!nome||ch<=0) return;
+    map[nome]=ch;
+    const ts=nome.split(/\s+/);
+    if(ts.length>=2){
+      const k=ts[0]+'|'+ts[ts.length-1];
+      if(firstLast[k]==null) firstLast[k]=ch;
+    }
+  });
+  return {map, firstLast};
+}
+
+function buscaCh(nome, chMap, colabList){
+  const n=semAcento(nome);
+  if(!n) return 0;
+  if(chMap.map[n]!=null) return chMap.map[n];
+  const ts=n.split(/\s+/);
+  if(ts.length>=2){
+    const k=ts[0]+'|'+ts[ts.length-1];
+    if(chMap.firstLast[k]!=null) return chMap.firstLast[k];
+    const hits=(colabList||[]).filter(c=>{
+      const ct=semAcento(c.nome).split(/\s+/);
+      return ct.length>=2&&ct[0]===ts[0]&&ct[ct.length-1]===ts[ts.length-1];
+    });
+    if(hits.length===1) return Number(hits[0].custo_hora)||0;
+  }
+  if(ts.length>=1&&colabList){
+    const pre=ts[0];
+    const hits=(colabList||[]).filter(c=>{
+      const cn=semAcento(c.nome);
+      return cn===pre||cn.startsWith(pre+' ');
+    });
+    if(hits.length===1) return Number(hits[0].custo_hora)||0;
+  }
+  return 0;
+}
+
+function canonicalColaborador(nome, colabList){
+  let n=semAcento(nome);
+  if(!n) return 'NAO INFORMADO';
+  if(n==='JEFFERSON'){
+    const jm=(colabList||[]).find(c=>/^JEFERSON\b/.test(semAcento(c.nome)));
+    if(jm) return semAcento(jm.nome);
+  }
+  for(const c of (colabList||[])){
+    if(semAcento(c.nome)===n) return semAcento(c.nome);
+  }
+  if(/\s+E\s+|\s*-\s*|\s*,\s*/.test(n)){
+    const parts=n.split(/\s+E\s+|\s*-\s*|\s*,\s*/).map(p=>p.trim()).filter(Boolean);
+    for(const p of parts){
+      const sub=canonicalColaborador(p, colabList);
+      if(sub!=='NAO INFORMADO'&&sub!==semAcento(p)) return sub;
+    }
+    const known=(colabList||[]).map(c=>semAcento(c.nome)).filter(kn=>kn.split(/\s+/).length>=2);
+    const hit=known.filter(kn=>n.includes(kn)).sort((a,b)=>b.length-a.length)[0];
+    if(hit) return hit;
+  }
+  const ts=n.split(/\s+/);
+  if(ts.length>=2){
+    const hits=(colabList||[]).filter(c=>{
+      const ct=semAcento(c.nome).split(/\s+/);
+      return ct.length>=2&&ct[0]===ts[0]&&ct[ct.length-1]===ts[ts.length-1];
+    });
+    if(hits.length===1) return semAcento(hits[0].nome);
+  }
+  if(ts.length>=1){
+    const pre=ts[0];
+    const hits=(colabList||[]).filter(c=>{
+      const cn=semAcento(c.nome);
+      return cn===pre||cn.startsWith(pre+' ');
+    });
+    if(hits.length===1) return semAcento(hits[0].nome);
+    if(hits.length>1){
+      hits.sort((a,b)=>semAcento(b.nome).length-semAcento(a.nome).length);
+      return semAcento(hits[0].nome);
+    }
+  }
+  const known=(colabList||[]).map(c=>semAcento(c.nome)).filter(kn=>kn.length>6);
+  const sub=known.filter(kn=>n.includes(kn)).sort((a,b)=>b.length-a.length)[0];
+  if(sub) return sub;
+  return n;
+}
+
+function displayColaborador(canonical, colabList){
+  for(const c of (colabList||[])){
+    if(semAcento(c.nome)===canonical) return c.nome;
+  }
+  return canonical;
+}
+
+function aggMecProdutividade(rows, colabList){
+  const agg={};
+  rows.forEach(r=>{
+    const k=canonicalColaborador(r.mecanico, colabList);
+    if(!agg[k]) agg[k]={key:k, qtd:0, tempo_h:0};
+    agg[k].qtd++;
+    agg[k].tempo_h+=(Number(r.tempo_min)||0)/60;
+  });
+  return Object.values(agg)
+    .map(d=>({mec:displayColaborador(d.key, colabList), qtd:d.qtd, tempo_h:d.tempo_h}))
+    .sort((a,b)=>b.qtd-a.qtd);
+}
+
+function operadorApontamento(frota, dataOs, apont){
+  const fid=normFrotaId(frota);
+  const cand=(apont||[]).filter(a=>normFrotaId(a.frota)===fid).sort((a,b)=>new Date(a.data)-new Date(b.data));
+  if(!cand.length) return '';
+  if(!dataOs) return semAcento(cand[cand.length-1].operador);
+  const dKey=typeof dataOs==='string'&&dataOs.length===10?dataOs:dateKeyBr(dataOs);
+  const ate=cand.filter(a=>String(a.data||'').slice(0,10)<=dKey);
+  return semAcento((ate.length?ate[ate.length-1]:cand[cand.length-1]).operador);
+}
+
+function calcParadaOsRow(os, chMap, apont, painelMap, colabList){
+  const h=(Number(os.tempo_min)||0)/60;
+  const mecCanon=canonicalColaborador(os.mecanico, colabList);
+  const cMec=h*buscaCh(mecCanon, chMap, colabList);
+  const impl=os.eh_implemento===true||isImplementoOs(os.id_frota, painelMap, apont);
+  let operRaw='';
+  if(!impl){
+    operRaw=semAcento(os.operador);
+    if(['NAN','NONE','NULL','N/A','-','<NA>'].includes(operRaw)) operRaw='';
+    const apOp=operadorApontamento(os.id_frota, os.created_at, apont);
+    if(!operRaw) operRaw=apOp;
+    else if(apOp&&!buscaCh(operRaw, chMap, colabList)&&buscaCh(apOp, chMap, colabList)) operRaw=apOp;
+  }
+  const cOp=impl?0:h*(operRaw?buscaCh(operRaw, chMap, colabList):0);
+  const operLabel=impl?'N/A — implemento':(
+    operRaw?displayColaborador(canonicalColaborador(operRaw, colabList), colabList):'');
+  return {
+    h, oper: operLabel, operRaw, cMec, cOp,
+    cTot:cMec+cOp, mec: mecCanon, impl,
+  };
+}
+
+function osStatusColor(st){
+  const s=String(st||'').toUpperCase();
+  if(s.includes('FINAL')) return 'var(--gl)';
+  if(s.includes('ABERT')||s.includes('ANDAMENT')||s.includes('PEND')) return 'var(--yellow)';
+  if(s.includes('CANCEL')) return 'var(--red)';
+  return 'var(--blue)';
+}
+
+function osNumero(n){
+  const m=String(n||'').match(/(\d+)/);
+  return m?parseInt(m[1],10):0;
+}
+
+function monthKeysFromOs(rows){
+  const keys=[...new Set(rows.map(r=>monthKey(r.created_at)).filter(Boolean))];
+  const cur=currentMonthKey();
+  if(!keys.includes(cur)) keys.push(cur);
+  return keys.sort((a,b)=>{
+    const [ya,ma]=a.split('-').map(Number), [yb,mb]=b.split('-').map(Number);
+    return ya!==yb?ya-yb:ma-mb;
+  });
+}
+
+function osNoMes(rows, mesKey){
+  return rows.filter(r=>monthKey(r.created_at)===mesKey);
+}
+
+function renderOsDiaCards(allRows){
+  const hoje=hojeKeyBr();
+  const hojeLabel=new Date().toLocaleDateString('pt-BR');
+  document.getElementById('os-dia-titulo').textContent='· '+hojeLabel;
+  let pool=allRows.filter(r=>dateKeyBr(r.created_at)===hoje);
+  let leg='';
+  if(pool.length){
+    leg=pool.length+' OS hoje — exibindo as 5 mais recentes';
+  }else{
+    const mesKey=currentMonthKey();
+    pool=osNoMes(allRows, mesKey);
+    if(pool.length){
+      leg='Sem OS hoje — 5 mais recentes de '+monthLabel(mesKey);
+    }else{
+      pool=[...allRows];
+      leg='Sem OS no mês — 5 mais recentes da base';
+    }
+  }
+  pool=[...pool].sort((a,b)=>osNumero(b.numero_os)-osNumero(a.numero_os)||new Date(b.created_at)-new Date(a.created_at)).slice(0,5);
+  const el=document.getElementById('os-dia-cards');
+  const legEl=document.getElementById('os-dia-legenda');
+  if(!pool.length){
+    el.innerHTML='<div class="err">Nenhuma OS registrada</div>';
+    legEl.textContent='';
+    return;
+  }
+  el.innerHTML=pool.map(os=>{
+    const cor=osStatusColor(os.status);
+    return `<div class="os-card" style="border-left-color:${cor}">
+      <div class="os-card-num">${os.numero_os||'—'}</div>
+      <div class="os-card-sub">Frota <b>${normFrotaId(os.id_frota)||'—'}</b> · ${os.sistema||'—'}</div>
+      <div class="os-card-meta">${os.tipo_manutencao||'—'}</div>
+      <div class="os-card-st" style="color:${cor}">${os.status||'—'}</div>
+      <div class="os-card-meta">${os.mecanico||'—'} · ${fmtDtHr(os.created_at)}</div>
+    </div>`;
+  }).join('');
+  legEl.textContent=leg;
+}
+
+function aggOsChart(rows, field, vKey='qtd'){
+  const agg={};
+  rows.forEach(r=>{
+    const k=String(r[field]||'').trim()||'Não informado';
+    if(!agg[k]) agg[k]={label:k, qtd:0, tempo_h:0};
+    agg[k].qtd++;
+    agg[k].tempo_h+=(Number(r.tempo_min)||0)/60;
+  });
+  return Object.values(agg).sort((a,b)=>b.qtd-a.qtd);
+}
+
+function aggTratorParada(rows, painelMap, apont){
+  const agg={};
+  rows.forEach(r=>{
+    const fid=normFrotaId(r.id_frota);
+    if(!fid||!isTratorEquipamento(fid, painelMap, apont)) return;
+    if(!agg[fid]) agg[fid]={frota:fid, horas:0, qtd:0};
+    agg[fid].horas+=(Number(r.tempo_min)||0)/60;
+    agg[fid].qtd++;
+  });
+  return Object.values(agg).sort((a,b)=>b.horas-a.horas||b.qtd-a.qtd);
+}
+
+async function loadOS(){
+  try{
+    let osRows=await sbFetch('vw_painel_os','select=id_frota,numero_os,status,tempo_min,operador,mecanico,sistema,created_at,eh_implemento&order=created_at.desc');
+    if(!osRows.length){
+      osRows=await sbFetch('ordem_servico','select=id_frota,numero_os,status,tempo_min,operador,mecanico,sistema,tipo_manutencao,created_at&order=created_at.desc');
+    }else{
+      const extra=await sbFetch('ordem_servico','select=numero_os,tipo_manutencao,operador,tempo_min&order=created_at.desc');
+      const osMap={};
+      extra.forEach(e=>{ if(e.numero_os&&!osMap[e.numero_os]) osMap[e.numero_os]=e; });
+      osRows=osRows.map(r=>{
+        const ex=osMap[r.numero_os]||{};
+        const op=String(r.operador||'').trim();
+        const opEx=String(ex.operador||'').trim();
+        return {
+          ...r,
+          tipo_manutencao: ex.tipo_manutencao||'',
+          operador: op&&!['NAN','NULL','N/A','-'].includes(op.toUpperCase())?r.operador:ex.operador||r.operador,
+          tempo_min: Number(r.tempo_min)>0?r.tempo_min:(Number(ex.tempo_min)||r.tempo_min),
+        };
+      });
+    }
+    const [painel, colab, apont]=await Promise.all([
+      sbFetch('dim_frota_painel','select=id_frota,categoria_painel').catch(()=>[]),
+      sbFetch('dim_colaborador','select=nome,custo_hora,funcao&custo_hora=gt.0'),
+      sbFetch('apontamento_campo','select=frota,operador,data&order=data.desc'),
+    ]);
+    _osRaw=osRows;
+    _osPainel=mapaPainelFrota(painel);
+    _osColab=colab;
+    _osApont=apont;
+    buildMonthBar('os-month-bar', monthKeysFromOs(_osRaw), currentMonthKey(), renderOSMonth);
+    renderOsDiaCards(_osRaw);
+    renderOSMonth(currentMonthKey());
+  }catch(e){
+    ['os-dia-cards','os-chart-mec','os-chart-sis','os-table'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.innerHTML=`<div class="err">Erro: ${e.message}</div>`;
+    });
+  }
+}
+
 function renderOSMonth(mesKey){
- _osMesSel=mesKey;
- const data=_osAll.filter(d=>monthKey(d.mes)===mesKey && (Number(d.total_os)||0)>0);
- const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
- const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
- const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
- const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
- document.getElementById('kpi-total-os').textContent=fmt(tOS);
- document.getElementById('kpi-os-corr').textContent=fmt(tC);
- document.getElementById('kpi-os-prev').textContent=fmt(tP);
- document.getElementById('kpi-hp-total').textContent=fmt(tH,1)+'h';
- const sc=s=>s==='CRITICO'?'st-crit':s==='ATENCAO'?'st-aten':'st-norm';
- document.getElementById('os-table').innerHTML=`<table><thead><tr><th>Frota</th><th>OS</th><th>Corret.</th><th>Prevent.</th><th>H.parada</th><th>Custo</th><th>Status</th></tr></thead><tbody>
- ${data.map(d=>`<tr><td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td><td style="color:var(--red)">${fmt(d.os_corretiva)}</td><td style="color:var(--gl)">${fmt(d.os_preventiva)}</td><td style="color:${Number(d.horas_parada)>10?'var(--red)':'var(--yellow)'}"><b>${fmt(d.horas_parada,1)}h</b></td><td>${fmtR(d.custo_total)}</td><td><span class="st ${sc(d.status)}">${d.status}</span></td></tr>`).join('')||'<tr><td colspan="7">Sem OS no período</td></tr>'}
- </tbody></table>`;
+  _osMesSel=mesKey;
+  const mesRows=osNoMes(_osRaw, mesKey);
+  const chMap=mapaCustoHora(_osColab);
+  let tHoras=0, tCusto=0, tMec=0, tOp=0;
+  mesRows.forEach(r=>{
+    tHoras+=(Number(r.tempo_min)||0)/60;
+    const p=calcParadaOsRow(r, chMap, _osApont, _osPainel, _osColab);
+    tMec+=p.cMec;
+    tOp+=p.cOp;
+    tCusto+=p.cTot;
+  });
+
+  document.getElementById('os-kpi-mes').textContent=fmt(mesRows.length);
+  document.getElementById('os-kpi-mes-sub').textContent=monthLabel(mesKey);
+  document.getElementById('os-kpi-horas').textContent=fmt(tHoras,1)+' h';
+  document.getElementById('os-kpi-horas-sub').textContent=mesRows.length
+    ? `${mesRows.filter(r=>(Number(r.tempo_min)||0)>0).length} OS com tempo informado`
+    : 'sem OS no mês';
+  document.getElementById('os-kpi-custo').textContent=fmtR(tCusto);
+  document.getElementById('os-kpi-custo-sub').textContent=monthLabel(mesKey)
+    +` · mec ${fmtR(tMec)} + oper ${fmtR(tOp)}`;
+
+  const mecData=aggMecProdutividade(mesRows, _osColab);
+  const topMec=mecData[0];
+  document.getElementById('os-kpi-top-mec').textContent=topMec?topMec.mec:'—';
+  document.getElementById('os-kpi-top-mec-sub').textContent=topMec
+    ? `${fmt(topMec.qtd)} OS · ${fmt(topMec.tempo_h,1)} h em oficina`
+    : 'sem OS no mês';
+
+  barChart(document.getElementById('os-chart-mec'),
+    mecData, 'mec', 'qtd', 'var(--blue)', 12);
+
+  const sisData=aggOsChart(mesRows, 'sistema').slice(0,10);
+  barChart(document.getElementById('os-chart-sis'),
+    sisData.map(d=>({sis:d.label, qtd:d.qtd})), 'sis', 'qtd', 'var(--green)', 10);
+
+  document.getElementById('os-table-titulo').textContent=monthLabel(mesKey);
+  const sorted=[...mesRows].sort((a,b)=>osNumero(b.numero_os)-osNumero(a.numero_os)||new Date(b.created_at)-new Date(a.created_at));
+  const shown=_osTableLimit>0?sorted.slice(0,_osTableLimit):sorted;
+  document.getElementById('os-table').innerHTML=`<table>
+    <thead><tr>
+      <th>OS</th><th>Frota</th><th>Sistema</th><th>Tipo</th><th>Status</th><th>Mecânico</th>
+      <th>Data/Hora</th><th>Parada</th><th>Operador</th><th>R$ Mec.</th><th>R$ Oper.</th><th>Custo parada</th>
+    </tr></thead>
+    <tbody>${shown.map(os=>{
+      const p=calcParadaOsRow(os, chMap, _osApont, _osPainel, _osColab);
+      const par=p.h>0?`${fmt(p.h*60,0)} min (${fmt(p.h,1)}h)`:'—';
+      const operTxt=p.oper||'—';
+      return `<tr>
+        <td><b>${os.numero_os||'—'}</b></td>
+        <td>${normFrotaId(os.id_frota)||'—'}</td>
+        <td>${os.sistema||'—'}</td>
+        <td>${os.tipo_manutencao||'—'}</td>
+        <td><span class="st ${osStatusClass(os.status)}">${os.status||'—'}</span></td>
+        <td>${os.mecanico||'—'}</td>
+        <td style="color:var(--text2)">${fmtDtHr(os.created_at)}</td>
+        <td>${par}</td>
+        <td>${operTxt}</td>
+        <td>${p.cMec>0?fmtR(p.cMec):'—'}</td>
+        <td>${p.cOp>0?fmtR(p.cOp):'—'}</td>
+        <td><b>${p.cTot>0?fmtR(p.cTot):'—'}</b></td>
+      </tr>`;
+    }).join('')||'<tr><td colspan="12">Sem OS no período</td></tr>'}</tbody></table>`;
+  const legExtra=_osTableLimit>0&&sorted.length>_osTableLimit
+    ? ` Exibindo ${shown.length} de ${sorted.length} OS (mais recentes).`
+    : sorted.length?` ${sorted.length} OS no mês.`: '';
+  document.getElementById('os-table-legenda').textContent=
+    legExtra+' Custo parada = (tempo × custo_hora mecânico) + (tempo × custo_hora operador). '
+    + 'Operador vem da OS ou apontamento_campo. Implementos: operador N/A. Sem peças/NF-e.';
 }
 
 // ── DISPONIBILIDADE ───────────────────────────────────────────
@@ -1039,7 +1445,7 @@ let _relAtual = 'frota', _relMesSel = null;
 
 const REL_TITULOS = {
   frota:          'Relatório de Abastecimento de Frota',
-  os:             'Relatório de Ordens de Serviço',
+  os:             'Relatório OS Oficina Sede',
   disponibilidade:'Relatório de Disponibilidade de Frota',
   lubrificacao:   'Relatório de Lubrificação — Troca de Óleo',
   custo:          'Relatório de Custo de Frota',
@@ -1132,28 +1538,40 @@ function renderRelatorio(tipo, mesKey){
     }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro ao carregar: ${e.message}</div>`; });
 
   } else if(tipo === 'os'){
-    sbFetch('vw_ranking_os','order=horas_parada.desc').then(all=>{
-      const data=all.filter(d=>monthKey(d.mes)===mesKey && (Number(d.total_os)||0)>0);
-      const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
-      const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
-      const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
-      const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+    const renderOsRel=(allRows)=>{
+      const mesRows=osNoMes(allRows, mesKey);
+      const chMap=mapaCustoHora(_osColab);
+      let tHoras=0, tCusto=0;
+      mesRows.forEach(r=>{
+        tHoras+=(Number(r.tempo_min)||0)/60;
+        tCusto+=calcParadaOsRow(r, chMap, _osApont, _osPainel, _osColab).cTot;
+      });
+      const mecData=aggOsChart(mesRows, 'mecanico').slice(0,8);
+      const tratorData=aggTratorParada(mesRows, _osPainel, _osApont).slice(0,10);
       html += `<div class="kpi-print-row">
-        ${kpiBox('Total OS', fmt(tOS), monthLabel(mesKey))}
-        ${kpiBox('Corretivas', fmt(tC), 'ocorrências')}
-        ${kpiBox('Preventivas', fmt(tP), 'ocorrências')}
-        ${kpiBox('H. Parada', fmt(tH,1)+'h', 'no período')}
+        ${kpiBox('Qtd OS', fmt(mesRows.length), monthLabel(mesKey))}
+        ${kpiBox('Horas Paradas', fmt(tHoras,1)+' h', 'soma tempo_min')}
+        ${kpiBox('Custo Parada', fmtR(tCusto), 'mec + operador')}
+        ${kpiBox('Tratores', tratorData.length, 'top parada')}
       </div>
-      <div class="section-title">Ranking por Frota</div>
-      <div class="rel-table-wrap"><table><thead><tr><th>Frota</th><th>OS Total</th><th>Corretiva</th><th>Preventiva</th><th>H. Parada</th><th>Custo (R$)</th><th>Status</th></tr></thead>
-      <tbody>${data.map(d=>`<tr>
-        <td><b>${d.frota}</b></td><td>${fmt(d.total_os)}</td>
-        <td>${fmt(d.os_corretiva)}</td><td>${fmt(d.os_preventiva)}</td>
-        <td><b>${fmt(d.horas_parada,1)}h</b></td><td>${fmtR(d.custo_total)}</td>
-        <td>${d.status}</td>
-      </tr>`).join('')||'<tr><td colspan="7">Sem OS no período</td></tr>'}</tbody></table></div>`;
+      <div class="section-title">Lista de OS — Custo de Parada</div>
+      <div class="rel-table-wrap"><table><thead><tr><th>OS</th><th>Frota</th><th>Sistema</th><th>Mecânico</th><th>Parada</th><th>Operador</th><th>R$ Mec.</th><th>R$ Oper.</th><th>Custo parada</th></tr></thead>
+      <tbody>${mesRows.map(os=>{
+        const p=calcParadaOsRow(os, chMap, _osApont, _osPainel, _osColab);
+        return `<tr><td><b>${os.numero_os||'—'}</b></td><td>${normFrotaId(os.id_frota)}</td><td>${os.sistema||'—'}</td>
+        <td>${os.mecanico||'—'}</td><td>${p.h>0?fmt(p.h,1)+' h':'—'}</td>
+        <td>${p.impl?p.oper:(p.oper||'—')}</td>
+        <td>${fmtR(p.cMec)}</td><td>${fmtR(p.cOp)}</td><td><b>${p.cTot>0?fmtR(p.cTot):'—'}</b></td></tr>`;
+      }).join('')||'<tr><td colspan="9">Sem OS no período</td></tr>'}</tbody></table></div>`;
       preview.innerHTML = html;
-    }).catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+    };
+    if(_osRaw.length){
+      renderOsRel(_osRaw);
+    }else{
+      sbFetch('ordem_servico','select=id_frota,numero_os,status,tempo_min,operador,mecanico,sistema,tipo_manutencao,created_at&order=created_at.desc')
+        .then(rows=>renderOsRel(rows))
+        .catch(e=>{ preview.innerHTML = html+`<div class="err">Erro: ${e.message}</div>`; });
+    }
 
   } else if(tipo === 'disponibilidade'){
     const cur=currentMonthKey();
@@ -1426,26 +1844,33 @@ async function exportarPPTX(){
       rodape(s2,pres,titulo);
 
     } else if(_relAtual === 'os'){
-      const data = await sbFetch('vw_ranking_os','order=horas_parada.desc');
-      const tOS=data.reduce((s,d)=>s+(Number(d.total_os)||0),0);
-      const tC=data.reduce((s,d)=>s+(Number(d.os_corretiva)||0),0);
-      const tP=data.reduce((s,d)=>s+(Number(d.os_preventiva)||0),0);
-      const tH=data.reduce((s,d)=>s+(Number(d.horas_parada)||0),0);
+      const mesKey=_relMesSel||currentMonthKey();
+      let osRows=_osRaw.length?_osRaw:await sbFetch('ordem_servico','select=id_frota,numero_os,status,tempo_min,operador,mecanico,sistema,tipo_manutencao,created_at&order=created_at.desc');
+      const mesRows=osNoMes(osRows, mesKey);
+      const chMap=mapaCustoHora(_osColab.length?_osColab:await sbFetch('dim_colaborador','select=nome,custo_hora,funcao&custo_hora=gt.0'));
+      const apont=_osApont.length?_osApont:await sbFetch('apontamento_campo','select=frota,operador,data&order=data.desc').catch(()=>[]);
+      const painelMap=_osPainel&&Object.keys(_osPainel).length?_osPainel:mapaPainelFrota(await sbFetch('dim_frota_painel','select=id_frota,categoria_painel').catch(()=>[]));
+      let tHoras=0, tCusto=0;
+      mesRows.forEach(r=>{
+        tHoras+=(Number(r.tempo_min)||0)/60;
+        tCusto+=calcParadaOsRow(r, chMap, apont, painelMap, _osColab).cTot;
+      });
+      const mecData=aggMecProdutividade(mesRows, _osColab).slice(0,8);
 
       let s1=pres.addSlide(); s1.background={color:C.bg};
-      tituloSlide(s1,pres,'Ordens de Serviço — Resumo');
+      tituloSlide(s1,pres,'OS Oficina Sede — '+monthLabel(mesKey));
       kpiCards(s1,pres,[
-        {label:'TOTAL OS',    value:fmt(tOS), sub:'ordens',      color:C.blue},
-        {label:'CORRETIVAS',  value:fmt(tC),  sub:'ocorrências', color:C.red},
-        {label:'PREVENTIVAS', value:fmt(tP),  sub:'ocorrências', color:C.green},
-        {label:'H. PARADA',   value:fmt(tH,1)+'h', sub:'acumulado', color:C.yellow},
+        {label:'QTD OS',         value:fmt(mesRows.length), sub:monthLabel(mesKey), color:C.blue},
+        {label:'HORAS PARADAS',  value:fmt(tHoras,1)+'h',   sub:'tempo das OS',     color:C.yellow},
+        {label:'CUSTO PARADA',   value:fmtR(tCusto),        sub:'mec + operador',   color:C.red},
+        {label:'TOP MECÂNICO',   value:mecData[0]?mecData[0].mec:'—', sub:mecData[0]?fmt(mecData[0].qtd)+' OS':'', color:C.green},
       ]);
       s1.addChart(pres.charts.BAR,[{
-        name:'Horas Parada',
-        labels:data.filter(d=>Number(d.horas_parada)>0).slice(0,10).map(d=>d.frota),
-        values:data.filter(d=>Number(d.horas_parada)>0).slice(0,10).map(d=>Number(d.horas_parada)||0)
+        name:'Qtd OS',
+        labels:mecData.map(d=>d.mec),
+        values:mecData.map(d=>d.qtd)
       }],{x:0.5,y:2.45,w:9,h:2.7,barDir:'bar',
-        chartColors:[C.red],
+        chartColors:[C.blue],
         chartArea:{fill:{color:C.bg2},roundedCorners:false},
         catAxisLabelColor:C.text2,valAxisLabelColor:C.text2,
         valGridLine:{color:'1E2E1C',size:0.5},catGridLine:{style:'none'},
@@ -1455,10 +1880,14 @@ async function exportarPPTX(){
       rodape(s1,pres,titulo);
 
       let s2=pres.addSlide(); s2.background={color:C.bg};
-      tituloSlide(s2,pres,'Ordens de Serviço — Ranking por Frota');
+      tituloSlide(s2,pres,'OS Oficina Sede — Custo de Parada');
       tabelaSlide(s2,pres,
-        ['Frota','OS Total','Corretiva','Preventiva','H. Parada','Custo (R$)','Status'],
-        data.map(d=>[d.frota,fmt(d.total_os),fmt(d.os_corretiva),fmt(d.os_preventiva),fmt(d.horas_parada,1)+'h',fmtR(d.custo_total),d.status])
+        ['OS','Frota','Sistema','Mecânico','Parada','R$ Mec.','R$ Oper.','Custo parada'],
+        mesRows.slice(0,18).map(os=>{
+          const p=calcParadaOsRow(os, chMap, apont, painelMap, _osColab);
+          return [os.numero_os||'—', normFrotaId(os.id_frota), os.sistema||'—', os.mecanico||'—',
+            p.h>0?fmt(p.h,1)+'h':'—', fmtR(p.cMec), fmtR(p.cOp), fmtR(p.cTot)];
+        })
       );
       rodape(s2,pres,titulo);
 
@@ -1767,14 +2196,14 @@ async function init(){
   const failed=results.filter(r=>r.status==='rejected');
   const el=document.getElementById('sync-status');
   if(!failed.length){
-    el.textContent='● Dados atualizados · v10/06g';
+    el.textContent='● Dados atualizados · v19/06-os2';
     el.style.background=''; el.style.color='';
   }else if(failed.length===results.length){
     el.textContent='● Erro ao carregar';
     el.style.background='#2a1010';
     el.style.color='#e74c3c';
   }else{
-    el.textContent='● Dados parciais · v10/06g';
+    el.textContent='● Dados parciais · v10/06h';
     el.style.background='#2a2010';
     el.style.color='#d4a017';
     console.warn('Falha parcial no carregamento:', failed);

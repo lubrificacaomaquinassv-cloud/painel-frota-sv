@@ -7,6 +7,7 @@
   let catalogo = { setor: "", campanha: "", itens: [] };
   let campanhaId = CFG.CAMPANHA_ID || "";
   let modoAguardando = false;
+  let modoPiloto = false;
   let contagens = loadContagens();
   let filtro = "todos";
   let busca = "";
@@ -357,10 +358,6 @@
       showToast(`Código SAP ${codigo} não está na lista desta campanha.`);
       return;
     }
-    if (modoAguardando) {
-      showToast("Aguardando campanha aberta — lista ainda não carregada.");
-      return;
-    }
     el.search.value = String(item.codigo);
     busca = el.search.value;
     el.clearSearch.classList.remove("hidden");
@@ -418,7 +415,7 @@
     el.modalSave.addEventListener("click", salvarContagem);
 
     window.__inventarioAbrirScan = () => {
-      if (modoAguardando) {
+      if (!catalogo?.itens?.length) {
         showToast("Aguardando campanha aberta para escanear.");
         return;
       }
@@ -513,15 +510,27 @@
         }
       }
       if (!ok) {
-        if (modoAguardando) {
+        if (modoAguardando && CFG.PILOTO_ENQUANTO_AGUARDA !== false) {
+          try {
+            await carregarCatalogoLocal();
+            modoPiloto = true;
+          } catch {
+            renderAguardando();
+            updateNetworkStatus();
+            return;
+          }
+        } else if (modoAguardando) {
           renderAguardando();
           updateNetworkStatus();
           return;
+        } else {
+          await carregarCatalogoLocal();
         }
-        await carregarCatalogoLocal();
       }
       el.titulo.textContent = catalogo.setor || "Inventário";
-      el.sub.textContent = catalogo.campanha || "";
+      el.sub.textContent = modoPiloto
+        ? "Modo teste · lista completa na segunda (F5)"
+        : catalogo.campanha || "";
       render();
       updateNetworkStatus();
       trySyncSupabase();

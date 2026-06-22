@@ -1,0 +1,672 @@
+{
+  "setor": "Medicamentos Pecuaria",
+  "campanha": "Piloto Jun/2026",
+  "itens": [
+    {
+      "codigo": "445",
+      "descricao": "ACEPRAN 20ML",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "2283",
+      "descricao": "ACIENDEL PREMIUM 5 LT",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "2181",
+      "descricao": "ADE INJETAVEL 250 ML",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2247",
+      "descricao": "AGECOX NEO",
+      "em_estoque": 22,
+      "disponivel": 22
+    },
+    {
+      "codigo": "447",
+      "descricao": "AGROVET PLUS 50ML",
+      "em_estoque": 54,
+      "disponivel": 54
+    },
+    {
+      "codigo": "449",
+      "descricao": "AGULHA DESC. 40 X12",
+      "em_estoque": 665,
+      "disponivel": 665
+    },
+    {
+      "codigo": "452",
+      "descricao": "AGULHA INOXIDAVEL 12 X 18 HOPPNER",
+      "em_estoque": 239,
+      "disponivel": 239
+    },
+    {
+      "codigo": "2120",
+      "descricao": "AGULHA INOXIDAVEL 15 X 18 HOPPNER",
+      "em_estoque": 240,
+      "disponivel": 240
+    },
+    {
+      "codigo": "455",
+      "descricao": "ALIV - V",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "1766",
+      "descricao": "ANESTESICO LIDOFARM 50 ML",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "457",
+      "descricao": "ATADURA DE GESSADA",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "2200",
+      "descricao": "BANDAGEM AUTOADESIVA",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "458",
+      "descricao": "BASTAO MARCADOR ( CORES ) DIVERSAS",
+      "em_estoque": 100,
+      "disponivel": 100
+    },
+    {
+      "codigo": "1641",
+      "descricao": "BAYCOX 1000 ML",
+      "em_estoque": 1,
+      "disponivel": 1
+    },
+    {
+      "codigo": "1712",
+      "descricao": "BERTAC 1L",
+      "em_estoque": 33,
+      "disponivel": 33
+    },
+    {
+      "codigo": "461",
+      "descricao": "BIOFOR 1 LITRO",
+      "em_estoque": 8,
+      "disponivel": 8
+    },
+    {
+      "codigo": "462",
+      "descricao": "BLOTROL",
+      "em_estoque": 12,
+      "disponivel": 12
+    },
+    {
+      "codigo": "463",
+      "descricao": "BORGAL 50 ml",
+      "em_estoque": 70,
+      "disponivel": 70
+    },
+    {
+      "codigo": "2281",
+      "descricao": "BOVIGEN LEPTO 8 150 ML  FR 50DS",
+      "em_estoque": 9,
+      "disponivel": 9
+    },
+    {
+      "codigo": "1568",
+      "descricao": "BRINCO MOSQUICIDA- 20 BRINCOS PACOTE",
+      "em_estoque": 4000,
+      "disponivel": 4000
+    },
+    {
+      "codigo": "2107",
+      "descricao": "BRINCO TOPTAG 180 (Pc 10 uni)",
+      "em_estoque": 280,
+      "disponivel": 280
+    },
+    {
+      "codigo": "2344",
+      "descricao": "BUTOX 1L",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "1961",
+      "descricao": "CALFON 200 ML",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "1936",
+      "descricao": "CANETA P/BRINCOS ALLFLEX",
+      "em_estoque": 11,
+      "disponivel": 11
+    },
+    {
+      "codigo": "1736",
+      "descricao": "CATOSAL",
+      "em_estoque": 13,
+      "disponivel": 13
+    },
+    {
+      "codigo": "2293",
+      "descricao": "CEF 50  - 100ml",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "2257",
+      "descricao": "CICLASE DL SOL 100ML",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "466",
+      "descricao": "CIDENTAL EM PASTA - 250 GR (UNGUENTO C/CITRONELA)",
+      "em_estoque": 50,
+      "disponivel": 50
+    },
+    {
+      "codigo": "476",
+      "descricao": "D-500 DIPIRONA SODICA 50 ML",
+      "em_estoque": 20,
+      "disponivel": 20
+    },
+    {
+      "codigo": "477",
+      "descricao": "DECTOMAX 50 ML",
+      "em_estoque": 26,
+      "disponivel": 26
+    },
+    {
+      "codigo": "478",
+      "descricao": "DESFLAN 50ML",
+      "em_estoque": 46,
+      "disponivel": 46
+    },
+    {
+      "codigo": "2377",
+      "descricao": "DIA 100 - 36 GR",
+      "em_estoque": 64,
+      "disponivel": 64
+    },
+    {
+      "codigo": "2055",
+      "descricao": "DILUENTE 25 ML PARA ECGEN 5000 UI",
+      "em_estoque": 50,
+      "disponivel": 50
+    },
+    {
+      "codigo": "2256",
+      "descricao": "DISPOSITIVO INTRA DIB 0,5",
+      "em_estoque": 126,
+      "disponivel": 126
+    },
+    {
+      "codigo": "2303",
+      "descricao": "DORAFORT",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "2096",
+      "descricao": "ECGEN PO 5000 UI",
+      "em_estoque": 60,
+      "disponivel": 60
+    },
+    {
+      "codigo": "481",
+      "descricao": "ECP 10ML",
+      "em_estoque": 18,
+      "disponivel": 18
+    },
+    {
+      "codigo": "2193",
+      "descricao": "EQUIPALAZONE 100ML CEVA",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "482",
+      "descricao": "EQUIPO MACRO",
+      "em_estoque": 12,
+      "disponivel": 12
+    },
+    {
+      "codigo": "483",
+      "descricao": "ESTREPTOMICINA",
+      "em_estoque": 13,
+      "disponivel": 13
+    },
+    {
+      "codigo": "2426",
+      "descricao": "EXTENSOR FLAMBADOR",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2367",
+      "descricao": "FERTILCARE IMPLANTE 600",
+      "em_estoque": 24,
+      "disponivel": 24
+    },
+    {
+      "codigo": "2369",
+      "descricao": "FERTILCARE OVULAÇÃO (Cipionato de Estradiol) 100ml",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "2368",
+      "descricao": "FERTILCARE SINCRONIZAÇÃO (Benzoato de Estradiol) 100ml",
+      "em_estoque": 7,
+      "disponivel": 7
+    },
+    {
+      "codigo": "2366",
+      "descricao": "FOLLIGON 5000 UI FR 25 ML(Freezer)",
+      "em_estoque": 53,
+      "disponivel": 53
+    },
+    {
+      "codigo": "485",
+      "descricao": "FORMOPED",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2337",
+      "descricao": "FORTIK 4 5LT",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "2378",
+      "descricao": "GEL EQUEST PRAMOX",
+      "em_estoque": 163,
+      "disponivel": 163
+    },
+    {
+      "codigo": "491",
+      "descricao": "GLUTELLAC 50ML",
+      "em_estoque": 32,
+      "disponivel": 32
+    },
+    {
+      "codigo": "492",
+      "descricao": "GONADIOL FR 100ML",
+      "em_estoque": 23,
+      "disponivel": 23
+    },
+    {
+      "codigo": "2043",
+      "descricao": "IMIZOL FR 15 ML",
+      "em_estoque": 15,
+      "disponivel": 15
+    },
+    {
+      "codigo": "493",
+      "descricao": "IODO 10%",
+      "em_estoque": 7,
+      "disponivel": 7
+    },
+    {
+      "codigo": "2143",
+      "descricao": "ISACORT 10 ML",
+      "em_estoque": 23,
+      "disponivel": 23
+    },
+    {
+      "codigo": "2151",
+      "descricao": "IZOOT B 12 - 50ml",
+      "em_estoque": 17,
+      "disponivel": 17
+    },
+    {
+      "codigo": "2508",
+      "descricao": "LACTOCINA 100 ML",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "2231",
+      "descricao": "LAMINA BISTURI",
+      "em_estoque": 100,
+      "disponivel": 100
+    },
+    {
+      "codigo": "499",
+      "descricao": "LINHA URSO",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2038",
+      "descricao": "LUVA PROCEDIMENTO  - CAIXA 100",
+      "em_estoque": 13,
+      "disponivel": 13
+    },
+    {
+      "codigo": "1067",
+      "descricao": "LUVA TOQUE 80 CM CX 100 WALMUR",
+      "em_estoque": 14,
+      "disponivel": 14
+    },
+    {
+      "codigo": "2502",
+      "descricao": "MASTER SORO ANTIOFIDICO FR 20M",
+      "em_estoque": 8,
+      "disponivel": 8
+    },
+    {
+      "codigo": "2101",
+      "descricao": "MAXICAM 2% 50 ML",
+      "em_estoque": 42,
+      "disponivel": 42
+    },
+    {
+      "codigo": "503",
+      "descricao": "MERCEPTON 100 ML",
+      "em_estoque": 15,
+      "disponivel": 15
+    },
+    {
+      "codigo": "1095",
+      "descricao": "MONOVIN - A 20 ML",
+      "em_estoque": 17,
+      "disponivel": 17
+    },
+    {
+      "codigo": "505",
+      "descricao": "MONOVIN B 1 - 20ml",
+      "em_estoque": 13,
+      "disponivel": 13
+    },
+    {
+      "codigo": "504",
+      "descricao": "MONOVIN K 20ML",
+      "em_estoque": 21,
+      "disponivel": 21
+    },
+    {
+      "codigo": "1096",
+      "descricao": "NOVORMON 100 ML",
+      "em_estoque": 15,
+      "disponivel": 15
+    },
+    {
+      "codigo": "507",
+      "descricao": "OCITOCINA 100 ML",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "1965",
+      "descricao": "OLEO CANFORADO 20 ML",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "1098",
+      "descricao": "OLEO LUBR..P/SERINGA",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "1809",
+      "descricao": "ONYX FR 250 ML",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2370",
+      "descricao": "PANACUR SUSPENSÃO 10% 1 LT",
+      "em_estoque": 1,
+      "disponivel": 1
+    },
+    {
+      "codigo": "1246",
+      "descricao": "PENCIVET PLUS 50ML",
+      "em_estoque": 2,
+      "disponivel": 2
+    },
+    {
+      "codigo": "2334",
+      "descricao": "POTENAY 50 C 10 ml",
+      "em_estoque": 80,
+      "disponivel": 80
+    },
+    {
+      "codigo": "511",
+      "descricao": "RINGER COM LACTATO 1L",
+      "em_estoque": 16,
+      "disponivel": 16
+    },
+    {
+      "codigo": "2144",
+      "descricao": "ROBOFORTE 250 ML",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "2194",
+      "descricao": "SEDACOL",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "515",
+      "descricao": "SERINGA 1ML DE INSULINA",
+      "em_estoque": 131,
+      "disponivel": 131
+    },
+    {
+      "codigo": "514",
+      "descricao": "SERINGA DESC 10 ML",
+      "em_estoque": 186,
+      "disponivel": 186
+    },
+    {
+      "codigo": "516",
+      "descricao": "SERINGA DESC 20 ML",
+      "em_estoque": 206,
+      "disponivel": 206
+    },
+    {
+      "codigo": "517",
+      "descricao": "SERINGA DESC 3ML",
+      "em_estoque": 200,
+      "disponivel": 200
+    },
+    {
+      "codigo": "520",
+      "descricao": "SINCRO ECG 6000 UI 30ML OURO FINO",
+      "em_estoque": 36,
+      "disponivel": 36
+    },
+    {
+      "codigo": "523",
+      "descricao": "SINCRODIOL 50ML",
+      "em_estoque": 14,
+      "disponivel": 14
+    },
+    {
+      "codigo": "524",
+      "descricao": "SINCROGEST INJ",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "527",
+      "descricao": "SORO ANTITETANICO",
+      "em_estoque": 15,
+      "disponivel": 15
+    },
+    {
+      "codigo": "1320",
+      "descricao": "TANIDIL 2KG",
+      "em_estoque": 6,
+      "disponivel": 6
+    },
+    {
+      "codigo": "1872",
+      "descricao": "TEC RELIN",
+      "em_estoque": 52,
+      "disponivel": 52
+    },
+    {
+      "codigo": "1102",
+      "descricao": "TERRACORTRIL SPRAY 125ML",
+      "em_estoque": 11,
+      "disponivel": 11
+    },
+    {
+      "codigo": "1578",
+      "descricao": "TERRAMICINA 50 ML",
+      "em_estoque": 55,
+      "disponivel": 55
+    },
+    {
+      "codigo": "2133",
+      "descricao": "TESOURA CIRURGIA CURVA ROMBA 17 CM",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "2124",
+      "descricao": "TESOURA P/CRINA 10 CORNETA",
+      "em_estoque": 5,
+      "disponivel": 5
+    },
+    {
+      "codigo": "531",
+      "descricao": "TIGUVON 1 LT",
+      "em_estoque": 13,
+      "disponivel": 13
+    },
+    {
+      "codigo": "1864",
+      "descricao": "TOPLINE 5LT",
+      "em_estoque": 9,
+      "disponivel": 9
+    },
+    {
+      "codigo": "2110",
+      "descricao": "TULAXX 100 ML",
+      "em_estoque": 15,
+      "disponivel": 15
+    },
+    {
+      "codigo": "2304",
+      "descricao": "TURBO CALCIO",
+      "em_estoque": 7,
+      "disponivel": 7
+    },
+    {
+      "codigo": "536",
+      "descricao": "UMBICURA 250ML",
+      "em_estoque": 40,
+      "disponivel": 40
+    },
+    {
+      "codigo": "2371",
+      "descricao": "VACINA BOVIGEN V4J5 250ml",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "2092",
+      "descricao": "VACINA BOVISHIELD 100 ML (FR 50 DS)",
+      "em_estoque": 40,
+      "disponivel": 40
+    },
+    {
+      "codigo": "541",
+      "descricao": "VACINA CATTLE MASTER GOLD  FR 25 DS",
+      "em_estoque": 38,
+      "disponivel": 38
+    },
+    {
+      "codigo": "1239",
+      "descricao": "VACINA CHERRY REPRO 250 ML",
+      "em_estoque": 159,
+      "disponivel": 159
+    },
+    {
+      "codigo": "2209",
+      "descricao": "VACINA GARROTILHO FR",
+      "em_estoque": 3,
+      "disponivel": 3
+    },
+    {
+      "codigo": "2210",
+      "descricao": "VACINA LEPTU EQUUS UN",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "2305",
+      "descricao": "VACINA POLI STAR 250 ML",
+      "em_estoque": 107,
+      "disponivel": 107
+    },
+    {
+      "codigo": "2454",
+      "descricao": "VACINA STARVAC 12BTH 100 ML",
+      "em_estoque": 206,
+      "disponivel": 206
+    },
+    {
+      "codigo": "2455",
+      "descricao": "VACINA STARVAC 12BTH 250ML",
+      "em_estoque": 95,
+      "disponivel": 95
+    },
+    {
+      "codigo": "2375",
+      "descricao": "VACINA STARVAC 50 DOSES - 250 ML",
+      "em_estoque": 16,
+      "disponivel": 16
+    },
+    {
+      "codigo": "495",
+      "descricao": "VEDACAO APLICADOR HOPPNER",
+      "em_estoque": 4,
+      "disponivel": 4
+    },
+    {
+      "codigo": "2261",
+      "descricao": "VERRUTRAT 20ML",
+      "em_estoque": 7,
+      "disponivel": 7
+    },
+    {
+      "codigo": "543",
+      "descricao": "VIDRO P/SERINGA HOPPNER 50ML",
+      "em_estoque": 10,
+      "disponivel": 10
+    },
+    {
+      "codigo": "1687",
+      "descricao": "XILAZINA 2% - 50 ML",
+      "em_estoque": 1,
+      "disponivel": 1
+    },
+    {
+      "codigo": "545",
+      "descricao": "ZELOTRIL - 500 ML",
+      "em_estoque": 36,
+      "disponivel": 36
+    },
+    {
+      "codigo": "2460",
+      "descricao": "ZELOTRIL PLUS 100 ML",
+      "em_estoque": 25,
+      "disponivel": 25
+    }
+  ]
+}

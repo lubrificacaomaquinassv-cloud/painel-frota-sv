@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0a1409" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="description" content="Inventário físico SIGCF — contagem por setor" />
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+    <title>Inventário SIGCF</title>
+  </head>
+  <body>
+    <div class="app">
+      <header class="header">
+        <div class="header-top">
+          <img src="https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg" alt="BP Santa Virgínia" class="logo" />
+          <div>
+            <p class="kicker">SIGCF · Inventário físico</p>
+            <h1 id="campanha-titulo">Medicamentos Pecuária</h1>
+            <p class="sub" id="campanha-sub">Piloto Jun/2026</p>
+          </div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-labels">
+            <span id="progress-text">0 / 0 contados</span>
+            <span id="accuracy-text">Acurácia —</span>
+          </div>
+          <div class="progress-bar"><div id="progress-fill" class="progress-fill"></div></div>
+        </div>
+        <p id="network-status" class="network-status" aria-live="polite">Verificando conexão…</p>
+      </header>
+
+      <section class="search-section">
+        <div class="search-row">
+          <div class="search-box">
+            <span class="search-icon" aria-hidden="true">⌕</span>
+            <input
+              id="search-input"
+              type="search"
+              inputmode="search"
+              autocomplete="off"
+              placeholder="Código SAP ou nome do produto…"
+            />
+            <button type="button" id="clear-search" class="btn-icon hidden" aria-label="Limpar busca">×</button>
+          </div>
+          <button type="button" id="btn-scan" class="btn-scan" aria-label="Escanear QR da folha">
+            <span aria-hidden="true">📷</span>
+            <span class="btn-scan-label">QR</span>
+          </button>
+        </div>
+        <div class="filter-chips" role="tablist">
+          <button type="button" class="chip active" data-filter="todos">Todos</button>
+          <button type="button" class="chip" data-filter="pendente">Pendentes</button>
+          <button type="button" class="chip" data-filter="conforme">Conformes</button>
+          <button type="button" class="chip" data-filter="divergente">Divergentes</button>
+        </div>
+      </section>
+
+      <main id="lista-produtos" class="lista" aria-live="polite"></main>
+
+      <footer class="footer-stats">
+        <div class="stat"><span class="stat-n" id="stat-pend">0</span><span class="stat-l">Pendentes</span></div>
+        <div class="stat ok"><span class="stat-n" id="stat-ok">0</span><span class="stat-l">Conformes</span></div>
+        <div class="stat warn"><span class="stat-n" id="stat-leve">0</span><span class="stat-l">Leves</span></div>
+        <div class="stat bad"><span class="stat-n" id="stat-crit">0</span><span class="stat-l">Críticas</span></div>
+      </footer>
+    </div>
+
+    <!-- Modal contagem -->
+    <div id="modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+      <div class="modal-backdrop" data-close></div>
+      <div class="modal-sheet">
+        <button type="button" class="modal-close" data-close aria-label="Fechar">×</button>
+        <p class="modal-codigo" id="modal-codigo">SAP 445</p>
+        <h2 id="modal-title" class="modal-title">—</h2>
+        <div class="modal-sap">
+          <span class="modal-sap-label">Em estoque (SAP)</span>
+          <span class="modal-sap-val" id="modal-sap">0</span>
+        </div>
+        <label class="field">
+          <span>Quantidade na prateleira</span>
+          <input id="modal-fisico" type="number" inputmode="decimal" min="0" step="any" placeholder="0" />
+        </label>
+        <label class="field">
+          <span>Observação (opcional)</span>
+          <textarea id="modal-obs" rows="2" placeholder="Ex.: embalagem aberta, item em outro local…"></textarea>
+        </label>
+        <div id="modal-preview" class="modal-preview hidden"></div>
+        <button type="button" id="modal-save" class="btn-primary">Salvar contagem</button>
+      </div>
+    </div>
+
+    <div id="toast" class="toast hidden" role="status"></div>
+
+    <!-- Scanner QR (folha impressa) -->
+    <div id="scanner-overlay" class="scanner-overlay hidden" role="dialog" aria-modal="true" aria-label="Escanear QR">
+      <div class="scanner-backdrop" data-scanner-close></div>
+      <div class="scanner-panel">
+        <button type="button" class="scanner-close" data-scanner-close aria-label="Fechar">×</button>
+        <p class="scanner-title">Aponte para o QR da folha</p>
+        <p class="scanner-hint">Cada linha do PDF tem um QR com o código SAP do produto.</p>
+        <div id="scanner-reader" class="scanner-reader"></div>
+        <p id="scanner-error" class="scanner-error hidden"></p>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="./config.js?v=3"></script>
+    <script src="./scanner.js?v=3"></script>
+    <script src="./app.js?v=3"></script>
+    <script>
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+      }
+    </script>
+  </body>
+</html>

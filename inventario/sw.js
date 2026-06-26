@@ -1,7 +1,8 @@
-const CACHE_NAME = "inventario-sigcf-v5";
-const ASSET_VER = "5";
+const CACHE_NAME = "inventario-sigcf-v6";
+const ASSET_VER = "6";
 const APP_SHELL = [
   "./index.html",
+  "./painel.html",
   `./config.js?v=${ASSET_VER}`,
   "./styles.css",
   `./scanner.js?v=${ASSET_VER}`,

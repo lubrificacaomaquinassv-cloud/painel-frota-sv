@@ -6,6 +6,7 @@
 
   let catalogo = { setor: "", campanha: "", itens: [] };
   let campanhaId = CFG.CAMPANHA_ID || "";
+  let campanhasAbertas = [];
   let modoAguardando = false;
   let modoPiloto = false;
   let contagens = loadContagens();
@@ -36,11 +37,19 @@
     modalSave: document.getElementById("modal-save"),
     toast: document.getElementById("toast"),
     network: document.getElementById("network-status"),
+    campanhaPicker: document.getElementById("campanha-picker-wrap"),
+    campanhaSelect: document.getElementById("campanha-select"),
   };
+
+  function storageKey() {
+    return campanhaId
+      ? `${CFG.STORAGE_KEY}_campanha_${campanhaId}`
+      : CFG.STORAGE_KEY;
+  }
 
   function loadContagens() {
     try {
-      const raw = localStorage.getItem(CFG.STORAGE_KEY);
+      const raw = localStorage.getItem(storageKey());
       return raw ? JSON.parse(raw) : {};
     } catch {
       return {};
@@ -48,7 +57,7 @@
   }
 
   function saveContagens() {
-    localStorage.setItem(CFG.STORAGE_KEY, JSON.stringify(contagens));
+    localStorage.setItem(storageKey(), JSON.stringify(contagens));
     updateNetworkStatus();
     trySyncSupabase();
   }
@@ -72,16 +81,21 @@
     }
     if (pend > 0) {
       el.network.classList.add("sync-pending");
-      el.network.textContent = `Online · ${pend} contagem(ns) aguardando envio ao servidor`;
+      el.network.textContent = modoPiloto
+        ? "Online · modo teste (não envia ao servidor)"
+        : `Online · ${pend} contagem(ns) aguardando envio ao servidor`;
       return;
     }
     el.network.classList.add("online");
-    el.network.textContent = CFG.SUPABASE_URL
+    el.network.textContent = modoPiloto
+      ? "Online · modo teste (não envia ao servidor)"
+      : CFG.SUPABASE_URL
       ? "Online · sincronizado com o servidor"
       : "Online · modo piloto (dados só neste celular)";
   }
 
   async function trySyncSupabase() {
+    if (modoPiloto || !campanhaId) return;
     if (!navigator.onLine || !CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return;
     const pendKeys = Object.entries(contagens)
       .filter(([, v]) => v && v.synced === false)
@@ -128,7 +142,7 @@
   }
 
   function saveContagensSilent() {
-    localStorage.setItem(CFG.STORAGE_KEY, JSON.stringify(contagens));
+    localStorage.setItem(storageKey(), JSON.stringify(contagens));
   }
 
   function codigoKey(c) {
@@ -335,7 +349,7 @@
       qtd_fisica: Number(val),
       observacao: el.modalObs.value.trim(),
       contado_em: new Date().toISOString(),
-      synced: false,
+      synced: modoPiloto ? true : false,
     };
     saveContagens();
     fecharModal();
@@ -351,11 +365,29 @@
     toastTimer = setTimeout(() => el.toast.classList.add("hidden"), 2200);
   }
 
+  function parseCodigoScan(valor) {
+    const raw = String(valor || "").trim();
+    if (!raw) return { codigo: "", campanha: "" };
+    const partes = raw.split("|").map((p) => p.trim()).filter(Boolean);
+    if (partes.length >= 3 && partes[0].toUpperCase() === "INV") {
+      return { campanha: partes[1], codigo: partes.slice(2).join("|") };
+    }
+    return { campanha: "", codigo: raw.replace(/^SAP\s*/i, "") };
+  }
+
   function abrirPorCodigo(codigo) {
-    const key = codigoKey(codigo);
+    const scan = parseCodigoScan(codigo);
+    if (scan.campanha && scan.campanha !== campanhaId) {
+      const camp = campanhasAbertas.find((c) => c.id === scan.campanha);
+      if (camp) {
+        selecionarCampanha(camp.id, scan.codigo);
+        return;
+      }
+    }
+    const key = codigoKey(scan.codigo);
     const item = catalogo?.itens?.find((i) => codigoKey(i.codigo) === key);
     if (!item) {
-      showToast(`Código SAP ${codigo} não está na lista desta campanha.`);
+      showToast(`Código SAP ${key || codigo} não está na campanha selecionada.`);
       return;
     }
     el.search.value = String(item.codigo);
@@ -414,6 +446,10 @@
     el.modalFisico.addEventListener("input", atualizarPreview);
     el.modalSave.addEventListener("click", salvarContagem);
 
+    el.campanhaSelect?.addEventListener("change", () => {
+      selecionarCampanha(el.campanhaSelect.value);
+    });
+
     window.__inventarioAbrirScan = () => {
       if (!catalogo?.itens?.length) {
         showToast("Aguardando campanha aberta para escanear.");
@@ -438,22 +474,33 @@
     };
   }
 
-  async function carregarCatalogoSupabase() {
-    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return false;
+  function campanhaLabel(camp) {
+    return `${camp.setor || "Setor"} · ${camp.nome || "Campanha"}`;
+  }
+
+  function renderCampanhaPicker() {
+    if (!el.campanhaPicker || !el.campanhaSelect) return;
+    el.campanhaSelect.innerHTML = campanhasAbertas
+      .map((camp) => `<option value="${camp.id}">${escapeHtml(campanhaLabel(camp))}</option>`)
+      .join("");
+    el.campanhaSelect.value = campanhaId;
+    el.campanhaPicker.classList.toggle("hidden", campanhasAbertas.length <= 1);
+  }
+
+  function campanhaInicial() {
+    const params = new URLSearchParams(window.location.search);
+    const daUrl = params.get("campanha");
+    const salvo = localStorage.getItem(`${CFG.STORAGE_KEY}_campanha_atual`);
+    const existe = (id) => campanhasAbertas.some((c) => c.id === id);
+    if (daUrl && existe(daUrl)) return daUrl;
+    if (salvo && existe(salvo)) return salvo;
+    return campanhasAbertas[0]?.id || "";
+  }
+
+  async function carregarItensCampanha(camp, codigoAposCarregar = "") {
     const { base, headers } = await sbHeaders();
-    const campRes = await fetch(
-      `${base}/rest/v1/inventario_campanha?status=eq.aberta&select=id,setor,nome&order=aberta_em.desc&limit=1`,
-      { headers }
-    );
-    if (!campRes.ok) throw new Error("Falha ao consultar campanha");
-    const camps = await campRes.json();
-    if (!camps.length) {
-      modoAguardando = true;
-      return false;
-    }
-    const camp = camps[0];
     campanhaId = camp.id;
-    modoAguardando = false;
+    localStorage.setItem(`${CFG.STORAGE_KEY}_campanha_atual`, campanhaId);
     const itRes = await fetch(
       `${base}/rest/v1/inventario_item?campanha_id=eq.${camp.id}&select=codigo,descricao,qtd_sap,qtd_disponivel&order=codigo.asc`,
       { headers }
@@ -470,6 +517,40 @@
         disponivel: Number(i.qtd_disponivel ?? i.qtd_sap) || 0,
       })),
     };
+    contagens = loadContagens();
+    modoAguardando = false;
+    modoPiloto = false;
+    renderCampanhaPicker();
+    el.titulo.textContent = catalogo.setor || "Inventário";
+    el.sub.textContent = catalogo.campanha || "";
+    render();
+    updateNetworkStatus();
+    trySyncSupabase();
+    if (codigoAposCarregar) abrirPorCodigo(codigoAposCarregar);
+  }
+
+  async function selecionarCampanha(id, codigoAposCarregar = "") {
+    const camp = campanhasAbertas.find((c) => c.id === id);
+    if (!camp) return;
+    await carregarItensCampanha(camp, codigoAposCarregar);
+  }
+
+  async function carregarCatalogoSupabase() {
+    if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return false;
+    const { base, headers } = await sbHeaders();
+    const campRes = await fetch(
+      `${base}/rest/v1/inventario_campanha?status=eq.aberta&select=id,setor,nome,aberta_em&order=aberta_em.desc`,
+      { headers }
+    );
+    if (!campRes.ok) throw new Error("Falha ao consultar campanha");
+    campanhasAbertas = await campRes.json();
+    if (!campanhasAbertas.length) {
+      modoAguardando = true;
+      return false;
+    }
+    const id = campanhaInicial();
+    const camp = campanhasAbertas.find((c) => c.id === id) || campanhasAbertas[0];
+    await carregarItensCampanha(camp);
     return true;
   }
 

@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Painel Inventário SIGCF</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;700&family=Barlow:wght@400;600&display=swap" rel="stylesheet" />
+    <style>
+      :root{--bg:#0a1409;--surface:#111c10;--border:#1e2e1c;--text:#e8edd0;--muted:#8aab80;--accent:#4a9e3f;--ok:#6fcf60;--warn:#d4a017;--bad:#ff7b72}
+      *{box-sizing:border-box} body{margin:0;background:var(--bg);color:var(--text);font-family:Barlow,sans-serif}
+      main{max-width:1100px;margin:0 auto;padding:18px}
+      header{display:flex;gap:14px;align-items:center;margin-bottom:16px}
+      img{width:58px;background:#fff;border-radius:8px;padding:4px}
+      h1{font-family:"Barlow Condensed",sans-serif;font-size:32px;margin:0;letter-spacing:.04em}
+      .sub{margin:2px 0 0;color:var(--muted)}
+      .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+      label{display:block;color:var(--muted);font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
+      select,button{border-radius:8px;border:1px solid #4a6644;padding:10px 12px;font:inherit}
+      select{min-width:320px;background:#dce6d2;color:#1a2818}
+      button{background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+      .cards{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-bottom:14px}
+      .card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px}
+      .n{display:block;font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:700;color:var(--ok)}
+      .warn .n{color:var(--warn)} .bad .n{color:var(--bad)}
+      .l{display:block;color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+      table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+      th,td{padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:13px}
+      th{font-family:"Barlow Condensed",sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+      .empty{padding:24px;text-align:center;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:12px}
+      @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}select{min-width:100%;width:100%}.bar{display:block}.bar>*{margin-bottom:10px}}
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <img src="https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg" alt="BP Santa Vergínia" />
+        <div>
+          <h1>Painel Inventário</h1>
+          <p class="sub">Campanhas abertas · acompanhamento e exportação CSV para Excel</p>
+        </div>
+      </header>
+
+      <section class="bar">
+        <div>
+          <label for="campanha">Campanha</label>
+          <select id="campanha"></select>
+        </div>
+        <button type="button" id="atualizar">Atualizar</button>
+        <button type="button" id="exportar">Exportar Excel (CSV)</button>
+        <a href="./index.html" style="color:var(--ok);align-self:center">Abrir app de contagem</a>
+      </section>
+
+      <section class="cards">
+        <div class="card"><span class="n" id="n-itens">0</span><span class="l">Itens</span></div>
+        <div class="card"><span class="n" id="n-contados">0</span><span class="l">Contados</span></div>
+        <div class="card"><span class="n" id="n-ok">0</span><span class="l">Conformes</span></div>
+        <div class="card warn"><span class="n" id="n-pend">0</span><span class="l">Pendentes</span></div>
+        <div class="card bad"><span class="n" id="n-div">0</span><span class="l">Divergentes</span></div>
+      </section>
+
+      <div id="saida" class="empty">Carregando campanhas abertas...</div>
+    </main>
+
+    <script src="./config.js?v=6"></script>
+    <script>
+      const CFG = window.INVENTARIO_CONFIG;
+      const $ = (id) => document.getElementById(id);
+      let campanhas = [];
+      let linhas = [];
+
+      function headers() {
+        return {
+          apikey: CFG.SUPABASE_ANON_KEY,
+          Authorization: `Bearer ${CFG.SUPABASE_ANON_KEY}`,
+        };
+      }
+
+      async function sb(path) {
+        const base = CFG.SUPABASE_URL.replace(/\/$/, "");
+        const res = await fetch(`${base}/rest/v1/${path}`, { headers: headers() });
+        if (!res.ok) throw new Error(await res.text());
+        return res.json();
+      }
+
+      function fmt(n) {
+        return Number(n || 0).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
+      }
+
+      function esc(v) {
+        return String(v ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function statusLinha(l) {
+        if (l.qtd_fisica == null) return "PENDENTE";
+        const v = Number(l.qtd_fisica) - Number(l.qtd_sap || 0);
+        if (v === 0) return "CONFORME";
+        return v < 0 ? "FALTANTE" : "EXCEDENTE";
+      }
+
+      async function carregarCampanhas() {
+        campanhas = await sb("inventario_campanha?status=eq.aberta&select=id,setor,nome,aberta_em&order=aberta_em.desc");
+        $("campanha").innerHTML = campanhas.map((c) =>
+          `<option value="${c.id}">${c.setor} · ${c.nome}</option>`
+        ).join("");
+        if (!campanhas.length) {
+          $("saida").className = "empty";
+          $("saida").textContent = "Nenhuma campanha aberta.";
+          return;
+        }
+        await carregarResultado();
+      }
+
+      async function carregarResultado() {
+        const id = $("campanha").value;
+        const [itens, contagens] = await Promise.all([
+          sb(`inventario_item?campanha_id=eq.${id}&select=codigo,descricao,qtd_sap,qtd_disponivel&order=codigo.asc`),
+          sb(`inventario_contagem?campanha_id=eq.${id}&select=codigo,qtd_fisica,observacao,contado_em`),
+        ]);
+        const mapa = new Map(contagens.map((c) => [String(c.codigo), c]));
+        linhas = itens.map((i) => {
+          const c = mapa.get(String(i.codigo)) || {};
+          const qtdFisica = c.qtd_fisica == null ? null : Number(c.qtd_fisica);
+          return {
+            codigo: i.codigo,
+            descricao: i.descricao,
+            qtd_sap: Number(i.qtd_sap || 0),
+            qtd_fisica: qtdFisica,
+            variacao: qtdFisica == null ? null : qtdFisica - Number(i.qtd_sap || 0),
+            observacao: c.observacao || "",
+            contado_em: c.contado_em || "",
+          };
+        });
+        render();
+      }
+
+      function render() {
+        const contados = linhas.filter((l) => l.qtd_fisica != null).length;
+        const ok = linhas.filter((l) => statusLinha(l) === "CONFORME").length;
+        const pend = linhas.filter((l) => statusLinha(l) === "PENDENTE").length;
+        const div = linhas.length - ok - pend;
+        $("n-itens").textContent = linhas.length;
+        $("n-contados").textContent = contados;
+        $("n-ok").textContent = ok;
+        $("n-pend").textContent = pend;
+        $("n-div").textContent = div;
+        $("saida").className = "";
+        $("saida").innerHTML = `<table>
+          <thead><tr><th>SAP</th><th>Descrição</th><th>SAP</th><th>Físico</th><th>Var.</th><th>Status</th><th>Obs.</th></tr></thead>
+          <tbody>${linhas.map((l) => `<tr>
+            <td>${esc(l.codigo)}</td><td>${esc(l.descricao)}</td><td>${fmt(l.qtd_sap)}</td>
+            <td>${l.qtd_fisica == null ? "" : fmt(l.qtd_fisica)}</td>
+            <td>${l.variacao == null ? "" : fmt(l.variacao)}</td><td>${statusLinha(l)}</td><td>${esc(l.observacao)}</td>
+          </tr>`).join("")}</tbody>
+        </table>`;
+      }
+
+      function exportarCsv() {
+        const camp = campanhas.find((c) => c.id === $("campanha").value);
+        const cab = ["setor","campanha","codigo","descricao","qtd_sap","qtd_fisica","variacao","status","observacao","contado_em"];
+        const rows = linhas.map((l) => [camp?.setor, camp?.nome, l.codigo, l.descricao, l.qtd_sap, l.qtd_fisica ?? "", l.variacao ?? "", statusLinha(l), l.observacao, l.contado_em]);
+        const csv = [cab, ...rows].map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
+        const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `resultado_inventario_${(camp?.setor || "campanha").replace(/\W+/g, "_")}.csv`;
+        a.click();
+        URL.revokeObjectURL(a.href);
+      }
+
+      $("campanha").addEventListener("change", carregarResultado);
+      $("atualizar").addEventListener("click", carregarResultado);
+      $("exportar").addEventListener("click", exportarCsv);
+      carregarCampanhas().catch((e) => {
+        $("saida").className = "empty";
+        $("saida").textContent = `Erro ao carregar painel: ${e.message}`;
+      });
+    </script>
+  </body>
+</html>

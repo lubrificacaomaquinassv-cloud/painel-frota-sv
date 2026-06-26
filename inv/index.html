@@ -14,7 +14,7 @@
     <title>Inventário SIGCF</title>
     <script>
       (function () {
-        var B = "20250622-inv5";
+        var B = "20250626-inv6";
         try {
           if (localStorage.getItem("sigcf_inv_build") === B) return;
           localStorage.setItem("sigcf_inv_build", B);
@@ -48,9 +48,13 @@
             <p class="kicker">SIGCF · Inventário físico</p>
             <h1 id="campanha-titulo">Medicamentos Pecuária</h1>
             <p class="sub" id="campanha-sub">Piloto Jun/2026</p>
-            <p class="build-tag" id="build-tag">build inv5</p>
+            <p class="build-tag" id="build-tag">build inv6</p>
           </div>
         </div>
+        <label id="campanha-picker-wrap" class="campanha-picker hidden">
+          <span>Campanha aberta</span>
+          <select id="campanha-select"></select>
+        </label>
         <div class="progress-wrap">
           <div class="progress-labels">
             <span id="progress-text">0 / 0 contados</span>
@@ -136,12 +140,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="./config.js?v=5"></script>
-    <script src="./scanner.js?v=5"></script>
-    <script src="./app.js?v=5"></script>
+    <script src="./config.js?v=6"></script>
+    <script src="./scanner.js?v=6"></script>
+    <script src="./app.js?v=6"></script>
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js?v=5").catch(function () {});
+        navigator.serviceWorker.register("./sw.js?v=6").catch(function () {});
       }
     </script>
   </body>

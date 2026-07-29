@@ -137,37 +137,9 @@
     el.prodSaldo.textContent = "Saldo: " + Number(p.estoque_atual).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
     el.prodDesc.textContent = p.descricao;
     el.prodCat.textContent = p.categoria + " · " + (p.local_tipo === "externo" ? "Externo" : "Almoxarifado");
-    el.quantidade.value = "1";
+    el.quantidade.value = "";
     el.quantidade.max = p.estoque_atual;
     el.quantidade.focus();
-  }
-
-  async function carregarSelects() {
-    try {
-      const [destinos, responsaveis] = await Promise.all([
-        apiGet("destinos", "ativo=eq.true&order=nome&select=id,nome"),
-        apiGet("responsaveis", "ativo=eq.true&order=nome&select=id,nome"),
-      ]);
-      el.destino.innerHTML = '<option value="">Selecione...</option>';
-      destinos.forEach(d => {
-        const o = document.createElement("option");
-        o.value = d.id;
-        o.textContent = d.nome;
-        o.dataset.nome = d.nome;
-        el.destino.appendChild(o);
-      });
-      el.responsavel.innerHTML = '<option value="">Selecione...</option>';
-      responsaveis.forEach(r => {
-        const o = document.createElement("option");
-        o.value = r.id;
-        o.textContent = r.nome;
-        o.dataset.nome = r.nome;
-        el.responsavel.appendChild(o);
-      });
-    } catch (e) {
-      el.destino.innerHTML = '<option value="">Erro ao carregar</option>';
-      el.responsavel.innerHTML = '<option value="">Erro ao carregar</option>';
-    }
   }
 
   async function registrarRetirada(payload) {
@@ -219,20 +191,20 @@
       return;
     }
 
-    const destOpt = el.destino.selectedOptions[0];
-    const respOpt = el.responsavel.selectedOptions[0];
-    if (!destOpt?.value || !respOpt?.value) {
-      showToast("Selecione destino e responsável", true);
+    const destinoNome = el.destino.value.trim();
+    const responsavelNome = el.responsavel.value.trim();
+    if (!destinoNome || !responsavelNome) {
+      showToast("Informe destino e quem retirou", true);
       return;
     }
 
     const payload = {
       produto_id: produtoAtual.id,
       quantidade: qtd,
-      destino_id: destOpt.value,
-      destino_nome: destOpt.dataset.nome || destOpt.textContent,
-      responsavel_id: respOpt.value,
-      responsavel_nome: respOpt.dataset.nome || respOpt.textContent,
+      destino_id: null,
+      destino_nome: destinoNome,
+      responsavel_id: null,
+      responsavel_nome: responsavelNome,
       observacao: el.observacao.value.trim() || null,
       origem: "pwa",
       data_retirada: new Date().toISOString(),
@@ -256,8 +228,10 @@
     el.prodSaldo.textContent = "Saldo: " + Number(produtoAtual.estoque_atual).toLocaleString("pt-BR", { maximumFractionDigits: 2 });
 
     showToast(result.synced ? "✓ Retirada registrada!" : "✓ Salvo offline — sincroniza com rede");
-    el.form.reset();
-    el.quantidade.value = "1";
+    el.observacao.value = "";
+    el.destino.value = "";
+    el.responsavel.value = "";
+    el.quantidade.value = "";
     processQueue();
   }
 
@@ -307,7 +281,6 @@
     navigator.serviceWorker.register(CFG.SW_URL + "?v=" + CFG.ASSET_VER).catch(() => {});
   }
 
-  carregarSelects();
   renderRecent();
   updateNetwork();
   processQueue();

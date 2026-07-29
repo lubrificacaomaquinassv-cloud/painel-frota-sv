@@ -1,4 +1,4 @@
-const CACHE = "sigalmox-v1";
+const CACHE = "sigalmox-v2";
 const ASSETS = ["./", "./index.html", "./app.js", "./config.js", "./styles.css", "./manifest.webmanifest"];
 
 self.addEventListener("install", (e) => {

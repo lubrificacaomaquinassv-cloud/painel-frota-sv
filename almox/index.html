@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>SIGALMOX — Retirada</title>
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=2">
 </head>
 <body>
   <header class="header">
@@ -44,19 +44,15 @@
       <form id="form-retirada">
         <div class="field">
           <label for="quantidade">Quantidade</label>
-          <input id="quantidade" type="number" min="0.001" step="0.001" value="1" required>
+          <input id="quantidade" type="number" min="0" step="0.001" value="" placeholder="0" inputmode="decimal" required>
         </div>
         <div class="field">
           <label for="destino">Destino</label>
-          <select id="destino" required>
-            <option value="">Carregando...</option>
-          </select>
+          <input id="destino" type="text" placeholder="Ex: Curral 3, Oficina, Pecuária" autocomplete="off" required>
         </div>
         <div class="field">
           <label for="responsavel">Quem retirou</label>
-          <select id="responsavel" required>
-            <option value="">Carregando...</option>
-          </select>
+          <input id="responsavel" type="text" placeholder="Ex: nome de quem retirou" autocomplete="name" required>
         </div>
         <div class="field">
           <label for="observacao">Observação (opcional)</label>
@@ -75,7 +71,7 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="config.js?v=1"></script>
-  <script src="app.js?v=1"></script>
+  <script src="config.js?v=2"></script>
+  <script src="app.js?v=2"></script>
 </body>
 </html>

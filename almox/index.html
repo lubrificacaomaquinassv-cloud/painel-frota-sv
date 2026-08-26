@@ -14,7 +14,7 @@
     <div class="header-top">
       <div>
         <h1>SIGALMOX</h1>
-        <p class="sub">Retirada física · Santa Virgínia</p>
+        <p class="sub">Borracharia · Hidráulica · SESTR</p>
       </div>
       <div id="network-status" class="network online">Online</div>
     </div>
@@ -48,15 +48,16 @@
         </div>
         <div class="field">
           <label for="destino">Destino</label>
-          <input id="destino" type="text" placeholder="Ex: Curral 3, Oficina, Pecuária" autocomplete="off" required>
+          <input id="destino" type="text" list="destinos-list" placeholder="Ex: Borracharia, Oficina, SESTR" autocomplete="off" required>
+          <datalist id="destinos-list"></datalist>
         </div>
         <div class="field">
           <label for="responsavel">Quem retirou</label>
-          <input id="responsavel" type="text" placeholder="Ex: nome de quem retirou" autocomplete="name" required>
+          <input id="responsavel" type="text" placeholder="Nome de quem retirou" autocomplete="name" required>
         </div>
         <div class="field">
           <label for="observacao">Observação (opcional)</label>
-          <input id="observacao" type="text" placeholder="Ex: urgência curral 3">
+          <input id="observacao" type="text" placeholder="Ex: urgência oficina">
         </div>
         <button type="submit" class="btn-primary">✓ Confirmar retirada</button>
       </form>
@@ -71,7 +72,7 @@
   <div id="toast" class="toast hidden"></div>
 
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-  <script src="config.js?v=2"></script>
-  <script src="app.js?v=2"></script>
+  <script src="config.js?v=3"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>

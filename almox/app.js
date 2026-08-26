@@ -20,6 +20,23 @@
     "Accept-Profile": SCHEMA,
   });
 
+  const CATS_ATIVAS = CFG.CATEGORIAS_ATIVAS || [
+    "Consumíveis Borracharia",
+    "Hidráulica",
+    "SESTR",
+  ];
+
+  function categoriaPermitida(cat) {
+    return CATS_ATIVAS.includes(String(cat || "").trim());
+  }
+
+  function preencherDestinos() {
+    const dl = document.getElementById("destinos-list");
+    if (!dl) return;
+    const sugestoes = CFG.DESTINOS_SUGERIDOS || ["Borracharia", "Hidráulica", "SESTR"];
+    dl.innerHTML = sugestoes.map((d) => `<option value="${d}"></option>`).join("");
+  }
+
   let produtoAtual = null;
   let scanner = null;
   let scanning = false;
@@ -117,13 +134,21 @@
     try {
       let rows = await apiGet("produtos", `codigo_sap=eq.${encodeURIComponent(cod)}&ativo=eq.true&limit=1`);
       if (!rows.length) {
-        rows = await apiGet("produtos", `qr_code=eq.${encodeURIComponent("SIGALMOX-" + cod)}&ativo=eq.true&limit=1`);
+        rows = await apiGet("produtos", `codigo_qr=eq.${encodeURIComponent("SIGALMOX-" + cod)}&ativo=eq.true&limit=1`);
       }
       if (!rows.length) {
         showToast(`Produto ${cod} não encontrado. Importe a lista SAP.`, true);
         return;
       }
       produtoAtual = rows[0];
+      if (!categoriaPermitida(produtoAtual.categoria)) {
+        showToast(
+          `Produto fora dos setores ativos (${produtoAtual.categoria}). Use Borracharia, Hidráulica ou SESTR.`,
+          true
+        );
+        produtoAtual = null;
+        return;
+      }
       exibirProduto(produtoAtual);
       pararScanner();
     } catch (e) {
@@ -207,7 +232,7 @@
       responsavel_nome: responsavelNome,
       observacao: el.observacao.value.trim() || null,
       origem: "pwa",
-      data_retirada: new Date().toISOString(),
+      retirada_em: new Date().toISOString(),
     };
 
     const result = await registrarRetirada(payload);
@@ -282,6 +307,7 @@
   }
 
   renderRecent();
+  preencherDestinos();
   updateNetwork();
   processQueue();
 })();

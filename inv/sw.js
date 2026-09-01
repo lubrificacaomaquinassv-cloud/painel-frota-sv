@@ -1,5 +1,5 @@
-const CACHE_NAME = "inventario-sigcf-v6";
-const ASSET_VER = "6";
+const CACHE_NAME = "inventario-sigcf-v7";
+const ASSET_VER = "7";
 const APP_SHELL = [
   "./index.html",
   "./painel.html",
@@ -8,10 +8,9 @@ const APP_SHELL = [
   `./scanner.js?v=${ASSET_VER}`,
   `./app.js?v=${ASSET_VER}`,
   "./manifest.webmanifest",
+  "./logo_santa_verginia.png",
   "./data/medicamentos_pecuaria.json",
   "./data/piloto_1_item.json",
-  "https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg",
-  "https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js",
 ];
 
 const NETWORK_FIRST = /\/(index\.html|app\.js|config\.js|scanner\.js|sw\.js)(\?|$)/;

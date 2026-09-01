@@ -67,6 +67,7 @@ html, body {
   border-radius: 8px;
   padding: 4px;
   flex-shrink: 0;
+  border: 2px solid #c9a227;
 }
 
 .kicker {

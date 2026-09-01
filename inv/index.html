@@ -14,7 +14,7 @@
     <title>Inventário SIGCF</title>
     <script>
       (function () {
-        var B = "20250626-inv6";
+        var B = "20260901-inv7";
         try {
           if (localStorage.getItem("sigcf_inv_build") === B) return;
           localStorage.setItem("sigcf_inv_build", B);
@@ -43,12 +43,12 @@
     <div class="app">
       <header class="header">
         <div class="header-top">
-          <img src="https://i.postimg.cc/Y9X7ddnb/LOGO-BP.jpg" alt="BP Santa Virgínia" class="logo" />
+          <img src="./logo_santa_verginia.png" alt="Santa Virgínia Agropecuária e Florestal" class="logo" />
           <div>
-            <p class="kicker">SIGCF · Inventário físico</p>
-            <h1 id="campanha-titulo">Medicamentos Pecuária</h1>
-            <p class="sub" id="campanha-sub">Piloto Jun/2026</p>
-            <p class="build-tag" id="build-tag">build inv6</p>
+            <p class="kicker">Santa Virgínia · Inventário físico</p>
+            <h1 id="campanha-titulo">Almoxarifado Central</h1>
+            <p class="sub" id="campanha-sub">Digite o código SAP e a quantidade</p>
+            <p class="build-tag" id="build-tag">build inv7</p>
           </div>
         </div>
         <label id="campanha-picker-wrap" class="campanha-picker hidden">
@@ -74,11 +74,11 @@
               type="search"
               inputmode="search"
               autocomplete="off"
-              placeholder="Código SAP ou nome do produto…"
+              placeholder="Digite o código SAP ou o nome…"
             />
             <button type="button" id="clear-search" class="btn-icon hidden" aria-label="Limpar busca">×</button>
           </div>
-          <button type="button" id="btn-scan" class="btn-scan" aria-label="Escanear QR da folha">
+          <button type="button" id="btn-scan" class="btn-scan hidden" hidden aria-hidden="true" aria-label="QR desativado">
             <span aria-hidden="true">📷</span>
             <span class="btn-scan-label">QR</span>
           </button>
@@ -140,12 +140,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="./config.js?v=6"></script>
-    <script src="./scanner.js?v=6"></script>
-    <script src="./app.js?v=6"></script>
+    <script src="./config.js?v=7"></script>
+    <script src="./scanner.js?v=7"></script>
+    <script src="./app.js?v=7"></script>
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js?v=6").catch(function () {});
+        navigator.serviceWorker.register("./sw.js?v=7").catch(function () {});
       }
     </script>
   </body>

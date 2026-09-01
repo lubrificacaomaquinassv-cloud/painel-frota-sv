@@ -1,5 +1,5 @@
-const CACHE_NAME = "inventario-sigcf-v7";
-const ASSET_VER = "7";
+const CACHE_NAME = "inventario-sigcf-v8";
+const ASSET_VER = "8";
 const APP_SHELL = [
   "./index.html",
   "./painel.html",

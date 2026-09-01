@@ -146,7 +146,9 @@
   }
 
   function codigoKey(c) {
-    return String(c).trim();
+    const d = String(c || "").replace(/\D/g, "").trim();
+    if (!d) return "";
+    return (d.replace(/^0+/, "") || "0").padStart(5, "0");
   }
 
   function getContagem(codigo) {
@@ -417,6 +419,12 @@
       busca = el.search.value;
       el.clearSearch.classList.toggle("hidden", !busca);
       render();
+    });
+    el.search.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter") return;
+      e.preventDefault();
+      const q = el.search.value.trim();
+      if (q) abrirPorCodigo(q);
     });
 
     el.clearSearch.addEventListener("click", () => {

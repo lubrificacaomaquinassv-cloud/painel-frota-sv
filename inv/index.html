@@ -14,7 +14,7 @@
     <title>Inventário SIGCF</title>
     <script>
       (function () {
-        var B = "20260901-inv7";
+        var B = "20260901-inv8";
         try {
           if (localStorage.getItem("sigcf_inv_build") === B) return;
           localStorage.setItem("sigcf_inv_build", B);
@@ -47,8 +47,8 @@
           <div>
             <p class="kicker">Santa Virgínia · Inventário físico</p>
             <h1 id="campanha-titulo">Almoxarifado Central</h1>
-            <p class="sub" id="campanha-sub">Digite o código SAP e a quantidade</p>
-            <p class="build-tag" id="build-tag">build inv7</p>
+            <p class="sub" id="campanha-sub">Lista impressa: digite o código SAP e a quantidade</p>
+            <p class="build-tag" id="build-tag">build inv8</p>
           </div>
         </div>
         <label id="campanha-picker-wrap" class="campanha-picker hidden">
@@ -74,7 +74,7 @@
               type="search"
               inputmode="search"
               autocomplete="off"
-              placeholder="Digite o código SAP ou o nome…"
+              placeholder="Digite o código SAP da lista impressa…"
             />
             <button type="button" id="clear-search" class="btn-icon hidden" aria-label="Limpar busca">×</button>
           </div>
@@ -140,12 +140,12 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-    <script src="./config.js?v=7"></script>
-    <script src="./scanner.js?v=7"></script>
-    <script src="./app.js?v=7"></script>
+    <script src="./config.js?v=8"></script>
+    <script src="./scanner.js?v=8"></script>
+    <script src="./app.js?v=8"></script>
     <script>
       if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js?v=7").catch(function () {});
+        navigator.serviceWorker.register("./sw.js?v=8").catch(function () {});
       }
     </script>
   </body>

@@ -23,8 +23,10 @@
       select,input{background:#dce6d2;color:#1a2818}
       input{min-width:140px}
       button{background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
-      button.ghost{background:transparent;color:var(--ok)}
-      .lancar{flex:1;min-width:280px;display:flex;gap:10px;flex-wrap:wrap;align-items:end}
+      .bar-links{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+      a.btn-contagem{background:var(--ok);color:#0a1409;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none;font-family:"Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase}
+      a.btn-contagem:hover{filter:brightness(1.08)}
+      .hint-contagem{color:var(--muted);font-size:13px;margin:0 0 14px}
       .cards{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:10px;margin-bottom:14px}
       .card{background:var(--surface);border:1px solid var(--border);border-left:4px solid var(--accent);border-radius:12px;padding:14px}
       .n{display:block;font-family:"Barlow Condensed",sans-serif;font-size:30px;font-weight:700;color:var(--ok)}
@@ -47,7 +49,7 @@
         <div>
           <p class="kicker">Santa Virgínia Agropecuária e Florestal Ltda</p>
           <h1>Inventário físico — Almoxarifado Central</h1>
-          <p class="sub">Digite o código SAP e a quantidade. Sem QR. Acurácia calculada no Python para o painel Lovable.</p>
+          <p class="sub">Acompanhamento da lista aberta. Quem conta usa o app separado (só código SAP + quantidade da folha impressa).</p>
         </div>
       </header>
 
@@ -56,22 +58,13 @@
           <label for="campanha">Campanha</label>
           <select id="campanha"></select>
         </div>
-        <div class="lancar">
-          <div>
-            <label for="cod-sap">Código SAP</label>
-            <input id="cod-sap" inputmode="numeric" autocomplete="off" placeholder="Ex.: 00858" />
-          </div>
-          <div>
-            <label for="qtd-e">Quantidade</label>
-            <input id="qtd-e" type="number" inputmode="decimal" min="0" step="any" placeholder="Qtd." />
-          </div>
-          <button type="button" id="salvar">Salvar contagem</button>
-        </div>
         <button type="button" id="atualizar">Atualizar</button>
         <button type="button" id="exportar">Exportar Excel (CSV)</button>
-        <a href="./index.html" class="ghost" style="color:var(--ok);align-self:center;font-weight:700">Lista completa</a>
+        <div class="bar-links">
+          <a class="btn-contagem" id="link-contagem" href="./index.html" target="_blank" rel="noopener">Abrir app de contagem</a>
+        </div>
       </section>
-      <p id="msg" class="msg" hidden></p>
+      <p class="hint-contagem">Link da contagem (enviar só para quem vai contar, sem este painel): <strong id="url-contagem"></strong></p>
 
       <section class="cards">
         <div class="card"><span class="n" id="n-itens">0</span><span class="l">Itens</span></div>
@@ -84,7 +77,7 @@
       <div id="saida" class="empty">Carregando campanha aberta...</div>
     </main>
 
-    <script src="./config.js?v=7"></script>
+    <script src="./config.js?v=8"></script>
     <script>
       const CFG = window.INVENTARIO_CONFIG;
       const $ = (id) => document.getElementById(id);
@@ -129,11 +122,12 @@
         return v < 0 ? "FALTANTE" : "EXCEDENTE";
       }
 
-      function showMsg(text, ok) {
-        const el = $("msg");
-        el.hidden = !text;
-        el.textContent = text || "";
-        el.className = "msg " + (ok ? "ok" : "bad");
+      function atualizarLinkContagem() {
+        const id = $("campanha").value;
+        const base = new URL("./index.html", window.location.href).href;
+        const url = id ? `${base}?campanha=${encodeURIComponent(id)}` : base;
+        $("link-contagem").href = url;
+        $("url-contagem").textContent = url;
       }
 
       async function carregarCampanhas() {
@@ -141,9 +135,10 @@
         $("campanha").innerHTML = campanhas.map((c) =>
           `<option value="${c.id}">${esc(c.setor)} · ${esc(c.nome)}</option>`
         ).join("");
+        atualizarLinkContagem();
         if (!campanhas.length) {
           $("saida").className = "empty";
-          $("saida").textContent = "Nenhuma campanha aberta. Rode ABRIR_INVENTARIO_HOJE.bat";
+          $("saida").textContent = "Nenhuma lista aberta. Suba o Excel da lista no Streamlit (aba Inventário físico).";
           return;
         }
         await carregarResultado();
@@ -151,6 +146,7 @@
 
       async function carregarResultado() {
         const id = $("campanha").value;
+        atualizarLinkContagem();
         const [itens, contagens] = await Promise.all([
           sb(`inventario_item?campanha_id=eq.${id}&select=codigo,descricao,qtd_sap,qtd_disponivel&order=codigo.asc`),
           sb(`inventario_contagem?campanha_id=eq.${id}&select=codigo,qtd_fisica,observacao,contado_em`),
@@ -185,55 +181,20 @@
         $("n-div").textContent = div;
         $("saida").className = "";
         $("saida").innerHTML = `<table>
-          <thead><tr><th>SAP</th><th>Descrição</th><th>SAP</th><th>Físico</th><th>Var.</th><th>Status</th></tr></thead>
+          <thead><tr><th>SAP</th><th>Descrição</th><th>SAP</th><th>Físico</th><th>Var.</th><th>Status</th><th>Obs.</th></tr></thead>
           <tbody>${linhas.map((l) => `<tr>
             <td>${esc(l.codigo)}</td><td>${esc(l.descricao)}</td><td>${fmt(l.qtd_sap)}</td>
             <td>${l.qtd_fisica == null ? "—" : fmt(l.qtd_fisica)}</td>
             <td>${l.variacao == null ? "—" : fmt(l.variacao)}</td><td>${statusLinha(l)}</td>
+            <td>${esc(l.observacao)}</td>
           </tr>`).join("")}</tbody>
         </table>`;
       }
 
-      async function salvarContagem() {
-        const id = $("campanha").value;
-        const cod = normCod($("cod-sap").value);
-        const qtd = Number($("qtd-e").value);
-        if (!id) return showMsg("Não há campanha aberta.", false);
-        if (!cod) return showMsg("Informe o código SAP.", false);
-        if (!Number.isFinite(qtd) || qtd < 0) return showMsg("Informe a quantidade.", false);
-        const item = itensCampanha.find((i) => normCod(i.codigo) === cod);
-        if (!item) return showMsg(`Código ${cod} não está na campanha de hoje.`, false);
-        try {
-          await sb("inventario_contagem?on_conflict=campanha_id,codigo", {
-            method: "POST",
-            headers: headers({
-              "Content-Type": "application/json",
-              Prefer: "resolution=merge-duplicates,return=minimal",
-            }),
-            body: JSON.stringify({
-              campanha_id: id,
-              codigo: item.codigo,
-              descricao: item.descricao,
-              qtd_sap: Number(item.qtd_sap) || 0,
-              qtd_fisica: qtd,
-              observacao: null,
-              contado_em: new Date().toISOString(),
-            }),
-          });
-          $("cod-sap").value = "";
-          $("qtd-e").value = "";
-          $("cod-sap").focus();
-          showMsg(`${item.codigo} · ${item.descricao} → ${fmt(qtd)} gravado.`, true);
-          await carregarResultado();
-        } catch (e) {
-          showMsg("Falha ao gravar: " + e.message, false);
-        }
-      }
-
       function exportarCsv() {
         const camp = campanhas.find((c) => c.id === $("campanha").value);
-        const cab = ["setor","campanha","codigo","descricao","qtd_sap","qtd_fisica","variacao","status","contado_em"];
-        const rows = linhas.map((l) => [camp?.setor, camp?.nome, l.codigo, l.descricao, l.qtd_sap, l.qtd_fisica ?? "", l.variacao ?? "", statusLinha(l), l.contado_em]);
+        const cab = ["setor","campanha","codigo","descricao","qtd_sap","qtd_fisica","variacao","status","observacao","contado_em"];
+        const rows = linhas.map((l) => [camp?.setor, camp?.nome, l.codigo, l.descricao, l.qtd_sap, l.qtd_fisica ?? "", l.variacao ?? "", statusLinha(l), l.observacao, l.contado_em]);
         const csv = [cab, ...rows].map((r) => r.map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`).join(";")).join("\r\n");
         const blob = new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" });
         const a = document.createElement("a");
@@ -246,9 +207,7 @@
       $("campanha").addEventListener("change", carregarResultado);
       $("atualizar").addEventListener("click", carregarResultado);
       $("exportar").addEventListener("click", exportarCsv);
-      $("salvar").addEventListener("click", salvarContagem);
-      $("qtd-e").addEventListener("keydown", (e) => { if (e.key === "Enter") salvarContagem(); });
-      $("cod-sap").addEventListener("keydown", (e) => { if (e.key === "Enter") $("qtd-e").focus(); });
+      atualizarLinkContagem();
       carregarCampanhas().catch((e) => {
         $("saida").className = "empty";
         $("saida").textContent = `Erro ao carregar painel: ${e.message}`;

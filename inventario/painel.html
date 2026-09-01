@@ -17,12 +17,17 @@
       .kicker{margin:0;font-family:"Barlow Condensed",sans-serif;font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
       h1{font-family:"Barlow Condensed",sans-serif;font-size:28px;margin:2px 0 0;letter-spacing:.04em;text-transform:uppercase}
       .sub{margin:4px 0 0;color:var(--muted);font-size:.9rem}
-      .bar{display:flex;gap:10px;flex-wrap:wrap;align-items:end;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+      .bar,.upload{display:flex;gap:10px;flex-wrap:wrap;align-items:end;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:14px}
+      .upload{align-items:end;border-left:4px solid var(--ok)}
+      .upload h2{flex:1 1 100%;margin:0 0 4px;font-family:"Barlow Condensed",sans-serif;font-size:18px;letter-spacing:.06em;text-transform:uppercase}
+      .upload p{flex:1 1 100%;margin:0 0 8px;color:var(--muted);font-size:13px}
       label{display:block;color:var(--muted);font-family:"Barlow Condensed",sans-serif;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase}
       select,button,input{border-radius:8px;border:1px solid #4a6644;padding:10px 12px;font:inherit}
       select,input{background:#dce6d2;color:#1a2818}
       input{min-width:140px}
+      input[type=file]{min-width:220px;background:#dce6d2}
       button{background:var(--accent);color:#fff;font-weight:700;cursor:pointer}
+      button:disabled{opacity:.55;cursor:wait}
       .bar-links{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
       a.btn-contagem{background:var(--ok);color:#0a1409;font-weight:700;padding:10px 16px;border-radius:8px;text-decoration:none;font-family:"Barlow Condensed",sans-serif;letter-spacing:.06em;text-transform:uppercase}
       a.btn-contagem:hover{filter:brightness(1.08)}
@@ -37,7 +42,7 @@
       th{font-family:"Barlow Condensed",sans-serif;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
       .empty{padding:24px;text-align:center;color:var(--muted);background:var(--surface);border:1px solid var(--border);border-radius:12px}
       .msg{margin:0 0 12px;font-size:13px} .msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
-      @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}select,input{min-width:100%;width:100%}.bar{display:block}.bar>*{margin-bottom:10px}h1{font-size:22px}}
+      @media(max-width:760px){.cards{grid-template-columns:repeat(2,1fr)}select,input{min-width:100%;width:100%}.bar,.upload{display:block}.bar>*,.upload>*{margin-bottom:10px}h1{font-size:22px}}
     </style>
   </head>
   <body>
@@ -49,9 +54,42 @@
         <div>
           <p class="kicker">Santa Virgínia Agropecuária e Florestal Ltda</p>
           <h1>Inventário físico — Almoxarifado Central</h1>
-          <p class="sub">Acompanhamento da lista aberta. Quem conta usa o app separado (só código SAP + quantidade da folha impressa).</p>
+          <p class="sub">Suba o Excel da lista aqui. Quem conta usa o app separado (código SAP + quantidade da folha impressa).</p>
         </div>
       </header>
+
+      <section class="upload">
+        <h2>Abrir lista neste app</h2>
+        <p>Excel SAP da lista (colunas: código, descrição e estoque). Abrir uma lista não fecha as outras frentes.</p>
+        <div>
+          <label for="setor">Lista / setor</label>
+          <select id="setor">
+            <option>Medicamentos</option>
+            <option>Defensivos</option>
+            <option>Combustivel</option>
+            <option>Nutricao Animal</option>
+            <option>Lubrificantes</option>
+            <option>Filtros</option>
+            <option>Adubos</option>
+            <option>Borracharia</option>
+            <option>Inseminacao</option>
+            <option>Sestr</option>
+            <option>Tratamento Madeira</option>
+            <option>Viveiro</option>
+            <option>Autoclave</option>
+          </select>
+        </div>
+        <div>
+          <label for="nome-lista">Nome da campanha (opcional)</label>
+          <input id="nome-lista" type="text" placeholder="Inventário Defensivos" />
+        </div>
+        <div>
+          <label for="excel">Excel da lista</label>
+          <input id="excel" type="file" accept=".xlsx,.xls,.csv" />
+        </div>
+        <button type="button" id="abrir-lista">Abrir inventário desta lista</button>
+      </section>
+      <p id="msg-upload" class="msg" hidden></p>
 
       <section class="bar">
         <div>
@@ -77,13 +115,18 @@
       <div id="saida" class="empty">Carregando campanha aberta...</div>
     </main>
 
-    <script src="./config.js?v=8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="./config.js?v=9"></script>
     <script>
       const CFG = window.INVENTARIO_CONFIG;
       const $ = (id) => document.getElementById(id);
       let campanhas = [];
       let itensCampanha = [];
       let linhas = [];
+
+      const COL_COD = ["codigo", "código", "cod", "cód", "sap", "material", "item"];
+      const COL_DESC = ["descricao", "descrição", "produto", "material_desc", "texto breve material", "denominação", "denominacao"];
+      const COL_QTD = ["em_estoque", "estoque", "qtd_sap", "quantidade", "saldo", "livre utilização", "livre utilizacao", "utilizacao livre"];
 
       function headers(extra) {
         return Object.assign({
@@ -130,6 +173,160 @@
         $("url-contagem").textContent = url;
       }
 
+      function setMsg(texto, ok) {
+        const el = $("msg-upload");
+        el.hidden = !texto;
+        el.className = "msg " + (ok ? "ok" : "bad");
+        el.textContent = texto || "";
+      }
+
+      function normHeader(nome) {
+        return String(nome || "")
+          .trim()
+          .toLowerCase()
+          .replace(/\n/g, " ")
+          .replace(/\s+/g, " ");
+      }
+
+      function parseNum(v) {
+        if (typeof v === "number" && Number.isFinite(v)) return v;
+        const s = String(v ?? "").trim();
+        if (!s) return 0;
+        if (/^\d{1,3}(\.\d{3})+(,\d+)?$/.test(s)) return Number(s.replace(/\./g, "").replace(",", "."));
+        if (s.includes(",")) return Number(s.replace(/\./g, "").replace(",", ".")) || 0;
+        return Number(s) || 0;
+      }
+
+      function mapearColunas(headersRow) {
+        const map = {};
+        headersRow.forEach((h, i) => {
+          const n = normHeader(h);
+          if (COL_COD.includes(n) && map.codigo == null) map.codigo = i;
+          if (COL_DESC.includes(n) && map.descricao == null) map.descricao = i;
+          if (COL_QTD.includes(n) && map.qtd == null) map.qtd = i;
+        });
+        return map;
+      }
+
+      function itensDoExcel(file) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
+          reader.onload = (ev) => {
+            try {
+              if (typeof XLSX === "undefined") throw new Error("Leitor de Excel não carregou. Recarregue a página.");
+              const wb = XLSX.read(ev.target.result, { type: "array" });
+              const sheet = wb.Sheets[wb.SheetNames[0]];
+              const rows = XLSX.utils.sheet_to_json(sheet, { header: 1, raw: true, defval: "" });
+              if (!rows.length) throw new Error("Excel vazio.");
+              let headerIdx = 0;
+              let cols = mapearColunas(rows[0]);
+              for (let i = 0; i < Math.min(rows.length, 15); i++) {
+                const tentativa = mapearColunas(rows[i]);
+                if (tentativa.codigo != null && tentativa.descricao != null && tentativa.qtd != null) {
+                  headerIdx = i;
+                  cols = tentativa;
+                  break;
+                }
+              }
+              if (cols.codigo == null || cols.descricao == null || cols.qtd == null) {
+                if ((rows[0] || []).length >= 3) {
+                  cols = { codigo: 0, descricao: 1, qtd: 2 };
+                } else {
+                  throw new Error("Excel precisa ter colunas de código, descrição e estoque.");
+                }
+              }
+              const vistos = new Set();
+              const itens = [];
+              for (let r = headerIdx + 1; r < rows.length; r++) {
+                const row = rows[r] || [];
+                const codigo = normCod(row[cols.codigo]);
+                if (!codigo || vistos.has(codigo)) continue;
+                vistos.add(codigo);
+                const descricao = String(row[cols.descricao] || "").trim() || `SAP ${codigo}`;
+                const qtd = parseNum(row[cols.qtd]);
+                itens.push({
+                  codigo,
+                  descricao,
+                  qtd_sap: qtd,
+                  qtd_disponivel: qtd,
+                });
+              }
+              if (!itens.length) throw new Error("Nenhum código SAP válido no Excel.");
+              resolve(itens);
+            } catch (err) {
+              reject(err);
+            }
+          };
+          reader.readAsArrayBuffer(file);
+        });
+      }
+
+      async function abrirLista() {
+        const file = $("excel").files[0];
+        const setor = $("setor").value;
+        const nomeDigitado = $("nome-lista").value.trim();
+        if (!file) {
+          setMsg("Escolha o Excel da lista.", false);
+          return;
+        }
+        const btn = $("abrir-lista");
+        btn.disabled = true;
+        setMsg("Lendo Excel e abrindo a lista…", true);
+        try {
+          const itens = await itensDoExcel(file);
+          const hoje = new Date();
+          const data = hoje.toLocaleDateString("pt-BR");
+          const nome = nomeDigitado || `Inventário ${setor} ${data}`;
+          await sb(
+            `inventario_campanha?status=eq.aberta&setor=eq.${encodeURIComponent(setor)}`,
+            {
+              method: "PATCH",
+              headers: headers({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              }),
+              body: JSON.stringify({ status: "fechada", fechada_em: new Date().toISOString() }),
+            }
+          );
+          const campanhaId = crypto.randomUUID();
+          await sb("inventario_campanha", {
+            method: "POST",
+            headers: headers({
+              "Content-Type": "application/json",
+              Prefer: "return=minimal",
+            }),
+            body: JSON.stringify({
+              id: campanhaId,
+              setor,
+              nome,
+              status: "aberta",
+              aberta_em: new Date().toISOString(),
+            }),
+          });
+          for (let i = 0; i < itens.length; i += 100) {
+            const lote = itens.slice(i, i + 100).map((it) => Object.assign({ campanha_id: campanhaId }, it));
+            await sb("inventario_item", {
+              method: "POST",
+              headers: headers({
+                "Content-Type": "application/json",
+                Prefer: "return=minimal",
+              }),
+              body: JSON.stringify(lote),
+            });
+          }
+          setMsg(`Lista ${setor} aberta: ${itens.length} itens. Envie o link de contagem para o time.`, true);
+          $("excel").value = "";
+          await carregarCampanhas();
+          $("campanha").value = campanhaId;
+          await carregarResultado();
+        } catch (err) {
+          setMsg(String(err.message || err).slice(0, 400), false);
+        } finally {
+          btn.disabled = false;
+        }
+      }
+
       async function carregarCampanhas() {
         campanhas = await sb("inventario_campanha?status=eq.aberta&select=id,setor,nome,aberta_em&order=aberta_em.desc");
         $("campanha").innerHTML = campanhas.map((c) =>
@@ -138,7 +335,12 @@
         atualizarLinkContagem();
         if (!campanhas.length) {
           $("saida").className = "empty";
-          $("saida").textContent = "Nenhuma lista aberta. Suba o Excel da lista no Streamlit (aba Inventário físico).";
+          $("saida").textContent = "Nenhuma lista aberta. Use o quadro acima para subir o Excel desta frente.";
+          $("n-itens").textContent = "0";
+          $("n-contados").textContent = "0";
+          $("n-ok").textContent = "0";
+          $("n-pend").textContent = "0";
+          $("n-div").textContent = "0";
           return;
         }
         await carregarResultado();
@@ -147,6 +349,7 @@
       async function carregarResultado() {
         const id = $("campanha").value;
         atualizarLinkContagem();
+        if (!id) return;
         const [itens, contagens] = await Promise.all([
           sb(`inventario_item?campanha_id=eq.${id}&select=codigo,descricao,qtd_sap,qtd_disponivel&order=codigo.asc`),
           sb(`inventario_contagem?campanha_id=eq.${id}&select=codigo,qtd_fisica,observacao,contado_em`),
@@ -207,6 +410,7 @@
       $("campanha").addEventListener("change", carregarResultado);
       $("atualizar").addEventListener("click", carregarResultado);
       $("exportar").addEventListener("click", exportarCsv);
+      $("abrir-lista").addEventListener("click", abrirLista);
       atualizarLinkContagem();
       carregarCampanhas().catch((e) => {
         $("saida").className = "empty";

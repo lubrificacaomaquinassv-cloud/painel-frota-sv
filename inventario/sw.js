@@ -1,5 +1,5 @@
-const CACHE_NAME = "inventario-sigcf-v8";
-const ASSET_VER = "8";
+const CACHE_NAME = "inventario-sigcf-v9";
+const ASSET_VER = "9";
 const APP_SHELL = [
   "./index.html",
   "./painel.html",
@@ -13,7 +13,7 @@ const APP_SHELL = [
   "./data/piloto_1_item.json",
 ];
 
-const NETWORK_FIRST = /\/(index\.html|app\.js|config\.js|scanner\.js|sw\.js)(\?|$)/;
+const NETWORK_FIRST = /\/(index\.html|painel\.html|app\.js|config\.js|scanner\.js|sw\.js)(\?|$)/;
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
